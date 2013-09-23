@@ -120,6 +120,19 @@ var documentEventHandlers = {},
 document.addEventListener = function(evt, handler, capture) {
     var e = evt.toLowerCase();
     if (typeof documentEventHandlers[e] != 'undefined') {
+        if (e =='deviceready'){
+            function my_handler(){
+                var rex = "data=(.*)";
+                d = location.href.match( rex );
+                if (d && d.length > 1 )
+                    handler({"data":d[1]});
+                else{
+                    handler();
+                }
+            }
+            documentEventHandlers[e].subscribe(my_handler);
+            return;
+        }
         documentEventHandlers[e].subscribe(handler);
     } else {
         m_document_addEventListener.call(document, evt, handler, capture);
