@@ -17,7 +17,7 @@
        specific language governing permissions and limitations
        under the License.
 -->
-<project name="Cordova" default="jar">
+<project name="xFaceApollo" default="jar">
 
     <!-- LOAD VERSION -->
     <loadfile property="version" srcFile="../VERSION">
@@ -120,7 +120,7 @@
          that includes all JavaScript code.
     -->
     <target name="jar" depends="-compile">
-      <jar jarfile="cordova-${version}.jar" basedir="bin/classes" excludes="org/apache/cordova/R.class,org/apache/cordova/R$*.class"/>
+      <jar jarfile="xFace-${version}.jar" basedir="bin/classes" excludes="org/apache/cordova/R.class,org/apache/cordova/R$*.class"/>
     </target>
 
     <!-- tests for Java files -->
@@ -133,6 +133,15 @@
         <pathelement location="${test.dir}" />
     </path>
 
+    <target name="-pre-compile">
+     <property name="system.default.jar" refid="project.all.jars.path" />
+     <echo message="${system.default.jar}" />
+      <path id="project.all.jars.path">
+        <path path="${system.default.jar}" />
+        <pathelement location="jar/cert.jar"></pathelement> 
+     </path>
+    </target>
+    
     <target name="compile-test">
         <javac srcdir="${test.dir}" >
             <classpath refid="test.classpath" />

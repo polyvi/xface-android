@@ -51,7 +51,7 @@ public class CordovaWebViewClient extends WebViewClient {
 	private static final String TAG = "CordovaWebViewClient";
 	private static final String CORDOVA_EXEC_URL_PREFIX = "http://cdv_exec/";
     CordovaInterface cordova;
-    CordovaWebView appView;
+    protected CordovaWebView appView;
     private boolean doClearHistory = false;
 
     /** The authorization tokens. */

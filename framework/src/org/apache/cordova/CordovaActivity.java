@@ -53,6 +53,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.webkit.ValueCallback;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -131,7 +132,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     protected CordovaWebView appView;
     protected CordovaWebViewClient webViewClient;
 
-    protected LinearLayout root;
+    protected RelativeLayout root;
     protected boolean cancelLoadUrl = false;
     protected ProgressDialog spinnerDialog = null;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -279,7 +280,6 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         int height = display.getHeight();
 
         root = new LinearLayoutSoftKeyboardDetect(this, width, height);
-        root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(this.backgroundColor);
         root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
