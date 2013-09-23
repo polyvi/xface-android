@@ -22,11 +22,11 @@
 package com.polyvi.xface.configXml;
 
 public class XPreInstallPackageItem {
-    public XPreInstallPackageItem(String packagename, String appid) {
-        mPackageName = packagename;
-        mPackageId = appid;
+    public XPreInstallPackageItem(String packageName, String appId) {
+        this.packageName = packageName;
+        this.appId = appId;
     }
 
-    public String mPackageName;
-    public String mPackageId;
+    public String packageName;
+    public String appId;
 }

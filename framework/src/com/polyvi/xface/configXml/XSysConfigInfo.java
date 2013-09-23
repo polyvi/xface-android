@@ -21,11 +21,7 @@
 
 package com.polyvi.xface.configXml;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-
-import org.apache.cordova.PluginEntry;
 
 
 /**
@@ -39,9 +35,6 @@ public class XSysConfigInfo {
     /** startApp id */
     private String mStartAppId;
 
-    /** 系统允许执行的扩展列表 */
-    private HashMap<String, PluginEntry> mSysExtensions;
-
     /**系统LOG等级 */
     private String mLogLevel;
 
@@ -53,9 +46,6 @@ public class XSysConfigInfo {
 
     /**工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先 */
     private String mWorkDir;
-
-    /**是否显示splash图片 */
-    private boolean mShowSplash;
 
     /**是否自动隐藏splash图片 */
     private boolean mAutoHideSplash;
@@ -75,12 +65,6 @@ public class XSysConfigInfo {
     /**加载应用时等待xface.js是否加载完成的时间 */
     private String mLoadUrlTimeout;
 
-    /**从xml文件中加载的插件配置 */
-    private HashMap<String, String> mPluginsConfig;
-
-    /**从xml文件中加载的插件描述 */
-    private Set<String> mPluginDesciptions;
-
     public List<XPreInstallPackageItem> getPreinstallPackages() {
         return mPreinstallPackages;
     }
@@ -95,15 +79,6 @@ public class XSysConfigInfo {
 
     public void setStartAppId(String startAppId) {
         this.mStartAppId = startAppId;
-    }
-
-    public HashMap<String, PluginEntry> getSysExtensions() {
-        return mSysExtensions;
-    }
-
-    public void setSysExtensions(
-            HashMap<String, PluginEntry> sysExtensions) {
-        this.mSysExtensions = sysExtensions;
     }
 
     public void setLogLevel(String logLevel) {
@@ -132,18 +107,6 @@ public class XSysConfigInfo {
 
     public String getSplashDelay() {
         return mSplashDelay;
-    }
-
-    public void setShowSplash(String showSplash) {
-        if(null == showSplash) {
-            this.mShowSplash = false;
-            return;
-        }
-        this.mShowSplash = showSplash.equals("true");
-    }
-
-    public boolean getShowSplash() {
-        return mShowSplash;
     }
 
     public void setAutoHideSplash(String autoHideSplash) {
@@ -190,15 +153,15 @@ public class XSysConfigInfo {
         return mUpdateAddress;
     }
 
-    public void setUpdateCheck(String updateCheck) {
-        if(null == updateCheck) {
+    public void setCheckUpdate(String checkUpdate) {
+        if(null == checkUpdate) {
             this.mUpdateCheck = false;
             return;
         }
-        this.mUpdateCheck = updateCheck.equals("true");
+        this.mUpdateCheck = checkUpdate.equals("true");
     }
 
-    public boolean getUpdateCheck() {
+    public boolean getCheckUpdate() {
         return mUpdateCheck;
     }
 
@@ -210,20 +173,5 @@ public class XSysConfigInfo {
         return mLoadUrlTimeout;
     }
 
-    public void setPluginsConfig(HashMap<String, String> pluginsConfig) {
-        mPluginsConfig = pluginsConfig;
-    }
-
-    public HashMap<String, String> getPluginsConfig() {
-        return mPluginsConfig;
-    }
-
-    public void setPluginDesciptions(Set<String> pluginDesciptions) {
-        mPluginDesciptions = pluginDesciptions;
-    }
-
-    public Set<String> getPluginDesciptions() {
-        return mPluginDesciptions;
-    }
 }
 

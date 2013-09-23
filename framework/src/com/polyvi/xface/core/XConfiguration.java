@@ -23,10 +23,7 @@ package com.polyvi.xface.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -100,14 +97,12 @@ public class XConfiguration {
     /**
      * 从配置文件读取系统配置数据
      * 
-     * @param configStream
-     *            配置文件输入流
+     * @param context
      * @throws XTagNotFoundException
      */
-    public void readConfig(InputStream configStream)
+    public void readConfig(Context context)
             throws XTagNotFoundException {
-        XSysConfigParser sysConfigParser = new XSysConfigParser();
-        sysConfigParser.setInput(configStream);
+        XSysConfigParser sysConfigParser = new XSysConfigParser(context);
         mSysConfigInfo = sysConfigParser.parseConfig();
     }
 
@@ -173,23 +168,11 @@ public class XConfiguration {
         return (null == mSysConfigInfo) ? null : mSysConfigInfo.getStartAppId();
     }
 
-
-
     /**
      * 从config.xml配置文件中读取LOG输出等级
      */
     public String readLogLevel() {
         return (null == mSysConfigInfo) ? null : mSysConfigInfo.getLogLevel();
-    }
-
-    /**
-     * 从config.xml配置文件中读取是否需要显示splash图片
-     * 
-     * @return
-     */
-    public boolean readShowSplash() {
-        return (null == mSysConfigInfo) ? false : mSysConfigInfo
-                .getShowSplash();
     }
 
     /**
@@ -210,26 +193,6 @@ public class XConfiguration {
     public boolean readFullscreen() {
         return (null == mSysConfigInfo) ? false : mSysConfigInfo
                 .getFullscreen();
-    }
-
-    /**
-     * 从config.xml配置文件中读取是否需要检测更新的服务器地址
-     * 
-     * @return
-     */
-    public boolean readUpdateCheck() {
-        return (null == mSysConfigInfo) ? false : mSysConfigInfo
-                .getUpdateCheck();
-    }
-
-    /**
-     * 从config.xml配置文件中读取需要检测更新的服务器地址
-     * 
-     * @return
-     */
-    public String readUpdateAddress() {
-        return (null == mSysConfigInfo) ? null : mSysConfigInfo
-                .getUpdateAddress();
     }
 
     /**
@@ -270,26 +233,6 @@ public class XConfiguration {
     public String readLoadUrlTimeout() {
         return (null == mSysConfigInfo) ? null : mSysConfigInfo
                 .getLoadUrlTimeout();
-    }
-
-    /**
-     * 从config.xml配置文件中读取插件配置信息
-     * 
-     * @return
-     */
-    public HashMap<String, String> readPluginsConfig() {
-        return (null == mSysConfigInfo) ? null : mSysConfigInfo
-                .getPluginsConfig();
-    }
-
-    /**
-     * 从config.xml配置文件中读取插件描述信息
-     * 
-     * @return
-     */
-    public Set<String> readPluginDescriptions() {
-        return (null == mSysConfigInfo) ? null : mSysConfigInfo
-                .getPluginDesciptions();
     }
 
     /** 因为只加载config.xml配置文件中xFace标签中的内容，该方法用于判断是否到了配置文件结尾或者遇到xFace结束标签 */

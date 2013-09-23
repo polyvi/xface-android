@@ -107,7 +107,7 @@ public class XPreinstalledAppBatchInstaller extends XAbstractPreIntaller {
     final protected XIApplication buildApplication(XPreInstallPackageItem app) {
         // startapp 在asset目录下
         String appDirNameInAsset = XConstant.PRE_INSTALL_SOURCE_ROOT
-                + app.mPackageName;
+                + app.packageName;
         // 解析app的app.xml
         InputStream is = null;
         try {
@@ -126,7 +126,7 @@ public class XPreinstalledAppBatchInstaller extends XAbstractPreIntaller {
             XLog.e(CLASS_NAME, "Preinstalled app app.xml config error.");
             return null;
         }
-        if (!app.mPackageId.equals(info.getAppId())) {
+        if (!app.appId.equals(info.getAppId())) {
             XLog.e(CLASS_NAME,
                     "appId in app.xml not match to appId in config.xml");
             return null;

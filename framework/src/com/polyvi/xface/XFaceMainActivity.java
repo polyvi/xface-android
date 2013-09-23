@@ -239,10 +239,7 @@ public class XFaceMainActivity extends CordovaActivity implements
 	 * @throws XTagNotFoundException
 	 */
 	private void initSystemConfig() throws IOException, XTagNotFoundException {
-		XConfiguration.getInstance().readConfig(
-				this.getAssets().open(
-						XConstant.PRE_INSTALL_SOURCE_ROOT
-								+ XConstant.CONFIG_FILE_NAME));
+	    XConfiguration.getInstance().readConfig(this);
 	}
 
 	/**

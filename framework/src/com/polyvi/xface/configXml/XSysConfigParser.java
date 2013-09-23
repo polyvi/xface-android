@@ -21,87 +21,40 @@
 
 package com.polyvi.xface.configXml;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import org.apache.cordova.PluginEntry;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.cordova.R;
+import org.xmlpull.v1.XmlPullParserException;
+
+import android.content.Context;
+import android.content.res.XmlResourceParser;
 
 import com.polyvi.xface.util.XLog;
-import com.polyvi.xface.util.XXmlUtils;
-import com.polyvi.xface.xmlParser.XXmlParser;
 
 public class XSysConfigParser {
-    private static final String CLASS_NAME = XSysConfigParser.class.getName();
-    protected XXmlParser mParser;
+    private static final String CLASS_NAME = XSysConfigParser.class.getSimpleName();
+    private static final String TAG_PRE_INSTALL_PACKAGES = "pre_install_packages";
+    private static final String TAG_APP_PACKAGE = "app_package";
+    private static final String TAG_PREFERENCE = "preference";
 
-    protected static final String TAG_APP_PACKAGE = "app_package";
-    protected static final String TAG_EXTENSION = "extension";
-    protected static final String TAG_PLUGIN = "plugin";
+    private static final String ATTR_NAME = "name";
+    private static final String ATTR_VALUE = "value";
+    private static final String ATTR_ID = "id";
+    private static final String ATTR_LOG_LEVEL = "loglevel";
+    private static final String ATTR_FULLSCREEN = "FullScreen";
+    private static final String ATTR_WORK_DIR = "WorkDir";
+    private static final String ATTR_ENGINE_VERSION = "EngineVersion";
+    private static final String ATTR_ENGINE_BUILD = "EngineBuild";
+    private static final String ATTR_SPLASH_DELAY = "SplashScreenDelayDuration";
+    private static final String ATTR_AUTO_HIDE_SPLASH = "AutoHideSplashScreen";
+    private static final String ATTR_UPDATE_ADDRESS = "UpdateAddress";
+    private static final String ATTR_CHECK_UPDATE = "CheckUpdate";
 
-    protected static final String ATTR_NAME = "name";
-    protected static final String ATTR_VALUE = "value";
-    protected static final String ATTR_ID = "id";
-    protected static final String ATTR_LOG_LEVEL = "LogLevel";
-    protected static final String ATTR_FULLSCREEN = "FullScreen";
-    protected static final String ATTR_WORK_DIR = "WorkDir";
-    protected static final String ATTR_ENGINE_VERSION = "EngineVersion";
-    protected static final String ATTR_ENGINE_BUILD = "EngineBuild";
-    protected static final String ATTR_SPLASH_DELAY = "SplashScreenDelayDuration";
-    protected static final String ATTR_SHOW_SPLASH = "ShowSplashScreen";
-    protected static final String ATTR_AUTO_HIDE_SPLASH = "AutoHideSplashScreen";
-    protected static final String ATTR_UPDATE_ADDRESS = "UpdateAddress";
-    protected static final String ATTR_CHECK_UPDATE = "CheckUpdate";
-    protected static final String ATTR_LOADURL_TIMEOUT = "LoadUrlTimeout";
+    private XmlResourceParser mParser;
 
-    protected Document mDoc;
-
-    public XSysConfigParser() {
-        mParser = new XXmlParser();
-    }
-
-    /**
-     * 设置要解析的源
-     *
-     * @param is
-     *            要解析的流
-     */
-    public void setInput(InputStream is) {
-        mParser.setInput(is);
-    }
-
-    /**
-     * 设置要解析的源
-     *
-     * @param inputStr
-     *            要解析的字符流
-     */
-    public void setInput(String inputStr) {
-        mParser.setInput(inputStr);
-    }
-
-    /**
-     * 设置要解析文件的路径
-     * @param path
-     */
-    public void setPath(String path) {
-        mParser.setPath(path);
-    }
-
-    /**
-     * 对设置的源进行解析，得到Document对象
-     * @return
-     */
-    private Document parse() {
-        mDoc = mParser.parse();
-        return mDoc;
+    public XSysConfigParser(Context context) {
+        mParser = context.getResources().getXml(R.xml.config);
     }
 
     /**
@@ -109,145 +62,94 @@ public class XSysConfigParser {
      *
      * @return
      */
-    public XSysConfigInfo parseConfig() throws XTagNotFoundException{
-        parse();
-        if(null == mDoc)
-        {
+    public XSysConfigInfo parseConfig() throws XTagNotFoundException {
+        if (null == mParser) {
             throw new XTagNotFoundException("error_format_config_xml");
         }
         XSysConfigInfo sysConfigInfo = new XSysConfigInfo();
-        sysConfigInfo.setPreinstallPackages(parsePreInstallPackagesTag());
-        sysConfigInfo.setStartAppId(parseStartAppId());
-        sysConfigInfo.setLogLevel(XXmlUtils.parsePrefValue(mDoc, ATTR_LOG_LEVEL));
-        sysConfigInfo.setFullscreen(XXmlUtils.parsePrefValue(mDoc, ATTR_FULLSCREEN));
-        sysConfigInfo.setSplashDelay(XXmlUtils.parsePrefValue(mDoc, ATTR_SPLASH_DELAY));
-        sysConfigInfo.setShowSplash(XXmlUtils.parsePrefValue(mDoc, ATTR_SHOW_SPLASH));
-        sysConfigInfo.setAutoHideSplash(XXmlUtils.parsePrefValue(mDoc, ATTR_AUTO_HIDE_SPLASH));
-        sysConfigInfo.setWorkDir(XXmlUtils.parsePrefValue(mDoc, ATTR_WORK_DIR));
-        sysConfigInfo.setEngineVersion(XXmlUtils.parsePrefValue(mDoc, ATTR_ENGINE_VERSION));
-        sysConfigInfo.setEngineBuild(XXmlUtils.parsePrefValue(mDoc, ATTR_ENGINE_BUILD));
-        sysConfigInfo.setUpdateAddress(XXmlUtils.parsePrefValue(mDoc, ATTR_UPDATE_ADDRESS));
-        sysConfigInfo.setUpdateCheck(XXmlUtils.parsePrefValue(mDoc, ATTR_CHECK_UPDATE));
-        sysConfigInfo.setLoadUrlTimeout(XXmlUtils.parsePrefValue(mDoc, ATTR_LOADURL_TIMEOUT));
-        sysConfigInfo.setPluginsConfig(parsePluginsConfig());
-        sysConfigInfo.setPluginDesciptions(parsePluginDesciptions());
+        int eventType = -1;
+        boolean insidePreInstallPackages = false;
+        // 保存预装包的id和name
+        ArrayList<XPreInstallPackageItem> preinstallPackages = new ArrayList<XPreInstallPackageItem>();
+        while (eventType != XmlResourceParser.END_DOCUMENT) {
+            if (eventType == XmlResourceParser.START_TAG) {
+                String strNode = mParser.getName();
+                if (strNode.equals(TAG_PRE_INSTALL_PACKAGES)) {
+                    insidePreInstallPackages = true;
+                } else if (insidePreInstallPackages
+                        && strNode.equals(TAG_APP_PACKAGE)) {
+                    // 保存预安装包信息
+                    String appId = mParser.getAttributeValue(null, ATTR_ID);
+                    String packageName = mParser.getAttributeValue(null,
+                            ATTR_NAME);
+                    preinstallPackages.add(new XPreInstallPackageItem(
+                            packageName, appId));
+                    if (preinstallPackages.size() == 0) {
+                        throw new XTagNotFoundException(TAG_APP_PACKAGE);
+                    }
+                } else if (strNode.equals(TAG_PREFERENCE)) {
+                    String name = mParser.getAttributeValue(null, ATTR_NAME);
+                    if (name.equals(ATTR_LOG_LEVEL)) {
+                        // 设置log级别
+                        String loglevel = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setLogLevel(loglevel);
+                    } else if (name.equals(ATTR_FULLSCREEN)) {
+                        // 设置是否全屏
+                        String isFullScreen = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setFullscreen(isFullScreen);
+                    } else if (name.equals(ATTR_SPLASH_DELAY)) {
+                        // 设置splash的延迟时间
+                        String splashDelay = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setSplashDelay(splashDelay);
+                    } else if (name.equals(ATTR_AUTO_HIDE_SPLASH)) {
+                        // 设置是否自动隐藏splash
+                        String autoHideSplash = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setAutoHideSplash(autoHideSplash);
+                    } else if (name.equals(ATTR_WORK_DIR)) {
+                        // 设置工作目录设定策略
+                        String workDir = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setWorkDir(workDir);
+                    } else if (name.equals(ATTR_ENGINE_VERSION)) {
+                        // 设置引擎版本号
+                        String engineVersion = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setEngineVersion(engineVersion);
+                    } else if (name.equals(ATTR_ENGINE_BUILD)) {
+                        // 设置引擎构建号
+                        String engineBuild = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setEngineBuild(engineBuild);
+                    } else if (name.equals(ATTR_CHECK_UPDATE)) {
+                        // 设置是否需要检测更新
+                        String checkUpdate = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setCheckUpdate(checkUpdate);
+                    } else if (name.equals(ATTR_UPDATE_ADDRESS)) {
+                        // 设置检测更新的服务器地址
+                        String updateAddress = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setUpdateAddress(updateAddress);
+                    }
+                }
+            }
+            try {
+                eventType = mParser.next();
+            } catch (XmlPullParserException e) {
+                XLog.e(CLASS_NAME, "parseConfig: config.xml XmlPullParserException");
+                throw new XTagNotFoundException("error_format_config_xml");
+            } catch (IOException e) {
+                XLog.e(CLASS_NAME, "parseConfig: config.xml IOException");
+                throw new XTagNotFoundException("error_format_config_xml");
+            }
+        }
+        sysConfigInfo.setPreinstallPackages(preinstallPackages);
+        sysConfigInfo.setStartAppId(preinstallPackages.get(0).appId);
         return sysConfigInfo;
     }
 
-    /**
-     * 解析config中配置的预安装包
-     *  <pre_install_packages>
-     *		<app_package>startapp_1350033381203_normal.xpa</app_package>
-     *		<app_package>normal.xpa</app_package>
-     *  </pre_install_packages>
-     * @return 预安装包列表
-     */
-    private List<XPreInstallPackageItem> parsePreInstallPackagesTag() throws XTagNotFoundException {
-        NodeList nodes = mDoc.getElementsByTagName(TAG_APP_PACKAGE);
-        int len = (null == nodes ? 0 : nodes.getLength());
-        if(len == 0)
-        {
-            throw new XTagNotFoundException(TAG_APP_PACKAGE);
-        }
-        ArrayList<XPreInstallPackageItem> preinstallPackages = new ArrayList<XPreInstallPackageItem>(len);
-        for (int i = 0; i < len; i++) {
-            Element packageNode = (Element) nodes.item(i);
-            String appId = packageNode.getAttribute("id");
-            Node textChild = packageNode.getFirstChild();
-            if (textChild == null)
-                continue;
-            String packageName = textChild.getNodeValue();
-            preinstallPackages.add(new XPreInstallPackageItem(packageName,
-                    appId));
-        }
-        if(preinstallPackages.size() == 0)
-        {
-            throw new XTagNotFoundException(TAG_APP_PACKAGE);
-        }
-        return preinstallPackages;
-    }
-
-    /**
-     * 解析config中startApp的id,默认规定第一个就是startapp
-     * <pre_install_packages>
-     *      <app_package id = "app">startapp_1350033381203_normal.xpa</app_package>
-     *  </pre_install_packages>
-     * @return startApp的id
-     * @throws XTagNotFoundException
-     */
-    private String parseStartAppId(){
-        Element packageNode = (Element) mDoc.getElementsByTagName(
-                TAG_APP_PACKAGE).item(0);
-        if(null == packageNode) {
-            XLog.e(CLASS_NAME, "Parse StartApp Id failed!");
-            return null;
-        }
-        return packageNode.getAttribute(ATTR_ID);
-    }
-
-    /**
-     * 解析config中配置的扩展集合,如：
-     * <extensions>
-     *     <extension name="Accelerometer" value="XAccelerometerExt" />
-     *     <extension name="App" value="XAppExt" />
-     * </extension>
-     * @return 扩展集合
-     */
-    private HashMap<String, PluginEntry> parseExtensionTag() {
-        NodeList nodes = mDoc.getElementsByTagName(TAG_EXTENSION);
-        int len = (null == nodes ? 0 : nodes.getLength());
-        HashMap<String, PluginEntry> extensions = new HashMap<String, PluginEntry>(len);
-        for (int i = 0; i < len; i++) {
-            Node textChild = nodes.item(i);
-            if(null != textChild) {
-                String name = ((Element) textChild).getAttribute(ATTR_NAME);
-                String className = ((Element) textChild).getAttribute(ATTR_VALUE);
-                PluginEntry entry = new PluginEntry(name, className, true);
-                extensions.put(name, entry);
-            }
-        }
-        return extensions;
-    }
-
-    /**
-     * 解析加载的插件配置
-     * <plugins>
-     *   <plugin value = "com.polyvi.external.plugin.XPluginMemory"   name = "T_Memory" />
-     * </plugins>
-     * @return 加载的插件配置
-     */
-    private HashMap<String, String> parsePluginsConfig() {
-        HashMap<String, String> pluginConfig = new HashMap<String, String>();
-        NodeList nodes = mDoc.getElementsByTagName(TAG_PLUGIN);
-        int len = (null == nodes ? 0 : nodes.getLength());
-        for (int i = 0; i < len; i++) {
-            Node textChild = nodes.item(i);
-            if(null != textChild) {
-                String className = ((Element) textChild).getAttribute(ATTR_VALUE);
-                String pluginName = ((Element) textChild).getAttribute(ATTR_NAME);
-                pluginConfig.put(className, pluginName);
-            }
-        }
-        return pluginConfig;
-    }
-
-    /**
-     * 解析加载的插件的描述信息
-     * <plugins>
-     *   <plugin value = "com.polyvi.external.plugin.XPluginMemory"/>
-     * </plugins>
-     * @return 加载的插件的描述信息
-     */
-    private Set<String> parsePluginDesciptions() {
-        Set<String> desciptions = new HashSet<String>();
-        NodeList nodes = mDoc.getElementsByTagName(TAG_PLUGIN);
-        int len = (null == nodes ? 0 : nodes.getLength());
-        for (int i = 0; i < len; i++) {
-            Node textChild = nodes.item(i);
-            if(null != textChild) {
-                desciptions.add(((Element) textChild).getAttribute(ATTR_VALUE));
-            }
-        }
-        return desciptions;
-    }
 }
