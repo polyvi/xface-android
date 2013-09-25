@@ -66,6 +66,9 @@ function ensureJarIsBuilt(version, target_api) {
 
 function copyJsAndJar(projectPath, version) {
     shell.cp('-f', path.join(ROOT, 'framework', 'assets', 'www', 'cordova.js'), path.join(projectPath, 'assets', 'www', 'cordova.js'));
+    if(isInternalDev(projectPath)) {
+        return;
+    }
     // Don't fail if there are no old jars.
     setShellFatal(false, function() {
         shell.ls(path.join(projectPath, 'libs', 'cordova-*.jar')).forEach(function(oldJar) {
@@ -99,15 +102,53 @@ function copyScripts(projectPath) {
 }
 
 /**
+ * @param projectPath android工程路径
+ */
+function isInternalDev(projectPath) {
+    var configJson = path.join(projectPath, '..', '..', '.xface', 'config.json');
+    if (fs.existsSync(configJson)) {
+        var json = JSON.parse(fs.readFileSync(configJson, 'utf-8'));
+        return json.dev_type === 'internal';
+    } else {
+        return false;
+    }
+}
+
+/**
+ * 修改android工程的project.properties文件
+ * 1. 配置proguard混淆
+ * 2. 添加lib工程依赖
+ */
+function modifyProjectProperties(androidProj) {
+    var libProject = path.join(ROOT, 'framework'),
+        propertiesFile = path.join(androidProj, 'project.properties'),
+        content = fs.readFileSync(propertiesFile, 'utf-8'),
+        matchData = content.match(/^#?proguard.config=(.*)$/m);
+    if(matchData) {
+        var matchStr = matchData[0],
+            value = matchData[1];
+
+        var relativeProguardTxt = path.relative(androidProj, path.join(libProject, 'proguard-project.txt'));
+        relativeProguardTxt = relativeProguardTxt.replace(/\\\\/g, '/').replace(/\\/g, '/');
+        value += (':' + relativeProguardTxt);
+        shell.sed('-i', /#?proguard.config=(.*)/, 'proguard.config=' + value, propertiesFile);
+    }
+
+    var relativeLibProj = path.relative(androidProj, libProject),
+        projReference = 'android.library.reference.1=' + relativeLibProj.replace(/\\\\/g, '/').replace(/\\/g, '/');
+    fs.appendFileSync(propertiesFile, '\n' + projReference + '\n');
+}
+
+/**
  * $ create [options]
  *
  * Creates an android application with the given options.
  *
  * Options:
  *
- *   - `project_path` 	{String} Path to the new Cordova android project.
- *   - `package_name`{String} Package name, following reverse-domain style convention.
- *   - `project_name` 	{String} Project name.
+ *   - `project_path` {String} Path to the new xFace android project.
+ *   - `package_name` {String} Package name, following reverse-domain style convention.
+ *   - `project_name` {String} Project name.
  *   - 'project_template_dir' {String} Path to project template (override).
  */
 
@@ -115,12 +156,12 @@ exports.createProject = function(project_path, package_name, project_name, proje
     var VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
 
     // Set default values for path, package and name
-    project_path = typeof project_path !== 'undefined' ? project_path : "CordovaExample";
+    project_path = typeof project_path !== 'undefined' ? project_path : "xFaceExample";
     project_path = path.relative(process.cwd(), project_path);
-    package_name = typeof package_name !== 'undefined' ? package_name : 'my.cordova.project';
-    project_name = typeof project_name !== 'undefined' ? project_name : 'CordovaExample';
-    project_template_dir = typeof project_template_dir !== 'undefined' ? 
-                           project_template_dir : 
+    package_name = typeof package_name !== 'undefined' ? package_name : 'com.xface.project';
+    project_name = typeof project_name !== 'undefined' ? project_name : 'xFaceExample';
+    project_template_dir = typeof project_template_dir !== 'undefined' ?
+                           project_template_dir :
                            path.join(ROOT, 'bin', 'templates', 'project');
 
     var safe_activity_name = project_name.replace(/\W/, '');
@@ -129,6 +170,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
     var activity_path   = path.join(activity_dir, safe_activity_name + '.java');
     var target_api      = check_reqs.get_target();
     var manifest_path   = path.join(project_path, 'AndroidManifest.xml');
+    var internalDev     = isInternalDev(project_path);
 
     // Check if project already exists
     if(fs.existsSync(project_path)) {
@@ -147,14 +189,16 @@ exports.createProject = function(project_path, package_name, project_name, proje
     }
 
     // Log the given values for the project
-    console.log('Creating Cordova project for the Android platform:');
+    console.log('Creating xFace project for the Android platform:');
     console.log('\tPath: ' + project_path);
     console.log('\tPackage: ' + package_name);
     console.log('\tName: ' + project_name);
     console.log('\tAndroid target: ' + target_api);
 
     // build from source. distro should have these files
-    ensureJarIsBuilt(VERSION, target_api);
+    if(!internalDev) {
+        ensureJarIsBuilt(VERSION, target_api);
+    }
 
     console.log('Copying template files...');
 
@@ -185,6 +229,10 @@ exports.createProject = function(project_path, package_name, project_name, proje
     // Link it to local android install.
     console.log('Running "android update project"');
     exec('android --silent update project --target "'+target_api+'" --path "'+ project_path+'"');
+    // Add project dependency and so on.
+    if(internalDev) {
+        modifyProjectProperties(project_path);
+    }
     console.log('Project successfully created.');
 }
 
@@ -195,7 +243,10 @@ exports.updateProject = function(projectPath) {
     }
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
     var target_api = check_reqs.get_target();
-    ensureJarIsBuilt(version, target_api);
+    var internalDev = isInternalDev(projectPath);
+    if(!internalDev) {
+        ensureJarIsBuilt(version, target_api);
+    }
     copyJsAndJar(projectPath, version);
     copyScripts(projectPath);
     console.log('Android project is now at version ' + version);

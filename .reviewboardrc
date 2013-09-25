@@ -1,8 +1,9 @@
 #
 # Settings for post-review (used for uploading diffs to reviews.apache.org).
 #
-GUESS_FIELDS = True
-OPEN_BROWSER = True
-TARGET_GROUPS = 'cordova'
-REVIEWBOARD_URL = 'http://reviews.apache.org'
+REPOSITORY = 'git@git.polyvi.com:xface-android.git'
+REVIEWBOARD_URL = 'http://review.polyvi.com/reviews/'
+GUESS_FIELDS = 'true'
+TARGET_GROUPS = 'xFaceApolloCCGroup'
+OPEN_BROWSER = 'true'
 
