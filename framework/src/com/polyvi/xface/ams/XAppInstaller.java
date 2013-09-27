@@ -482,7 +482,6 @@ public class XAppInstaller {
         File appDir = new File(XConfiguration.getInstance().getAppInstallDir(), appId);
         String indexDir = new File(appDir, app.getAppInfo().getEntry()).getParent();
         XFileUtils.copyEmbeddedJsFile(mContext, indexDir);
-        XFileUtils.copyEmbeddedDebugJsFile(mContext, indexDir);
     }
 
     /**

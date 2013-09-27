@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.content.res.Resources.NotFoundException;
 import android.os.Environment;
 import android.webkit.MimeTypeMap;
@@ -35,7 +34,6 @@ public class XFileUtils {
 
 	private static final int OCTAL_RADIX = 8; // 八进制基数
 	private static String NO_MEDIA_FILE_NAME = ".nomedia";
-	private static final String FILE_DIRECTORY = "raw";
 
 	/**
 	 * 写文件
@@ -504,34 +502,6 @@ public class XFileUtils {
 
 		} catch (NotFoundException e) {
 			XLog.e(CLASS_NAME, "copyEmbeddedJsFile error!");
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 拷贝xdebug.js到新安装应用所在目录
-	 * 
-	 * @param context
-	 *            android程序运行时上下文
-	 * @param targetDir
-	 *            拷贝xdebug.js的目的目录（绝对路径）
-	 */
-	public static void copyEmbeddedDebugJsFile(Context context, String targetDir) {
-		// todo:将与应用相关的接口集中放在一起
-		try {
-			int id = context.getResources().getIdentifier(
-					XConstant.DEBUG_JS_FILE_NAME.substring(0,
-							XConstant.DEBUG_JS_FILE_NAME.length() - 3),
-					FILE_DIRECTORY, context.getPackageName());
-			InputStream is = context.getResources().openRawResource(id);
-			File jsFile = new File(targetDir, XConstant.DEBUG_JS_FILE_NAME);
-			createFileByData(jsFile.getAbsolutePath(), is);
-			is.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NotFoundException e) {
-			XLog.e(CLASS_NAME,
-					"Can't find resource file xdebug.js in res/raw folder!");
 			e.printStackTrace();
 		}
 	}

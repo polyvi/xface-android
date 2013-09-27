@@ -99,9 +99,6 @@ public class XConstant {
     /**js框架实现文件的文件名*/
     public static final String XFACE_JS_FILE_NAME = "cordova.js";
 
-    /** js调试配置文件 **/
-    public static final String DEBUG_JS_FILE_NAME = "xdebug.js";
-
     /** 默认错误文件名 **/
     public static final String ERROR_PAGE_NAME = "xFaceError.html";
 
