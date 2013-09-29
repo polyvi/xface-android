@@ -24,12 +24,12 @@ package com.polyvi.xface.configXml;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.cordova.R;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 
+import com.polyvi.xface.R;
 import com.polyvi.xface.util.XLog;
 
 public class XSysConfigParser {
