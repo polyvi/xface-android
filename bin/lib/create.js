@@ -51,12 +51,12 @@ function setShellFatal(value, func) {
 
 function ensureJarIsBuilt(version, target_api) {
     var isDevVersion = /-dev$/.test(version);
-    if (isDevVersion || !fs.existsSync(path.join(ROOT, 'framework', 'cordova-' + version + '.jar')) && fs.existsSync(path.join(ROOT, 'framework'))) {
+    if (isDevVersion || !fs.existsSync(path.join(ROOT, 'framework', 'xFace-' + version + '.jar')) && fs.existsSync(path.join(ROOT, 'framework'))) {
         var valid_target = check_reqs.get_target();
-        console.log('Building cordova-' + version + '.jar');
-        // update the cordova-android framework for the desired target
+        console.log('Building xFace-' + version + '.jar');
+        // update the xface-android framework for the desired target
         exec('android --silent update lib-project --target "' + target_api + '" --path "' + path.join(ROOT, 'framework') + '"');
-        // compile cordova.js and cordova.jar
+        // compile xface.js and xface.jar
         var cwd = process.cwd();
         process.chdir(path.join(ROOT, 'framework'));
         exec('ant jar');
@@ -65,17 +65,17 @@ function ensureJarIsBuilt(version, target_api) {
 }
 
 function copyJsAndJar(projectPath, version) {
-    shell.cp('-f', path.join(ROOT, 'framework', 'assets', 'www', 'cordova.js'), path.join(projectPath, 'assets', 'www', 'cordova.js'));
+    shell.cp('-f', path.join(ROOT, 'framework', 'assets', 'xface.js'), path.join(projectPath, 'assets', 'xface3', 'helloxface', 'xface.js'));
     if(isInternalDev(projectPath)) {
         return;
     }
     // Don't fail if there are no old jars.
     setShellFatal(false, function() {
-        shell.ls(path.join(projectPath, 'libs', 'cordova-*.jar')).forEach(function(oldJar) {
+        shell.ls(path.join(projectPath, 'libs', 'xFace-*.jar')).forEach(function(oldJar) {
             shell.rm('-f', path.join(projectPath, 'libs', oldJar));
         });
     });
-    shell.cp('-f', path.join(ROOT, 'framework', 'cordova-' + version + '.jar'), path.join(projectPath, 'libs', 'cordova-' + version + '.jar'));
+    shell.cp('-f', path.join(ROOT, 'framework', 'xFace-' + version + '.jar'), path.join(projectPath, 'libs', 'xFace-' + version + '.jar'));
 }
 
 function copyScripts(projectPath) {
@@ -209,7 +209,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
         // Manually create directories that would be empty within the template (since git doesn't track directories).
         shell.mkdir(path.join(project_path, 'libs'));
 
-        // copy cordova.js, cordova.jar and res/xml
+        // copy xface.js, xfacelib.jar and res/xml
         shell.cp('-r', path.join(ROOT, 'framework', 'res', 'xml'), path.join(project_path, 'res'));
         copyJsAndJar(project_path, VERSION);
 
