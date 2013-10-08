@@ -378,7 +378,7 @@ public class XFaceMainActivity extends CordovaActivity implements
 	}
 
 	@Override
-	public XSecurityPolicy getSecurityPolily() {
+	public XSecurityPolicy getSecurityPolicy() {
 		return mSecurityPolicy;
 	}
 

@@ -22,6 +22,7 @@
 package com.polyvi.xface.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -81,27 +82,16 @@ public class XCryptor {
     /**
      * md5算法
      *
-     * @param contentStr
+     * @param content
      *            [in] 需要求出md5值的内容
      *
      * @return 返回md5值
      */
-    public String calMD5Value(char[] content) {
-        //TODO:content是XBASE64后的字符串
+    public String calMD5Value(byte[] content) {
         if (null == content) {
             return null;
         }
         MessageDigest md5 = null;
-        byte[] byteArray = null;
-
-        try {
-            byteArray = String.valueOf(content).getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e1) {
-            XLog.e(CLASS_NAME, "String convert to byte array error!");
-            e1.printStackTrace();
-            return null;
-        }
-
         try {
             md5 = MessageDigest.getInstance("MD5");
         } catch (Exception e) {
@@ -109,7 +99,7 @@ public class XCryptor {
             e.printStackTrace();
             return null;
         }
-        byte[] md5Bytes = md5.digest(byteArray);
+        byte[] md5Bytes = md5.digest(content);
         StringBuffer hexValue = new StringBuffer();
         for (int i = 0; i < md5Bytes.length; i++) {
             int val = ((int) md5Bytes[i]) & 0xff;
@@ -118,6 +108,45 @@ public class XCryptor {
             hexValue.append(Integer.toHexString(val));
         }
         return hexValue.toString();
+    }
+
+    /**
+     * 计算md5值
+     *
+     * @param is
+     *            [in] 需要求出md5值的内容，输入流形式
+     * @return
+     */
+    public String calMD5Value(InputStream is) {
+        if (null == is) {
+            return null;
+        }
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            byte[] bytes = new byte[XConstant.BUFFER_LEN];
+            int byteCount;
+            while ((byteCount = is.read(bytes)) > 0) {
+                md5.update(bytes, 0, byteCount);
+            }
+            byte[] digest = md5.digest();
+            // byte[] to String
+            StringBuffer hexValue = new StringBuffer();
+            for (int i = 0; i < digest.length; i++) {
+                int val = ((int) digest[i]) & 0xff;
+                if (val < 16)
+                    hexValue.append("0");
+                hexValue.append(Integer.toHexString(val));
+            }
+            return hexValue.toString();
+        } catch (NoSuchAlgorithmException e) {
+            XLog.e(CLASS_NAME,
+                    "calMD5Value(InputStream is): Can't get instance of MD5!");
+            e.printStackTrace();
+        } catch (IOException e) {
+            XLog.e(CLASS_NAME, "calMD5Value(InputStream is): IOException");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

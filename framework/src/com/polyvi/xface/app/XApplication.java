@@ -1,3 +1,4 @@
+
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -16,7 +17,7 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 package com.polyvi.xface.app;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 import android.content.Context;
 import android.webkit.WebSettings;
 
+import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.XStartParams;
 import com.polyvi.xface.core.XAppRunningMode;
 import com.polyvi.xface.core.XConfiguration;
@@ -45,438 +47,452 @@ import com.polyvi.xface.view.XAppWebView;
  */
 public class XApplication implements XIApplication {
 
-	/** 所有应用图标所在目录的名称 */
-	public static final String APPS_ICON_DIR_NAME = "app_icons";
+    /** 所有应用图标所在目录的名称 */
+    public static final String APPS_ICON_DIR_NAME = "app_icons";
 
-	public static final String TAG_EXT_PERMISSIONS = "all";
+    public static final String TAG_EXT_PERMISSIONS = "all";
 
-	/** 系统上下文环境 */
-	private XISystemContext mSysContext;
+    /** 系统上下文环境 */
+    private XISystemContext mSysContext;
 
-	/** app对应的视图 */
-	private XAppWebView mAppView;
+    /** app对应的视图 */
+    private XAppWebView mAppView;
 
-	/** 应用描述信息 */
-	private XAppInfo mAppInfo;
+    /** 应用描述信息 */
+    private XAppInfo mAppInfo;
 
-	/** app的workspace */
-	private String mWorkSpace = "";
+    /** app的workspace */
+    private String mWorkSpace = "";
 
-	/** 用于存放App的通信数据 */
-	private Map<String, Object> mDatas;
+    /** 用于存放App的通信数据 */
+    private Map<String, Object> mDatas;
 
-	private boolean mIsOverrideBackbutton = false;
-	private boolean mIsOverrideVolumeButtonDown = false;
-	private boolean mIsOverrideVolumeButtonUp = false;
+    private boolean mIsOverrideBackbutton = false;
+    private boolean mIsOverrideVolumeButtonDown = false;
+    private boolean mIsOverrideVolumeButtonUp = false;
 
-	/** < 默认为本地运行模式 */
-	private XAppRunningMode mRunningMode = new XLocalMode();
+    /** < 默认为本地运行模式 */
+    private XAppRunningMode mRunningMode = new XLocalMode();
 
-	/** 监视app是否处于空闲状态 */
-	private XIdleWatcher mWatcher;
+    /** 监视app是否处于空闲状态 */
+    private XIdleWatcher mWatcher;
 
-	public XApplication(XAppInfo appInfo) {
-		updateAppInfo(appInfo);
-	}
+    /** app的安全策略 */
+    private XSecurityPolicy mSecurityPolicy;
 
-	public XApplication(String appId) {
-		mAppInfo = new XAppInfo();
-		mAppInfo.setAppId(appId);
-	}
+    public XApplication(XAppInfo appInfo) {
+        updateAppInfo(appInfo);
+    }
 
-	public void init(XISystemContext sysContext) {
-		mSysContext = sysContext;
-		mDatas = new Hashtable<String, Object>();
-		initWorkSpace();
+    public XApplication(String appId) {
+        mAppInfo = new XAppInfo();
+        mAppInfo.setAppId(appId);
+    }
 
-	}
+    public void init(XISystemContext sysContext) {
+        mSysContext = sysContext;
+        mDatas = new Hashtable<String, Object>();
+        initWorkSpace();
 
-	/**
-	 * 获取app对应的view
-	 */
-	public XAppWebView getView() {
-		return mAppView;
-	}
+    }
 
-	/**
-	 * 获取应用描述信息
-	 * 
-	 * @return
-	 */
-	public XAppInfo getAppInfo() {
-		return mAppInfo;
-	}
+    /**
+     * 获取app对应的view
+     */
+    public XAppWebView getView() {
+        return mAppView;
+    }
 
-	/**
-	 * 设置应用配置信息
-	 */
-	public void updateAppInfo(XAppInfo appInfo) {
-		this.mAppInfo = appInfo;
-		initAppRunningMode();
-	}
+    /**
+     * 获取应用描述信息
+     *
+     * @return
+     */
+    public XAppInfo getAppInfo() {
+        return mAppInfo;
+    }
 
-	/**
-	 * 获取应用id
-	 */
-	public String getAppId() {
-		return mAppInfo.getAppId();
-	}
+    /**
+     * 设置应用配置信息
+     */
+    public void updateAppInfo(XAppInfo appInfo) {
+        this.mAppInfo = appInfo;
+        initAppRunningMode();
+    }
 
-	/**
-	 * 获取应用视图id
-	 * 
-	 * @return 应用id
-	 */
-	public int getViewId() {
-		return mAppView == null ? XAppWebView.EMPTPY_VIEW_ID : mAppView
-				.getViewId();
-	}
+    /**
+     * 获取应用id
+     */
+    public String getAppId() {
+        return mAppInfo.getAppId();
+    }
 
-	/**
-	 * 将app加载到appView上面显示
-	 * 
-	 * @param url
-	 *            [in] 应用的url
-	 */
-	public void loadAppIntoView(String url) {
-		mSysContext.loadView(this, url);
-	}
+    /**
+     * 获取应用视图id
+     *
+     * @return 应用id
+     */
+    public int getViewId() {
+        return mAppView == null ? XAppWebView.EMPTPY_VIEW_ID : mAppView
+                .getViewId();
+    }
 
-	public void loadAppIntoView(String url, boolean showWaiting) {
-		mSysContext.loadView(this, url);
-	}
+    /**
+     * 将app加载到appView上面显示
+     *
+     * @param url
+     *            [in] 应用的url
+     */
+    public void loadAppIntoView(String url) {
+        mSysContext.loadView(this, url);
+    }
 
-	/**
-	 * 获取app的图片url
-	 * 
-	 * @return url
-	 */
-	public String getAppIconUrl() {
-		return mRunningMode.getIconUrl(mAppInfo);
-	}
+    public void loadAppIntoView(String url, boolean showWaiting) {
+        mSysContext.loadView(this, url);
+    }
 
-	/**
-	 * 设置app运行模式
-	 * 
-	 * @param mode
-	 *            [in] app运行模式
-	 */
-	public void setAppRunningMode(XAppRunningMode mode) {
-		if (mode != null)
-			mRunningMode = mode;
-	}
+    /**
+     * 获取app的图片url
+     *
+     * @return url
+     */
+    public String getAppIconUrl() {
+        return mRunningMode.getIconUrl(mAppInfo);
+    }
 
-	/**
-	 * 初始化app的运行模式 根据app的配置文件指定运行模式
-	 */
-	private void initAppRunningMode() {
-		setAppRunningMode(XAppRunningMode.createAppRunningMode(mAppInfo
-				.getRunModeConfig()));
-	}
+    /**
+     * 设置app运行模式
+     *
+     * @param mode
+     *            [in] app运行模式
+     */
+    public void setAppRunningMode(XAppRunningMode mode) {
+        if (mode != null)
+            mRunningMode = mode;
+    }
 
-	/**
-	 * 初始化应用程序的工作目录，若不存在，创建该目录，然后设置工作目录为其他用户可读
-	 * 
-	 */
-	private void initWorkSpace() {
-		mWorkSpace = XConfiguration.getInstance().getAppInstallDir()
-				+ getAppId() + File.separator + XConstant.APP_WORK_DIR_NAME;
-		File appWorkDir = new File(mWorkSpace);
-		if (!appWorkDir.exists()) {
-			appWorkDir.mkdirs();
-		}
-		// 设置工作目录的权限为其它用户可执行
-		setWorkSpaceExecutableByOther();
-	}
+    /**
+     * 初始化app的运行模式 根据app的配置文件指定运行模式
+     */
+    private void initAppRunningMode() {
+        setAppRunningMode(XAppRunningMode.createAppRunningMode(mAppInfo
+                .getRunModeConfig()));
+    }
 
-	/**
-	 * 返回该应用程序的工作目录
-	 * 
-	 * @return 应用程序的工作目录
-	 */
-	public String getWorkSpace() {
-		return mWorkSpace;
-	}
+    /**
+     * 初始化应用程序的工作目录，若不存在，创建该目录，然后设置工作目录为其他用户可读
+     */
+    private void initWorkSpace() {
+        mWorkSpace = XConfiguration.getInstance().getAppInstallDir()
+                + getAppId() + File.separator + XConstant.APP_WORK_DIR_NAME;
+        File appWorkDir = new File(mWorkSpace);
+        if (!appWorkDir.exists()) {
+            appWorkDir.mkdirs();
+        }
+        // 设置工作目录的权限为其它用户可执行
+        setWorkSpaceExecutableByOther();
+    }
 
-	/**
-	 * 设置工作目录的权限为其它用户可执行
-	 */
-	private void setWorkSpaceExecutableByOther() {
-		XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, XConfiguration
-				.getInstance().getAppInstallDir());
-		XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, XConfiguration
-				.getInstance().getAppInstallDir() + getAppId());
-		XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, mWorkSpace);
-	}
+    /**
+     * 返回该应用程序的工作目录
+     *
+     * @return 应用程序的工作目录
+     */
+    public String getWorkSpace() {
+        return mWorkSpace;
+    }
 
-	/**
-	 * 返回存放该应用程序数据的目录，若不存在，创建该目录 应用对该目录没有读写权限
-	 * 
-	 * @return 存放该应用程序数据的目录
-	 */
-	public String getDataDir() {
-		String dataDirPath = XConfiguration.getInstance().getAppInstallDir()
-				+ getAppId() + File.separator + XConstant.APP_DATA_DIR_NAME;
-		File appDataDir = new File(dataDirPath);
-		if (!appDataDir.exists()) {
-			appDataDir.mkdirs();
-		}
-		return dataDirPath;
-	}
+    /**
+     * 设置工作目录的权限为其它用户可执行
+     */
+    private void setWorkSpaceExecutableByOther() {
+        XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, XConfiguration
+                .getInstance().getAppInstallDir());
+        XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, XConfiguration
+                .getInstance().getAppInstallDir() + getAppId());
+        XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, mWorkSpace);
+    }
 
-	/**
-	 * 获取资源迭代器
-	 * 
-	 * @param filter
-	 *            安全资源过滤器
-	 * @return
-	 */
-	public Iterator<char[]> getResourceIterator(XIResourceFilter filter) {
-		return mRunningMode.createResourceIterator(this, filter);
-	}
+    /**
+     * 返回存放该应用程序数据的目录，若不存在，创建该目录 应用对该目录没有读写权限
+     *
+     * @return 存放该应用程序数据的目录
+     */
+    public String getDataDir() {
+        String dataDirPath = XConfiguration.getInstance().getAppInstallDir()
+                + getAppId() + File.separator + XConstant.APP_DATA_DIR_NAME;
+        File appDataDir = new File(dataDirPath);
+        if (!appDataDir.exists()) {
+            appDataDir.mkdirs();
+        }
+        return dataDirPath;
+    }
 
-	/**
-	 * 当前app是否是活动状态的
-	 * */
-	public boolean isActive() {
-		return null != mAppView;
-	}
+    /**
+     * 获取资源迭代器
+     *
+     * @param filter
+     *            安全资源过滤器
+     * @return
+     */
+    public Iterator<char[]> getResourceIterator(XIResourceFilter filter) {
+        return mRunningMode.createResourceIterator(this, filter);
+    }
 
-	/**
-	 * 设置backbutton是否被重写
-	 * 
-	 * @param overrideBackbutton
-	 *            为true表示要重写 为false表示不重写
-	 * */
-	public void setOverrideBackbutton(boolean overrideBackbutton) {
-		mIsOverrideBackbutton = overrideBackbutton;
-	}
+    /**
+     * 当前app是否是活动状态的
+     */
+    public boolean isActive() {
+        return null != mAppView;
+    }
 
-	/**
-	 * 设置volume button down是否被重写
-	 * 
-	 * @param overrideVolumeButtonDown
-	 *            为true表示要重写 为false表示不重写
-	 * */
-	public void setOverrideVolumeButtonDown(boolean overrideVolumeButtonDown) {
-		mIsOverrideVolumeButtonDown = overrideVolumeButtonDown;
-	}
+    /**
+     * 设置backbutton是否被重写
+     *
+     * @param overrideBackbutton
+     *            为true表示要重写 为false表示不重写
+     */
+    public void setOverrideBackbutton(boolean overrideBackbutton) {
+        mIsOverrideBackbutton = overrideBackbutton;
+    }
 
-	/**
-	 * 设置volume button up是否被重写
-	 * 
-	 * @param overrideVolumeButtonUp
-	 *            为true表示要重写 为false表示不重写
-	 * */
-	public void setOverrideVolumeButtonUp(boolean overrideVolumeButtonUp) {
-		mIsOverrideVolumeButtonUp = overrideVolumeButtonUp;
-	}
+    /**
+     * 设置volume button down是否被重写
+     *
+     * @param overrideVolumeButtonDown
+     *            为true表示要重写 为false表示不重写
+     */
+    public void setOverrideVolumeButtonDown(boolean overrideVolumeButtonDown) {
+        mIsOverrideVolumeButtonDown = overrideVolumeButtonDown;
+    }
 
-	/**
-	 * 得到backbutton是否被重写
-	 * 
-	 * @return 返回true表示被重写 返回false表示没有重写
-	 * */
-	public boolean isOverrideBackbutton() {
-		return mIsOverrideBackbutton;
-	}
+    /**
+     * 设置volume button up是否被重写
+     *
+     * @param overrideVolumeButtonUp
+     *            为true表示要重写 为false表示不重写
+     */
+    public void setOverrideVolumeButtonUp(boolean overrideVolumeButtonUp) {
+        mIsOverrideVolumeButtonUp = overrideVolumeButtonUp;
+    }
 
-	/**
-	 * 得到volume button down是否被重写
-	 * 
-	 * @return 返回true表示被重写 返回false表示没有重写
-	 * */
-	public boolean isOverrideVolumeButtonDown() {
-		return mIsOverrideVolumeButtonDown;
-	}
+    /**
+     * 得到backbutton是否被重写
+     *
+     * @return 返回true表示被重写 返回false表示没有重写
+     */
+    public boolean isOverrideBackbutton() {
+        return mIsOverrideBackbutton;
+    }
 
-	/**
-	 * 得到volume button up是否被重写
-	 * 
-	 * @return 返回true表示被重写 返回false表示没有重写
-	 * */
-	public boolean isOverrideVolumeButtonUp() {
-		return mIsOverrideVolumeButtonUp;
-	}
+    /**
+     * 得到volume button down是否被重写
+     *
+     * @return 返回true表示被重写 返回false表示没有重写
+     */
+    public boolean isOverrideVolumeButtonDown() {
+        return mIsOverrideVolumeButtonDown;
+    }
 
-	/**
-	 * 存放app的数据的数据
-	 * 
-	 * @param key
-	 * @param value
-	 */
-	public void setData(String key, Object value) {
-		mDatas.put(key, value);
-	}
+    /**
+     * 得到volume button up是否被重写
+     *
+     * @return 返回true表示被重写 返回false表示没有重写
+     */
+    public boolean isOverrideVolumeButtonUp() {
+        return mIsOverrideVolumeButtonUp;
+    }
 
-	/**
-	 * 删除数据
-	 * 
-	 * @param key
-	 */
-	public void removeData(String key) {
-		mDatas.remove(key);
-	}
+    /**
+     * 存放app的数据的数据
+     *
+     * @param key
+     * @param value
+     */
+    public void setData(String key, Object value) {
+        mDatas.put(key, value);
+    }
 
-	/**
-	 * 获得数据
-	 * 
-	 * @param key
-	 *            键值
-	 * @return
-	 */
-	public Object getData(String key) {
-		return mDatas.get(key);
-	}
+    /**
+     * 删除数据
+     *
+     * @param key
+     */
+    public void removeData(String key) {
+        mDatas.remove(key);
+    }
 
-	public String getIntalledDir() {
-		return XConfiguration.getInstance().getAppInstallDir()
-				+ mAppInfo.getAppId() + File.separator;
-	}
+    /**
+     * 获得数据
+     *
+     * @param key
+     *            键值
+     * @return
+     */
+    public Object getData(String key) {
+        return mDatas.get(key);
+    }
 
-	/**
-	 * 卸载应用的缓存数据,例如：离线应用的缓存、http缓存、localStorage信息
-	 * 
-	 * @param context
-	 */
-	public void releaseData(Context context) {
-		// TODO: 要清除http cache
-		mRunningMode.clearAppData(this, context);
-	}
+    public String getIntalledDir() {
+        return XConfiguration.getInstance().getAppInstallDir()
+                + mAppInfo.getAppId() + File.separator;
+    }
 
-	/**
-	 * 加载错误显示页面
-	 */
-	public void loadErrorPage() {
-		String errorPageUrl = XConstant.FILE_SCHEME + getDataDir()
-				+ File.separator + XConstant.ERROR_PAGE_NAME;
-		loadAppIntoView(errorPageUrl);
-	}
+    /**
+     * 卸载应用的缓存数据,例如：离线应用的缓存、http缓存、localStorage信息
+     *
+     * @param context
+     */
+    public void releaseData(Context context) {
+        // TODO: 要清除http cache
+        mRunningMode.clearAppData(this, context);
+    }
 
-	public void setView(XAppWebView view) {
-		mAppView = view;
-		view.setOwnerApp(this);
-	}
+    /**
+     * 加载错误显示页面
+     */
+    public void loadErrorPage() {
+        String errorPageUrl = XConstant.FILE_SCHEME + getDataDir()
+                + File.separator + XConstant.ERROR_PAGE_NAME;
+        loadAppIntoView(errorPageUrl);
+    }
 
-	@Override
-	public boolean start(XStartParams params) {
-		// 处理启动参数 和页面
-		String pageEntry = null;
-		String startData = null;
-		if (null != params) {
-			pageEntry = params.pageEntry;
-			startData = params.data;
-		}
-		if (!XStringUtils.isEmptyString(pageEntry)) {
-			mAppInfo.setEntry(pageEntry);
-		}
-		if (!XStringUtils.isEmptyString(startData)) {
-			setData(XConstant.TAG_APP_START_PARAMS, startData);
-		}
+    public void setView(XAppWebView view) {
+        mAppView = view;
+        view.setOwnerApp(this);
+    }
 
-		mRunningMode.loadApp(this, mSysContext.getSecurityPolily());
-		return true;
-	}
+    @Override
+    public boolean start(XStartParams params) {
+        // 处理启动参数 和页面
+        String pageEntry = null;
+        String startData = null;
+        if (null != params) {
+            pageEntry = params.pageEntry;
+            startData = params.data;
+        }
+        if (!XStringUtils.isEmptyString(pageEntry)) {
+            mAppInfo.setEntry(pageEntry);
+        }
+        if (!XStringUtils.isEmptyString(startData)) {
+            setData(XConstant.TAG_APP_START_PARAMS, startData);
+        }
+        if(null == mSecurityPolicy) {
+            //安全策略为空，则采用系统默认的安全策略
+            mSecurityPolicy = mSysContext.getSecurityPolicy();
+        }
+        mRunningMode.loadApp(this, mSecurityPolicy);
+        return true;
+    }
 
-	@Override
-	public boolean close() {
-		if (null != mWatcher) {
-			mWatcher.stop();
-		}
-		closeView();
-		return mSysContext.getSecurityPolily().checkAppClose(this);
-	}
+    @Override
+    public boolean close() {
+        if (null != mWatcher) {
+            mWatcher.stop();
+        }
+        closeView();
+        return mSysContext.getSecurityPolicy().checkAppClose(this);
+    }
 
-	public String getBaseUrl() {
-		String appUrl = mRunningMode.getAppUrl(this);
-		String params = (String) getData(XConstant.TAG_APP_START_PARAMS);
-		if (params != null) {
-			removeData(XConstant.TAG_APP_START_PARAMS);
-			appUrl += "?data=" + params;
-		}
-		return appUrl;
-	}
+    public String getBaseUrl() {
+        String appUrl = mRunningMode.getAppUrl(this);
+        String params = (String) getData(XConstant.TAG_APP_START_PARAMS);
+        if (params != null) {
+            removeData(XConstant.TAG_APP_START_PARAMS);
+            appUrl += "?data=" + params;
+        }
+        return appUrl;
+    }
 
-	/**
-	 * 尝试显示app视图
-	 */
-	public void tryShowView() {
-		// mSysContext.waitingDialogForAppStartFinished();
-		// if (!mSysContext.isSplashShowing()) {
-		// showView();
-		// }
-	}
+    /**
+     * 尝试显示app视图
+     */
+    public void tryShowView() {
+        // mSysContext.waitingDialogForAppStartFinished();
+        // if (!mSysContext.isSplashShowing()) {
+        // showView();
+        // }
+    }
 
-	/**
-	 * 启动监视器
-	 */
-	public void startIdleWatcher(long interval, Runnable task) {
-		if (null != mWatcher) {
-			stopIdleWatcher();
-		}
-		mWatcher = new XIdleWatcher();
-		mWatcher.start(interval, task);
-	}
+    /**
+     * 启动监视器
+     */
+    public void startIdleWatcher(long interval, Runnable task) {
+        if (null != mWatcher) {
+            stopIdleWatcher();
+        }
+        mWatcher = new XIdleWatcher();
+        mWatcher.start(interval, task);
+    }
 
-	/**
-	 * 停止监视
-	 */
-	public void stopIdleWatcher() {
-		if (mWatcher != null) {
-			mWatcher.stop();
-			mWatcher = null;
-		}
-	}
+    /**
+     * 停止监视
+     */
+    public void stopIdleWatcher() {
+        if (mWatcher != null) {
+            mWatcher.stop();
+            mWatcher = null;
+        }
+    }
 
-	/**
-	 * 重置IdleWatcher
-	 */
-	public void resetIdleWatcher() {
-		if (null != mWatcher) {
-			mWatcher.notifyOperatered();
-		}
-	}
+    /**
+     * 重置IdleWatcher
+     */
+    public void resetIdleWatcher() {
+        if (null != mWatcher) {
+            mWatcher.notifyOperatered();
+        }
+    }
 
-	/**
-	 * 关闭app view
-	 */
-	private void closeView() {
-		mAppView.willClosed();
-		mSysContext.unloadView(mAppView);
-		if (null != mAppView) {
-			this.mAppView.setValid(false);
-		}
-		mAppView = null;
-	}
+    /**
+     * 关闭app view
+     */
+    private void closeView() {
+        mAppView.willClosed();
+        mSysContext.unloadView(mAppView);
+        if (null != mAppView) {
+            this.mAppView.setValid(false);
+        }
+        mAppView = null;
+    }
 
-	/**
-	 * 设置缓存策略 不同的运行模式 有不同的策略
-	 * 
-	 * @param settings
-	 */
-	public void setCachePolicy(WebSettings settings) {
-		mRunningMode.setAppCachedPolicy(settings);
-	}
+    /**
+     * 设置缓存策略 不同的运行模式 有不同的策略
+     *
+     * @param settings
+     */
+    public void setCachePolicy(WebSettings settings) {
+        mRunningMode.setAppCachedPolicy(settings);
+    }
 
-	/**
-	 * 获取系统上下文环境
-	 * 
-	 * @return
-	 */
-	public XISystemContext getSystemContext() {
-		return mSysContext;
-	}
+    /**
+     * 获取系统上下文环境
+     *
+     * @return
+     */
+    public XISystemContext getSystemContext() {
+        return mSysContext;
+    }
 
-	/**
-	 * 加载js
-	 * 
-	 * @param statement
-	 *            js参数
-	 */
-	public void loadJavascript(String statement) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("javascript:");
-		sb.append(statement);
-		this.getView().loadUrl(sb.toString());
-	}
+    /**
+     * 加载js
+     *
+     * @param statement
+     *            js参数
+     */
+    public void loadJavascript(String statement) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("javascript:");
+        sb.append(statement);
+        this.getView().loadUrl(sb.toString());
+    }
+
+    /**
+     * 设置安全策略
+     * @param policy
+     */
+    public void setAppSecurityPolicy(XSecurityPolicy policy) {
+        mSecurityPolicy = policy;
+    }
+
 }

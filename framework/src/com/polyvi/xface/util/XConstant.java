@@ -97,7 +97,7 @@ public class XConstant {
     public static final String APP_PACKAGE_SUFFIX_XSPA = ".xspa";
 
     /**js框架实现文件的文件名*/
-    public static final String XFACE_JS_FILE_NAME = "cordova.js";
+    public static final String XFACE_JS_FILE_NAME = "xface.js";
 
     /** 默认错误文件名 **/
     public static final String ERROR_PAGE_NAME = "xFaceError.html";

@@ -73,16 +73,16 @@ public interface XISystemContext {
      *
      * @return 安全策略
      */
-    public XSecurityPolicy getSecurityPolily();
-    
+    public XSecurityPolicy getSecurityPolicy();
+
     public XApplication getStartApp();
-    
+
     public XAppWebView getCurAppView();
-   
+
     public void runStartApp();
-    
+
     public void loadView(XApplication app, String url);
-    
+
     public void unloadView(XAppWebView view);
 
     public CordovaInterface getCordovaInterface();
