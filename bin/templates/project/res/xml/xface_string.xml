@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="exit_message_title">工作目录配置错误</string>
+    <string name="exit_message_content">工作目录配置错误,程序将退出!</string>
+    <string name="confirm">确定</string>
+    <string name="waiting_message_title">请等待</string>
+    <string name="waiting_message_content">正在加载</string>
+    <string name="can_not_find_html_message">找不到请求的页面</string>
+    <string name="no_xface_js_message">本地能力没有被正确加载</string>
+    <string name="splash_load_text">系统初始化,请稍候...</string>
+    <string name="ecopay_install_warn">易联安全支付控件未被正确安装，检查并重新安装？</string>
+    <string name="ecopay_install_options">确定,取消</string>
+</resources>

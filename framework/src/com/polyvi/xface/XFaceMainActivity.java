@@ -331,10 +331,9 @@ public class XFaceMainActivity extends CordovaActivity implements
 	protected String getWorkDirName() {
 		String packageName = getPackageName();
 		String workDir = XConfiguration.getInstance().getWorkDirectory(this,
-				packageName);
+				packageName) + XConstant.PRE_INSTALL_SOURCE_ROOT;
 		return workDir;
 	}
-
 
 	@Override
 	public void runStartApp() {

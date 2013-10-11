@@ -112,8 +112,8 @@ public class XConstant {
     public static final String PREF_SETTING_FILE_NAME = "preference.pref";
     public static final String TAG_WD_STRATEGY = "wd_strategy";
 
-    public static final String PRE_INSTALL_SOURCE_ROOT = "www" + File.separator;
-    
-    public static final String PLUGIN_JS_METADATA_FILE = "cordova_plugins.js"; 
+    public static final String PRE_INSTALL_SOURCE_ROOT = "xface3" + File.separator;
+
+    public static final String PLUGIN_JS_METADATA_FILE = "cordova_plugins.js";
 
 }
