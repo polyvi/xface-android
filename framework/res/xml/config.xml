@@ -18,16 +18,21 @@
  under the License.
 -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
-        id        = "io.cordova.helloCordova"
+        id        = "com.polyvi.helloxface"
         version   = "2.0.0">
-    <name>Hello Cordova</name>
+
+    <pre_install_packages>
+        <app_package id = "helloxface" name = "helloxface" />
+    </pre_install_packages>
+
+    <name>Hello xFace</name>
 
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        A sample xFace application that responds to the deviceready event.
     </description>
 
-    <author href="http://cordova.io" email="dev@cordova.apache.org">
-        Apache Cordova Team
+    <author href="http://polyvi.github.io/openxface/" email="dev@polyvi.com">
+        xFace Team
     </author>
 
     <access origin="*"/>
@@ -36,13 +41,26 @@
     <content src="index.html" />
 
     <preference name="loglevel" value="DEBUG" />
-    <!--
-      <preference name="splashscreen" value="resourceName" />
-      <preference name="backgroundColor" value="0xFFF" />
-      <preference name="loadUrlTimeoutValue" value="20000" />
-      <preference name="InAppBrowserStorageEnabled" value="true" />
-      <preference name="disallowOverscroll" value="true" />
-    -->
+    <preference name="loadingDialog" value="please waiting...."/>
+    <preference name="splashscreen" value="xface_logo" />
+    <preference name="backgroundColor" value="0xFFF" />
+    <preference name="loadUrlTimeoutValue" value="20000" />
+    <preference name="InAppBrowserStorageEnabled" value="true" />
+    <preference name="disallowOverscroll" value="true" />
+    <!-- 配置是否显示全屏 -->
+    <preference name="FullScreen" value="false" />
+    <!-- 配置splash显示的时间 单位ms -->
+    <preference name="SplashScreenDelayDuration" value="0" />
+    <!-- 配置splash是否自动隐藏 -->
+    <preference name="AutoHideSplashScreen" value="true" />
+    <!-- 工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先  -->
+    <preference name="WorkDir" value="3" />
+    <preference name="EngineVersion" value="3.1.x" />
+    <preference name="EngineBuild" value="12345" />
+    <!-- 配置检测更新的服务器地址 -->
+    <preference name="CheckUpdate" value="false" />
+    <preference name="UpdateAddress" value="" />
+
     <!-- This is required for native Android hooks -->
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
