@@ -29,7 +29,6 @@ public class __ACTIVITY__ extends XFaceMainActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        super.init();
     }
 }
 

@@ -441,9 +441,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     public void loadUrl(final String url, int time) {
 
         this.splashscreenTime = time;
-        this.loadUrl(url);
-        
-        /*
+
         // Init web view if not already done
         if (this.appView == null) {
             this.init();
@@ -453,7 +451,6 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         this.splashscreen = this.getIntegerProperty("SplashScreen", 0);
         this.showSplashScreen(this.splashscreenTime);
         this.appView.loadUrl(url, time);
-        */
     }
     
     /*
