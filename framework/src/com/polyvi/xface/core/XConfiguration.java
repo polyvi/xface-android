@@ -328,7 +328,7 @@ public class XConfiguration {
         }
         sb.append(workDirName);
         sb.append(File.separatorChar);
-        File workDir = new File(sb.toString());
+        File workDir = new File(sb.toString(), XConstant.PRE_INSTALL_SOURCE_ROOT);
         if (!workDir.exists()) {
             workDir.mkdirs();
             // 修改文件夹的权限为其它用户可执行
