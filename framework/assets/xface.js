@@ -1,5 +1,5 @@
 // Platform: android
-// 3.2.0-dev-8e5a2e7
+// 3.2.0-dev-7b4c82a
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,8 +19,11 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-dev-8e5a2e7';
+var CORDOVA_JS_BUILD_LABEL = '3.2.0-dev-7b4c82a';
 // file: lib/scripts/require.js
+
+/*jshint -W079 */
+/*jshint -W020 */
 
 var require,
     define;
@@ -120,19 +123,6 @@ var documentEventHandlers = {},
 document.addEventListener = function(evt, handler, capture) {
     var e = evt.toLowerCase();
     if (typeof documentEventHandlers[e] != 'undefined') {
-        if (e =='deviceready'){
-            function my_handler(){
-                var rex = "data=(.*)";
-                d = location.href.match( rex );
-                if (d && d.length > 1 )
-                    handler({"data":d[1]});
-                else{
-                    handler();
-                }
-            }
-            documentEventHandlers[e].subscribe(my_handler);
-            return;
-        }
         documentEventHandlers[e].subscribe(handler);
     } else {
         m_document_addEventListener.call(document, evt, handler, capture);
@@ -385,7 +375,8 @@ var typeMap = {
     'N': 'Number',
     'S': 'String',
     'F': 'Function',
-    'O': 'Object'
+    'O': 'Object',
+    'B': 'Boolean'
 };
 
 function extractParamName(callee, argIndex) {
@@ -830,6 +821,9 @@ channel.createSticky('onPluginsReady');
 // Event to indicate that Cordova is ready
 channel.createSticky('onDeviceReady');
 
+// Event to indicate that xFace private data is ready
+channel.createSticky('onPrivateDataReady');
+
 // Event to indicate a resume lifecycle event
 channel.create('onResume');
 
@@ -842,6 +836,7 @@ channel.createSticky('onDestroy');
 // Channels that must fire before "deviceready" is fired.
 channel.waitForInitialization('onCordovaReady');
 channel.waitForInitialization('onDOMContentLoaded');
+channel.waitForInitialization('onPrivateDataReady');
 
 module.exports = channel;
 
@@ -1190,7 +1185,8 @@ channel.join(function() {
     // constructors have run and cordova info has been received from native
     // side.
     channel.join(function() {
-        require('cordova').fireDocumentEvent('deviceready');
+        var data = require('xFace/privateModule').appData();
+        require('cordova').fireDocumentEvent('deviceready', {"data":data});
     }, channel.deviceReadyChannelsArray);
 
 }, platformInitChannelsArray);
@@ -1509,6 +1505,19 @@ function findCordovaPath() {
         var src = scripts[n].src;
         if (src.indexOf(term) == (src.length - term.length)) {
             path = src.substring(0, src.length - term.length);
+
+            if('ios' === require('cordova/platform').id){
+                //TODO:查找更合适的方法？
+                var index = path.indexOf('.app');
+                if(-1 != index){
+                    index = path.lastIndexOf('/', index);
+                    path = path.substring(0, index) + '/Documents/xface3/js_core/';
+                }else if(-1 != path.indexOf('xface_player')){
+                    path = path.substring(0, path.indexOf('xface_player')) + 'xface_player/js_core/';
+                }else if(-1 != path.indexOf('Documents')){
+                    path = path.substring(0, path.indexOf('Documents')) + 'Documents/xface3/js_core/';
+                }
+            }
             break;
         }
     }
@@ -1530,6 +1539,46 @@ exports.load = function(callback) {
 
 });
 
+// file: lib/common/privateModule.js
+define("xFace/privateModule", function(require, exports, module) {
+
+/**
+ * 该模块是私有模块，用于获取当前应用程序的ID等
+ */
+var channel = require('cordova/channel');
+var currentAppId = null;        //当前应用ID
+var currentAppWorkspace = null; //当前应用工作空间
+var appData = null;             //传递给应用的启动参数
+
+var privateModule = function() {
+};
+
+/**
+ * 由引擎初始化数据
+ */
+privateModule.prototype.initPrivateData = function(initData) {
+    currentAppId = initData[0];
+    currentAppWorkspace = initData[1];
+    appData = initData[2];
+    channel.onPrivateDataReady.fire();
+};
+
+privateModule.prototype.appId = function() {
+    return currentAppId;
+};
+
+privateModule.prototype.appWorkspace = function() {
+    return currentAppWorkspace;
+};
+
+privateModule.prototype.appData = function() {
+    return appData;
+};
+
+module.exports = new privateModule();
+
+});
+
 // file: lib/common/urlutil.js
 define("cordova/urlutil", function(require, exports, module) {
 
@@ -1541,8 +1590,8 @@ var anchorEl = document.createElement('a');
  * For relative URLs, converts them to absolute ones.
  */
 urlutil.makeAbsolute = function(url) {
-  anchorEl.href = url;
-  return anchorEl.href;
+    anchorEl.href = url;
+    return anchorEl.href;
 };
 
 });
@@ -1717,7 +1766,112 @@ function UUIDcreatePart(length) {
 
 });
 
+// file: lib/common/workspace.js
+define("xFace/workspace", function(require, exports, module) {
+
+/**
+ * 该模块用于处理web app workspace相关的逻辑
+ */
+var privateModule = require('xFace/privateModule'),
+    urlUtil = require("cordova/urlutil");
+
+var Workspace= function() {
+};
+
+Workspace.prototype.updateFileSystemRoot = function(type, fs){
+    if (type != 1 || !module.exports.enableWorkspaceCheck) {
+        return;
+    }
+    fs.root.fullPath = privateModule.appWorkspace();
+};
+
+//TODO:迁移strStartsWith类似方法到独立的js模块
+Workspace.prototype.strStartsWith = function(str, prefix) {
+    return str.indexOf(prefix) === 0;
+};
+
+Workspace.prototype.strEndsWith = function(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+};
+
+Workspace.prototype.toURL = function(path) {
+    return "file://localhost" + path;
+};
+
+Workspace.prototype.toPath = function(url) {
+    // path为"file://localhost/user/..", 不同的平台执行urlUtil.makeAbsolute(path)后,返回的url可能有以下形式：
+    // 1）file://localhost/user/..
+    // 2）file:///user/..
+    if(this.strStartsWith(url, 'file://localhost')) {
+        return url.replace('file://localhost', '');
+    } else if(-1 != url.indexOf("://")) {
+        //remove scheme(e.g., file://)
+        return url.substring(url.indexOf("://") + 3, url.length);
+    } else {
+        // Don't log when running unit tests.
+        if (typeof jasmine == 'undefined') {
+            console.log(url + ' is not an url!');
+        }
+        return url;
+    }
+};
+
+Workspace.prototype.isAbsolutePath = function(path){
+    // Absolute path starts with a slash
+    return this.strStartsWith(path, '/');
+};
+
+Workspace.prototype.checkWorkspace = function(basePath, relativePath, functionName) {
+    if (!module.exports.enableWorkspaceCheck) {
+        return true;
+    }
+
+    relativePath = relativePath.replace(/\\/g,'/');
+
+    // relativePath为绝对路径时，要求其以basePath为前缀
+    var isAbs = this.isAbsolutePath(relativePath);
+    if (isAbs){
+        return this.strStartsWith(relativePath, basePath);
+    }
+
+    // relativePath为相对路径时，对其进行resolve
+    var result = null;
+    if(this.strStartsWith(relativePath, '/')){
+        result = basePath + relativePath;
+    }else{
+        result = basePath + '/' + relativePath;
+    }
+
+    result = this.toURL(result);
+    result = urlUtil.makeAbsolute(result);
+    result = decodeURI(result);
+    result = this.toPath(result);
+
+    if (this.strStartsWith(result, basePath)){
+        return true;
+    }else{
+        // Don't log when running unit tests.
+        if (typeof jasmine == 'undefined') {
+            console.error(functionName + " check workspace failed:" + result);
+        }
+        return false;
+    }
+};
+
+module.exports = new Workspace();
+module.exports.enableWorkspaceCheck = true;
+
+});
+
+// file: lib/xFace.js
+define("xFace", function(require, exports, module) {
+
+var xFace = require('cordova');
+module.exports = xFace;
+});
+
 window.cordova = require('cordova');
+window.xFace = require('xFace');
 // file: lib/scripts/bootstrap.js
 
 require('cordova/init');
