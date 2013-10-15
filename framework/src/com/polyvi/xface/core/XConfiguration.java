@@ -1,4 +1,3 @@
-
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -17,7 +16,7 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package com.polyvi.xface.core;
 
@@ -62,7 +61,6 @@ public class XConfiguration {
     // 解析config.xml得到的configInfo对象
     private XSysConfigInfo mSysConfigInfo;
 
-
     // 表示工作目录的三种配置方式
     private enum WorkDirConfig {
         TAG_MAIN_MEMORY_ONLY, // 仅手机内存
@@ -100,8 +98,7 @@ public class XConfiguration {
      * @param context
      * @throws XTagNotFoundException
      */
-    public void readConfig(Context context)
-            throws XTagNotFoundException {
+    public void readConfig(Context context) throws XTagNotFoundException {
         XSysConfigParser sysConfigParser = new XSysConfigParser(context);
         mSysConfigInfo = sysConfigParser.parseConfig();
     }
@@ -239,7 +236,7 @@ public class XConfiguration {
 
     /**
      * 配置系统的工作目录
-     * 
+     *
      * @param context
      *            android程序对应的Context对象
      * @param workDirName
@@ -260,7 +257,7 @@ public class XConfiguration {
 
     /**
      * 获取程序的工作空间目录,'/'结尾
-     * 
+     *
      * @param context
      *            android程序对应的Context对象
      * @param workDirName
@@ -328,19 +325,25 @@ public class XConfiguration {
         }
         sb.append(workDirName);
         sb.append(File.separatorChar);
-        File workDir = new File(sb.toString(), XConstant.PRE_INSTALL_SOURCE_ROOT);
-        if (!workDir.exists()) {
-            workDir.mkdirs();
+        // 工作目录，例如:内存卡到/data/data/com.polyvi.xface/files/com.polyvi.xface/
+        String workDir = sb.toString();
+        // xface3工作目录，例如:内存卡到/data/data/com.polyvi.xface/files/com.polyvi.xface/xface3/
+        File xface3Dir = new File(sb.toString(),
+                XConstant.PRE_INSTALL_SOURCE_ROOT);
+        if (!xface3Dir.exists()) {
+            xface3Dir.mkdirs();
             // 修改文件夹的权限为其它用户可执行
             XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER,
-                    workDir.getAbsolutePath());
+                    workDir);
+            XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER,
+                    xface3Dir.getAbsolutePath());
         }
-        return sb.toString();
+        return workDir;
     }
 
     /**
      * 设置工作目录配置策略
-     * 
+     *
      * @param ctx
      * @param wds
      */
@@ -359,7 +362,7 @@ public class XConfiguration {
 
     /**
      * 工作目录是否变化的标志
-     * 
+     *
      * @return
      */
     public boolean isWorkDirectoryChanged() {
@@ -368,7 +371,7 @@ public class XConfiguration {
 
     /**
      * 获得工作目录最终的配置策略
-     * 
+     *
      * @return
      */
     private int getWorkDirStrategy(Context ctx) {
@@ -381,7 +384,7 @@ public class XConfiguration {
 
     /**
      * 弹出错误消息,用户点击后程序退出
-     * 
+     *
      * @param title
      *            弹出框标题
      * @param exitMessage
@@ -419,14 +422,14 @@ public class XConfiguration {
 
     /**
      * 加载平台的string常量
-     * 
+     *
      * @param context
      */
     public void loadPlatformStrings(Context context) {
         XStrings.getInstance().loadPlatformStrings(context);
     }
-    
-    public String getOfflineCachePath(){
-    	return getSysDataDir() + XConstant.APP_CACHE_PATH;
+
+    public String getOfflineCachePath() {
+        return getSysDataDir() + XConstant.APP_CACHE_PATH;
     }
 }
