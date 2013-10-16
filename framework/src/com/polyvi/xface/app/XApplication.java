@@ -395,13 +395,7 @@ public class XApplication implements XIApplication {
     }
 
     public String getBaseUrl() {
-        String appUrl = mRunningMode.getAppUrl(this);
-        String params = (String) getData(XConstant.TAG_APP_START_PARAMS);
-        if (params != null) {
-            removeData(XConstant.TAG_APP_START_PARAMS);
-            appUrl += "?data=" + params;
-        }
-        return appUrl;
+        return mRunningMode.getAppUrl(this);
     }
 
     /**

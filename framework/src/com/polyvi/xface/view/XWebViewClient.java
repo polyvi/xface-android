@@ -37,16 +37,21 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 
 import android.webkit.ClientCertRequestHandler;
+
+import com.polyvi.xface.app.XApplication;
 import com.polyvi.xface.ssl.XSSLManager;
+import com.polyvi.xface.util.XConstant;
+import com.polyvi.xface.util.XLog;
 
 /**
  * 主要实现WebView提供的回调函数
  */
 public class XWebViewClient extends CordovaWebViewClient {
+    private static final String CLASS_NAME = XWebViewClient.class.getSimpleName();
 
     public XWebViewClient(CordovaInterface cordova) {
-       super( cordova );
-    
+        super(cordova);
+
     }
 
     /**
@@ -56,19 +61,36 @@ public class XWebViewClient extends CordovaWebViewClient {
      * @param view
      */
     public XWebViewClient(CordovaInterface cordova, CordovaWebView view) {
-        super( cordova, view);
+        super(cordova, view);
     }
 
     @Override
-	public void onPageFinished(WebView view, String url) {
-    	if (url.equals("about:blank")){
-			return;
-		}
-		super.onPageFinished(view, url);
-		
-	}
+    public void onPageFinished(WebView view, String url) {
+        if (url.equals("about:blank")) {
+            return;
+        }
+        XAppWebView currentAppView = (XAppWebView) view;
+        XApplication currentApp = currentAppView.mOwnerApp;
+        String startParams = (String) currentApp
+                .getData(XConstant.TAG_APP_START_PARAMS);
+        if (null != startParams) {
+            currentApp.removeData(XConstant.TAG_APP_START_PARAMS);
+        }
+        String jsScript = "try{cordova.require('xFace/privateModule').initPrivateData(['"
+                // currentAppId
+                + currentApp.getAppId()
+                + "','"
+                // currentAppWorkspace
+                + currentApp.getWorkSpace()
+                + "','"
+                // appData
+                + startParams
+                + "']);}catch(e){console.log('exception in initPrivateData:' + e);}";
+        currentApp.loadJavascript(jsScript);
+        super.onPageFinished(view, url);
+    }
 
-	/**
+    /**
      * 由于服务器的证书可能没有经过CA机构的认证，会出现SslError，通过调用 proceed()来继续SSL连接
      */
     @TargetApi(8)
