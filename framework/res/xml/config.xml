@@ -47,8 +47,6 @@
     <preference name="loadUrlTimeoutValue" value="20000" />
     <preference name="InAppBrowserStorageEnabled" value="true" />
     <preference name="disallowOverscroll" value="true" />
-    <!-- 配置是否显示全屏 -->
-    <preference name="FullScreen" value="false" />
     <!-- 配置splash显示的时间 单位ms -->
     <preference name="SplashScreenDelayDuration" value="0" />
     <!-- 配置splash是否自动隐藏 -->
