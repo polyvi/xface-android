@@ -94,7 +94,7 @@ public class XConfiguration {
 
     /**
      * 从配置文件读取系统配置数据
-     * 
+     *
      * @param context
      * @throws XTagNotFoundException
      */
@@ -105,7 +105,7 @@ public class XConfiguration {
 
     /**
      * 设置程序的工作空间
-     * 
+     *
      * @param workDir
      *            工作空间绝对路径
      */
@@ -115,7 +115,7 @@ public class XConfiguration {
 
     /**
      * 获取所有的application安装目录
-     * 
+     *
      * @return 所有application安装目录绝对路径
      */
     public String getAppInstallDir() {
@@ -124,7 +124,7 @@ public class XConfiguration {
 
     /**
      * 获取sys_data目录
-     * 
+     *
      * @return sys_data目录绝对路径
      */
     public String getSysDataDir() {
@@ -133,7 +133,7 @@ public class XConfiguration {
 
     /**
      * 获取程序的工作空间
-     * 
+     *
      * @return 工作空间绝对路径
      */
     public String getWorkDirectory() {
@@ -150,7 +150,7 @@ public class XConfiguration {
 
     /**
      * 获取startapp的id
-     * 
+     *
      * @param sysCtx
      *            系统上下文环境
      * @return startAppId
@@ -174,7 +174,7 @@ public class XConfiguration {
 
     /**
      * 从config.xml配置文件中读取是否需要自动隐藏splash图片
-     * 
+     *
      * @return
      */
     public boolean readAutoHideSplash() {
@@ -183,18 +183,8 @@ public class XConfiguration {
     }
 
     /**
-     * 从config.xml配置文件中读取是否需要全屏显示
-     * 
-     * @return
-     */
-    public boolean readFullscreen() {
-        return (null == mSysConfigInfo) ? false : mSysConfigInfo
-                .getFullscreen();
-    }
-
-    /**
      * 从config.xml配置文件中读取splash显示的时间
-     * 
+     *
      * @return
      */
     public String readSplashDelay() {
@@ -204,7 +194,7 @@ public class XConfiguration {
 
     /**
      * 从config.xml配置文件中读取引擎版本
-     * 
+     *
      * @return
      */
     public String readEngineVersion() {
@@ -214,7 +204,7 @@ public class XConfiguration {
 
     /**
      * 从config.xml配置文件中读取build号
-     * 
+     *
      * @return
      */
     public String readEngineBuild() {
@@ -224,7 +214,7 @@ public class XConfiguration {
 
     /**
      * 从config.xml配置文件中读取加载应用时等待xface.js是否加载完成的时间
-     * 
+     *
      * @return
      */
     public String readLoadUrlTimeout() {
@@ -333,8 +323,7 @@ public class XConfiguration {
         if (!xface3Dir.exists()) {
             xface3Dir.mkdirs();
             // 修改文件夹的权限为其它用户可执行
-            XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER,
-                    workDir);
+            XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, workDir);
             XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER,
                     xface3Dir.getAbsolutePath());
         }

@@ -1,4 +1,3 @@
-
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -17,12 +16,11 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package com.polyvi.xface.configXml;
 
 import java.util.List;
-
 
 /**
  * 负责记录解析config.xml得到的信息
@@ -35,41 +33,39 @@ public class XSysConfigInfo {
     /** startApp id */
     private String mStartAppId;
 
-    /**系统LOG等级 */
+    /** 系统LOG等级 */
     private String mLogLevel;
 
-    /**是否全屏 */
-    private boolean mFullscreen;
-
-    /**splash图片显示的时间 */
+    /** splash图片显示的时间 */
     private String mSplashDelay;
 
-    /**工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先 */
+    /** 工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先 */
     private String mWorkDir;
 
-    /**是否自动隐藏splash图片 */
+    /** 是否自动隐藏splash图片 */
     private boolean mAutoHideSplash;
 
-    /**引擎的版本号 */
+    /** 引擎的版本号 */
     private String mEngineVersion;
 
-    /**引擎的build号 */
+    /** 引擎的build号 */
     private String mEngineBuild;
 
-    /**检测更新的服务器地址 */
+    /** 检测更新的服务器地址 */
     private String mUpdateAddress;
 
-    /**是否需要检测 */
+    /** 是否需要检测 */
     private boolean mUpdateCheck;
 
-    /**加载应用时等待xface.js是否加载完成的时间 */
+    /** 加载应用时等待xface.js是否加载完成的时间 */
     private String mLoadUrlTimeout;
 
     public List<XPreInstallPackageItem> getPreinstallPackages() {
         return mPreinstallPackages;
     }
 
-    public void setPreinstallPackages(List<XPreInstallPackageItem> mPreinstallPackages) {
+    public void setPreinstallPackages(
+            List<XPreInstallPackageItem> mPreinstallPackages) {
         this.mPreinstallPackages = mPreinstallPackages;
     }
 
@@ -89,18 +85,6 @@ public class XSysConfigInfo {
         return mLogLevel;
     }
 
-    public void setFullscreen(String fullscreen) {
-        if(null == fullscreen) {
-            this.mFullscreen = false;
-            return;
-        }
-        this.mFullscreen = fullscreen.equals("true");
-    }
-
-    public boolean getFullscreen() {
-        return mFullscreen;
-    }
-
     public void setSplashDelay(String splashDelay) {
         this.mSplashDelay = splashDelay;
     }
@@ -110,7 +94,7 @@ public class XSysConfigInfo {
     }
 
     public void setAutoHideSplash(String autoHideSplash) {
-        if(null == autoHideSplash) {
+        if (null == autoHideSplash) {
             this.mAutoHideSplash = true;
             return;
         }
@@ -154,7 +138,7 @@ public class XSysConfigInfo {
     }
 
     public void setCheckUpdate(String checkUpdate) {
-        if(null == checkUpdate) {
+        if (null == checkUpdate) {
             this.mUpdateCheck = false;
             return;
         }
@@ -174,4 +158,3 @@ public class XSysConfigInfo {
     }
 
 }
-

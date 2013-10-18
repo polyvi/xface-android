@@ -42,7 +42,6 @@ public class XSysConfigParser {
     private static final String ATTR_VALUE = "value";
     private static final String ATTR_ID = "id";
     private static final String ATTR_LOG_LEVEL = "loglevel";
-    private static final String ATTR_FULLSCREEN = "FullScreen";
     private static final String ATTR_WORK_DIR = "WorkDir";
     private static final String ATTR_ENGINE_VERSION = "EngineVersion";
     private static final String ATTR_ENGINE_BUILD = "EngineBuild";
@@ -94,11 +93,6 @@ public class XSysConfigParser {
                         String loglevel = mParser.getAttributeValue(null,
                                 ATTR_VALUE);
                         sysConfigInfo.setLogLevel(loglevel);
-                    } else if (name.equals(ATTR_FULLSCREEN)) {
-                        // 设置是否全屏
-                        String isFullScreen = mParser.getAttributeValue(null,
-                                ATTR_VALUE);
-                        sysConfigInfo.setFullscreen(isFullScreen);
                     } else if (name.equals(ATTR_SPLASH_DELAY)) {
                         // 设置splash的延迟时间
                         String splashDelay = mParser.getAttributeValue(null,
