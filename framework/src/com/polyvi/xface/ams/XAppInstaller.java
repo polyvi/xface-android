@@ -39,6 +39,7 @@ import com.polyvi.xface.app.XIApplication;
 import com.polyvi.xface.configXml.XAbstractAppConfigParser;
 import com.polyvi.xface.configXml.XXmlOperatorFactory;
 import com.polyvi.xface.core.XConfiguration;
+import com.polyvi.xface.core.XISystemContext;
 import com.polyvi.xface.util.XAppUtils;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
@@ -55,16 +56,15 @@ public class XAppInstaller {
     /** 对所有app的引用 ,XAppList的装饰者*/
     private XAppList mAppList;
 
-    /** android程序运行时上下文 */
-    private Context mContext;
+    private XISystemContext mSysContext;
 
     /** application的创建者 */
     XApplicationCreator mCreator;
 
-    public XAppInstaller(Context context, XApplicationCreator creator) {
-        this.mContext = context;
+    public XAppInstaller(XISystemContext context, XApplicationCreator creator) {
+        this.mSysContext = context;
         mCreator = creator;
-        this.mAppList = new XPersistentAppList(context, mCreator, new XAppList());
+        this.mAppList = new XPersistentAppList(context.getContext(), mCreator, new XAppList());
     }
 
     /**
@@ -107,7 +107,7 @@ public class XAppInstaller {
         moveFile(iconFile, destFile);
         copyEmbeddedJsFileToApp(appId);
         // 安装错误处理页面
-        installErrorPage(XApplicationCreator.toWebApp(app), mContext);
+        installErrorPage(XApplicationCreator.toWebApp(app), mSysContext.getContext());
         // 存配置文件
         listener.onProgressUpdated(AMS_OPERATION_TYPE.OPERATION_TYPE_INSTALL,
                 InstallStatus.INSTALL_WRITE_CONFIGURATION);
@@ -446,7 +446,7 @@ public class XAppInstaller {
         }
 
         if (app instanceof XApplication) {
-            XApplicationCreator.toWebApp(app).releaseData(mContext);
+            XApplicationCreator.toWebApp(app).releaseData(mSysContext.getContext());
         }
         String appsDirPath = XConfiguration.getInstance().getAppInstallDir();
         File appDir = new File(appsDirPath, appId);
@@ -481,7 +481,7 @@ public class XAppInstaller {
 
         File appDir = new File(XConfiguration.getInstance().getAppInstallDir(), appId);
         String indexDir = new File(appDir, app.getAppInfo().getEntry()).getParent();
-        XFileUtils.copyEmbeddedJsFile(mContext, indexDir);
+        XFileUtils.copyEmbeddedJsFile(mSysContext, indexDir);
     }
 
     /**

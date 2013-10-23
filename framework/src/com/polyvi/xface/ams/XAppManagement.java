@@ -92,7 +92,7 @@ public class XAppManagement {
      */
     private void initAppInstaller(XISystemContext context) {
         if (null == this.mAppInstaller) {
-            this.mAppInstaller = new XAppInstaller(context.getContext(),
+            this.mAppInstaller = new XAppInstaller(context,
                     mAppCreator);
             mNativeAppInstallDelegate = new XNativeAppInstallDelegate(context);
         }
