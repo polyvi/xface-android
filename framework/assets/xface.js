@@ -1,5 +1,5 @@
 // Platform: android
-// 3.2.0-dev-be15823
+// 3.3.0-dev-e83968a
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-dev-be15823';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-e83968a';
 // file: lib/scripts/require.js
 
 /*jshint -W079 */
@@ -887,7 +887,7 @@ var cordova = require('cordova'),
         PRIVATE_API: 3
     },
     jsToNativeBridgeMode,  // Set lazily.
-    nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT,
+    nativeToJsBridgeMode = nativeToJsModes.LOAD_URL,
     pollEnabled = false,
     messagesFromNative = [];
 
@@ -1077,6 +1077,36 @@ androidExec.processMessages = function(messages) {
 
 module.exports = androidExec;
 
+});
+
+// file: lib/common/exec/proxy.js
+define("cordova/exec/proxy", function(require, exports, module) {
+
+
+// internal map of proxy function
+var CommandProxyMap = {};
+
+module.exports = {
+
+    // example: cordova.commandProxy.add("Accelerometer",{getCurrentAcceleration: function(successCallback, errorCallback, options) {...},...);
+    add:function(id,proxyObj) {
+        console.log("adding proxy for " + id);
+        CommandProxyMap[id] = proxyObj;
+        return proxyObj;
+    },
+
+    // cordova.commandProxy.remove("Accelerometer");
+    remove:function(id) {
+        var proxy = CommandProxyMap[id];
+        delete CommandProxyMap[id];
+        CommandProxyMap[id] = null;
+        return proxy;
+    },
+
+    get:function(service,action) {
+        return ( CommandProxyMap[service] ? CommandProxyMap[service][action] : null );
+    }
+};
 });
 
 // file: lib/common/init.js
@@ -1803,9 +1833,12 @@ Workspace.prototype.toPath = function(url) {
     // path为"file://localhost/user/..", 不同的平台执行urlUtil.makeAbsolute(path)后,返回的url可能有以下形式：
     // 1）file://localhost/user/..
     // 2）file:///user/..
+    // 3）file://\\\\localhost  windows phone执行urlUtil.makeAbsolute(path)返回的URL形式
     if(this.strStartsWith(url, 'file://localhost')) {
         return url.replace('file://localhost', '');
-    } else if(-1 != url.indexOf("://")) {
+    } else if (this.strStartsWith(url, 'file://\\\\localhost')) {
+        return url.replace('file://\\\\localhost', '');
+    } else if (-1 != url.indexOf("://")) {
         //remove scheme(e.g., file://)
         return url.substring(url.indexOf("://") + 3, url.length);
     } else {
@@ -1876,7 +1909,7 @@ Workspace.prototype.checkWorkspace = function(basePath, relativePath, functionNa
         result = this.buildPath(basePath, result);
         result = this.resolvePath(result);
     }
-
+    result = result.replace(/\\/g,'/');
     if (this.strStartsWith(result, basePath)){
         return result;
     }else{
