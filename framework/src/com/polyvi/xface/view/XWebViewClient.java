@@ -1,4 +1,3 @@
-
 /*
  This file was modified from or inspired by Apache Cordova.
 
@@ -18,7 +17,7 @@
  KIND, either express or implied. See the License for the
  specific language governing permissions and limitations
  under the License.
-*/
+ */
 
 package com.polyvi.xface.view;
 
@@ -47,7 +46,8 @@ import com.polyvi.xface.util.XLog;
  * 主要实现WebView提供的回调函数
  */
 public class XWebViewClient extends CordovaWebViewClient {
-    private static final String CLASS_NAME = XWebViewClient.class.getSimpleName();
+    private static final String CLASS_NAME = XWebViewClient.class
+            .getSimpleName();
 
     public XWebViewClient(CordovaInterface cordova) {
         super(cordova);
@@ -81,6 +81,7 @@ public class XWebViewClient extends CordovaWebViewClient {
                 + currentApp.getAppId()
                 + "','"
                 // currentAppWorkspace
+                + "file://"
                 + currentApp.getWorkSpace()
                 + "','"
                 // appData
