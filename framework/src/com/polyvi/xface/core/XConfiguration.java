@@ -50,7 +50,7 @@ public class XConfiguration {
     private static final String CLASS_NAME = XConfiguration.class
             .getSimpleName();
 
-    private static final String APPS_FOLDER_NAME = "applications";
+    private static final String APPS_FOLDER_NAME = "apps";
 
     /** 系统数据路径 */
     public static final String SYS_DATA_DIR_NAME = "sys_data";
