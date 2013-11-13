@@ -1,5 +1,5 @@
 // Platform: android
-// 3.3.0-dev-e83968a
+// 3.3.0-dev-27e6ea5
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-e83968a';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-27e6ea5';
 // file: lib/scripts/require.js
 
 /*jshint -W079 */
@@ -1826,6 +1826,9 @@ Workspace.prototype.strEndsWith = function(str, suffix) {
 };
 
 Workspace.prototype.toURL = function(path) {
+    if(isAndroid()){
+        path = path.replace('file://','');
+    }
     return "file://localhost" + path;
 };
 
@@ -1834,26 +1837,35 @@ Workspace.prototype.toPath = function(url) {
     // 1）file://localhost/user/..
     // 2）file:///user/..
     // 3）file://\\\\localhost  windows phone执行urlUtil.makeAbsolute(path)返回的URL形式
+    var path;
     if(this.strStartsWith(url, 'file://localhost')) {
-        return url.replace('file://localhost', '');
+        path = url.replace('file://localhost', '');
     } else if (this.strStartsWith(url, 'file://\\\\localhost')) {
-        return url.replace('file://\\\\localhost', '');
+        path = url.replace('file://\\\\localhost', '');
     } else if (-1 != url.indexOf("://")) {
         //remove scheme(e.g., file://)
-        return url.substring(url.indexOf("://") + 3, url.length);
+        path = url.substring(url.indexOf("://") + 3, url.length);
     } else {
         // Don't log when running unit tests.
         if (typeof jasmine == 'undefined') {
             console.log(url + ' is not an url!');
         }
-        return url;
+        path = url;
     }
+    if(isAndroid()){
+        path = "file://" + path;
+    }
+    return path;
 };
+
+function isAndroid(){
+    return 'android' === require('cordova/platform').id;
+}
 
 Workspace.prototype.isAbsolutePath = function(path){
     // FIXME:Confirm this is right on all platforms
     // Absolute path starts with a slash
-    return this.strStartsWith(path, '/');
+    return this.strStartsWith(path, '/') || this.strStartsWith(path, 'file://') ;
 };
 
 Workspace.prototype.buildPath = function(aString, bString){
