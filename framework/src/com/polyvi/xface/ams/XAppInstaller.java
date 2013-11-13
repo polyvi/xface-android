@@ -29,7 +29,7 @@ import java.io.InputStream;
 
 import android.content.Context;
 
-import com.polyvi.xface.ams.XInstallListener.AMS_ERROR;
+import com.polyvi.xface.ams.XAMSError.AMS_ERROR;
 import com.polyvi.xface.ams.XInstallListener.AMS_OPERATION_TYPE;
 import com.polyvi.xface.ams.XInstallListener.InstallStatus;
 import com.polyvi.xface.app.XAppInfo;

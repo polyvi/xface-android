@@ -21,6 +21,7 @@
 
 package com.polyvi.xface.ams;
 
+import com.polyvi.xface.ams.XAMSError.AMS_ERROR;
 import com.polyvi.xface.app.XIApplication;
 
 /**

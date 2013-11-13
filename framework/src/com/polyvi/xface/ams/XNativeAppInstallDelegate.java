@@ -32,7 +32,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 
-import com.polyvi.xface.ams.XInstallListener.AMS_ERROR;
+import com.polyvi.xface.ams.XAMSError.AMS_ERROR;
 import com.polyvi.xface.ams.XInstallListener.AMS_OPERATION_TYPE;
 import com.polyvi.xface.core.XConfiguration;
 import com.polyvi.xface.core.XISystemContext;

@@ -21,6 +21,8 @@
 
 package com.polyvi.xface.ams;
 
+import com.polyvi.xface.ams.XAMSError.AMS_ERROR;
+
 /**
  * 应用安装进度监听器，负责安装进度及状态通知
  */
@@ -33,33 +35,6 @@ public interface XInstallListener {
         INSTALL_WRITE_CONFIGURATION, /** < 写配置的过程 */
         INSTALL_FINISHED,
         /** < 安装完成 */
-    };
-
-    /** 应用安装/卸载/更新操作错误码 */
-    public enum AMS_ERROR {
-        /** not used */
-        ERROR_BASE,
-
-        /** 应用安装包不存在 */
-        NO_SRC_PACKAGE,
-
-        /** 应用已经存在 */
-        APP_ALREADY_EXISTED,
-
-        /**IO 异常错误 */
-        IO_ERROR,
-
-        /** 没有找到待操作的目标应用 */
-        NO_TARGET_APP,
-
-        /** 不存在应用配置文件 */
-        NO_APP_CONFIG_FILE,
-
-        /** 保留字段, 兼容旧的REMOVE_APP_FAILED*/
-        RESERVED,
-
-        /** 未知错误 */
-        UNKNOWN,
     };
 
     /** ams操作类型 */
