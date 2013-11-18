@@ -58,10 +58,8 @@ import android.widget.FrameLayout;
 
 public class CordovaWebView extends WebView {
 
-    
     public static final String TAG = "CordovaWebView";
-    
-    public static final String CORDOVA_VERSION = "3.2.0-dev";
+    public static final String CORDOVA_VERSION = "3.3.0-dev";
 
     private ArrayList<Integer> keyDownCodes = new ArrayList<Integer>();
     private ArrayList<Integer> keyUpCodes = new ArrayList<Integer>();
@@ -876,7 +874,7 @@ public class CordovaWebView extends WebView {
         {
             WebHistoryItem item = currentList.getItemAtIndex(i);
             String url = item.getUrl();
-            LOG.d(TAG, "The URL at index: " + Integer.toString(i) + "is " + url );
+            LOG.d(TAG, "The URL at index: " + Integer.toString(i) + " is " + url );
         }
     }
     
@@ -890,7 +888,7 @@ public class CordovaWebView extends WebView {
 	        String url = item.getUrl();
 	        String currentUrl = this.getUrl();
 	        LOG.d(TAG, "The current URL is: " + currentUrl);
-	        LOG.d(TAG, "The URL at item 0 is:" + url);
+	        LOG.d(TAG, "The URL at item 0 is: " + url);
 	        return currentUrl.equals(url);
         }
         return false;

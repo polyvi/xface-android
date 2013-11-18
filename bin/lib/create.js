@@ -19,27 +19,24 @@
        under the License.
 */
 var shell = require('shelljs'),
+    child_process = require('child_process'),
+    Q     = require('q'),
     path  = require('path'),
     fs    = require('fs'),
     check_reqs = require('./check_reqs'),
     ROOT    = path.join(__dirname, '..', '..');
 
-function exec(command) {
-    var result;
-    try {
-        result = shell.exec(command, {silent:false, async:false});
-    } catch(e) {
-        console.error('Command error on execuation : ' + command);
-        console.error(e);
-        process.exit(2);
-    }
-    if(result && result.code > 0) {
-        console.error('Command failed to execute : ' + command);
-        console.error(result.output);
-        process.exit(2);
-    } else {
-        return result;
-    }
+// Returns a promise.
+function exec(command, opt_cwd) {
+    var d = Q.defer();
+    console.log('Running: ' + command);
+    child_process.exec(command, { cwd: opt_cwd }, function(err, stdout, stderr) {
+        stdout && console.log(stdout);
+        stderr && console.error(stderr);
+        if (err) d.reject(err);
+        else d.resolve(stdout);
+    });
+    return d.promise;
 }
 
 function setShellFatal(value, func) {
@@ -49,33 +46,49 @@ function setShellFatal(value, func) {
     shell.config.fatal = oldVal;
 }
 
-function ensureJarIsBuilt(version, target_api) {
-    var isDevVersion = /-dev$/.test(version);
-    if (isDevVersion || !fs.existsSync(path.join(ROOT, 'framework', 'xFace-' + version + '.jar')) && fs.existsSync(path.join(ROOT, 'framework'))) {
-        var valid_target = check_reqs.get_target();
-        console.log('Building xFace-' + version + '.jar');
-        // update the xface-android framework for the desired target
-        exec('android --silent update lib-project --target "' + target_api + '" --path "' + path.join(ROOT, 'framework') + '"');
-        // compile xface.js and xface.jar
-        var cwd = process.cwd();
-        process.chdir(path.join(ROOT, 'framework'));
-        exec('ant jar');
-        process.chdir(cwd);
-    }
+function getFrameworkDir(projectPath, shared) {
+    return shared ? path.join(ROOT, 'framework') : path.join(projectPath, 'xFaceLib');
 }
 
-function copyJsAndJar(projectPath, version) {
+function copyJsAndLibrary(projectPath, shared, projectName) {
+    var nestedCordovaLibPath = getFrameworkDir(projectPath, false);
     shell.cp('-f', path.join(ROOT, 'framework', 'assets', 'xface.js'), path.join(projectPath, 'assets', 'xface3', 'helloxface', 'xface.js'));
-    if(isInternalDev(projectPath)) {
-        return;
-    }
     // Don't fail if there are no old jars.
     setShellFatal(false, function() {
         shell.ls(path.join(projectPath, 'libs', 'xFace-*.jar')).forEach(function(oldJar) {
-            shell.rm('-f', path.join(projectPath, 'libs', oldJar));
+            console.log("Deleting " + oldJar);
+            shell.rm('-f', oldJar);
         });
+        // Delete old library project if it existed.
+        if (shared) {
+            shell.rm('-rf', nestedCordovaLibPath);
+        } else {
+            // Delete only the src, since eclipse can't handle its .project file being deleted.
+            shell.rm('-rf', path.join(nestedCordovaLibPath, 'src'));
+        }
     });
-    shell.cp('-f', path.join(ROOT, 'framework', 'xFace-' + version + '.jar'), path.join(projectPath, 'libs', 'xFace-' + version + '.jar'));
+    if (!shared) {
+        shell.mkdir('-p', nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', 'AndroidManifest.xml'), nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', 'project.properties'), nestedCordovaLibPath);
+        shell.cp('-r', path.join(ROOT, 'framework', '.classpath'), nestedCordovaLibPath);
+        shell.cp('-r', path.join(ROOT, 'framework', 'src'), nestedCordovaLibPath);
+        shell.cp('-r', path.join(ROOT, 'framework', 'jar'), nestedCordovaLibPath);
+        shell.cp('-r', path.join(ROOT, 'framework', 'libs'), nestedCordovaLibPath);
+        shell.cp('-r', path.join(ROOT, 'framework', 'res'), nestedCordovaLibPath);
+        // Create an eclipse project file and set the name of it to something unique.
+        // Without this, you can't import multiple CordovaLib projects into the same workspace.
+        var eclipseProjectFilePath = path.join(nestedCordovaLibPath, '.project');
+        if (!fs.existsSync(eclipseProjectFilePath)) {
+            var data = '<?xml version="1.0" encoding="UTF-8"?><projectDescription><name>' + projectName + '-' + 'xFaceLib</name></projectDescription>';
+            fs.writeFileSync(eclipseProjectFilePath, data, 'utf8');
+        }
+    }
+}
+
+function runAndroidUpdate(projectPath, target_api, shared) {
+    var targetFrameworkDir = getFrameworkDir(projectPath, shared);
+    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"');
 }
 
 function copyScripts(projectPath) {
@@ -88,17 +101,8 @@ function copyScripts(projectPath) {
     shell.cp('-r', path.join(ROOT, 'bin', 'node_modules'), destScriptsDir);
     shell.cp(path.join(ROOT, 'bin', 'check_reqs'), path.join(destScriptsDir, 'check_reqs'));
     shell.cp(path.join(ROOT, 'bin', 'lib', 'check_reqs.js'), path.join(projectPath, 'cordova', 'lib', 'check_reqs.js'));
-
-    if (!/^win/.test(process.platform)) {
-        // Ensure they are all executable and delete .bat files.
-        shell.find(destScriptsDir).forEach(function(p) {
-            if (/\.bat$/.test(p)) {
-                shell.rm(p);
-            } else {
-                shell.chmod(755, p);
-            }
-        });
-    }
+    shell.cp(path.join(ROOT, 'bin', 'android_sdk_version'), path.join(destScriptsDir, 'android_sdk_version'));
+    shell.cp(path.join(ROOT, 'bin', 'lib', 'android_sdk_version.js'), path.join(projectPath, 'cordova', 'lib', 'android_sdk_version.js'));
 }
 
 /**
@@ -150,9 +154,11 @@ function modifyProjectProperties(androidProj) {
  *   - `package_name` {String} Package name, following reverse-domain style convention.
  *   - `project_name` {String} Project name.
  *   - 'project_template_dir' {String} Path to project template (override).
+ *
+ * Returns a promise.
  */
 
-exports.createProject = function(project_path, package_name, project_name, project_template_dir) {
+exports.createProject = function(project_path, package_name, project_name, project_template_dir, use_shared_project) {
     var VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
 
     // Set default values for path, package and name
@@ -164,7 +170,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
                            project_template_dir :
                            path.join(ROOT, 'bin', 'templates', 'project');
 
-    var safe_activity_name = project_name.replace(/\W/, '');
+    var safe_activity_name = project_name.replace(/\W/g, '');
     var package_as_path = package_name.replace(/\./g, path.sep);
     var activity_dir    = path.join(project_path, 'src', package_as_path);
     var activity_path   = path.join(activity_dir, safe_activity_name + '.java');
@@ -174,81 +180,69 @@ exports.createProject = function(project_path, package_name, project_name, proje
 
     // Check if project already exists
     if(fs.existsSync(project_path)) {
-        console.error('Project already exists! Delete and recreate');
-        process.exit(2);
+        return Q.reject('Project already exists! Delete and recreate');
     }
 
     if (!/[a-zA-Z0-9_]+\.[a-zA-Z0-9_](.[a-zA-Z0-9_])*/.test(package_name)) {
-        console.error('Package name must look like: com.company.Name');
-        process.exit(2);
+        return Q.reject('Package name must look like: com.company.Name');
     }
 
     // Check that requirements are met and proper targets are installed
-    if(!check_reqs.run()) {
-        process.exit(2);
-    }
+    return check_reqs.run()
+    .then(function() {
+        // Log the given values for the project
+        console.log('Creating xFace project for the Android platform:');
+        console.log('\tPath: ' + project_path);
+        console.log('\tPackage: ' + package_name);
+        console.log('\tName: ' + project_name);
+        console.log('\tAndroid target: ' + target_api);
 
-    // Log the given values for the project
-    console.log('Creating xFace project for the Android platform:');
-    console.log('\tPath: ' + project_path);
-    console.log('\tPackage: ' + package_name);
-    console.log('\tName: ' + project_name);
-    console.log('\tAndroid target: ' + target_api);
+        console.log('Copying template files...');
 
-    // build from source. distro should have these files
-    if(!internalDev) {
-        ensureJarIsBuilt(VERSION, target_api);
-    }
+        setShellFatal(true, function() {
+            // copy project template
+            shell.cp('-r', path.join(project_template_dir, 'assets'), project_path);
+            shell.cp('-r', path.join(project_template_dir, 'res'), project_path);
+            // Manually create directories that would be empty within the template (since git doesn't track directories).
+            shell.mkdir(path.join(project_path, 'libs'));
 
-    console.log('Copying template files...');
+            // copy xface.js, xface.jar and res/xml
+            shell.cp('-r', path.join(ROOT, 'framework', 'res', 'xml'), path.join(project_path, 'res'));
+            copyJsAndLibrary(project_path, use_shared_project, safe_activity_name);
 
-    setShellFatal(true, function() {
-        // copy project template
-        shell.cp('-r', path.join(project_template_dir, 'assets'), project_path);
-        shell.cp('-r', path.join(project_template_dir, 'res'), project_path);
-        // Manually create directories that would be empty within the template (since git doesn't track directories).
-        shell.mkdir(path.join(project_path, 'libs'));
+            // interpolate the activity name and package
+            shell.mkdir('-p', activity_dir);
+            shell.cp('-f', path.join(project_template_dir, 'Activity.java'), activity_path);
+            shell.sed('-i', /__ACTIVITY__/, safe_activity_name, activity_path);
+            shell.sed('-i', /__NAME__/, project_name, path.join(project_path, 'res', 'values', 'strings.xml'));
+            shell.sed('-i', /__ID__/, package_name, activity_path);
 
-        // copy xface.js, xfacelib.jar and res/xml
-        shell.cp('-r', path.join(ROOT, 'framework', 'res', 'xml'), path.join(project_path, 'res'));
-        copyJsAndJar(project_path, VERSION);
-
-        // interpolate the activity name and package
-        shell.mkdir('-p', activity_dir);
-        shell.cp('-f', path.join(project_template_dir, 'Activity.java'), activity_path);
-        shell.sed('-i', /__ACTIVITY__/, safe_activity_name, activity_path);
-        shell.sed('-i', /__NAME__/, project_name, path.join(project_path, 'res', 'values', 'strings.xml'));
-        shell.sed('-i', /__ID__/, package_name, activity_path);
-
-        shell.cp('-f', path.join(project_template_dir, 'AndroidManifest.xml'), manifest_path);
-        shell.sed('-i', /__ACTIVITY__/, safe_activity_name, manifest_path);
-        shell.sed('-i', /__PACKAGE__/, package_name, manifest_path);
-        shell.sed('-i', /__APILEVEL__/, target_api.split('-')[1], manifest_path);
-        copyScripts(project_path);
+            shell.cp('-f', path.join(project_template_dir, 'AndroidManifest.xml'), manifest_path);
+            shell.sed('-i', /__ACTIVITY__/, safe_activity_name, manifest_path);
+            shell.sed('-i', /__PACKAGE__/, package_name, manifest_path);
+            shell.sed('-i', /__APILEVEL__/, target_api.split('-')[1], manifest_path);
+            copyScripts(project_path);
+        });
+        // Link it to local android install.
+        return runAndroidUpdate(project_path, target_api, use_shared_project);
+    }).then(function() {
+        console.log('Project successfully created.');
     });
-    // Link it to local android install.
-    console.log('Running "android update project"');
-    exec('android --silent update project --target "'+target_api+'" --path "'+ project_path+'"');
-    // Add project dependency and so on.
-    if(internalDev) {
-        modifyProjectProperties(project_path);
-    }
-    console.log('Project successfully created.');
 }
 
+// Returns a promise.
 exports.updateProject = function(projectPath) {
-    // Check that requirements are met and proper targets are installed
-    if (!check_reqs.run()) {
-        process.exit(2);
-    }
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
-    var target_api = check_reqs.get_target();
-    var internalDev = isInternalDev(projectPath);
-    if(!internalDev) {
-        ensureJarIsBuilt(version, target_api);
-    }
-    copyJsAndJar(projectPath, version);
-    copyScripts(projectPath);
-    console.log('Android project is now at version ' + version);
+    // Check that requirements are met and proper targets are installed
+    return check_reqs.run()
+    .then(function() {
+        var target_api = check_reqs.get_target();
+        copyJsAndLibrary(projectPath, false, null);
+        copyScripts(projectPath);
+        return runAndroidUpdate(projectPath, target_api, false)
+        .then(function() {
+            console.log('Android project is now at version ' + version);
+        });
+    });
 };
 
