@@ -77,7 +77,7 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
         shell.cp('-r', path.join(ROOT, 'framework', 'libs'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'res'), nestedCordovaLibPath);
         // Create an eclipse project file and set the name of it to something unique.
-        // Without this, you can't import multiple CordovaLib projects into the same workspace.
+        // Without this, you can't import multiple xFaceLib projects into the same workspace.
         var eclipseProjectFilePath = path.join(nestedCordovaLibPath, '.project');
         if (!fs.existsSync(eclipseProjectFilePath)) {
             var data = '<?xml version="1.0" encoding="UTF-8"?><projectDescription><name>' + projectName + '-' + 'xFaceLib</name></projectDescription>';
@@ -106,25 +106,11 @@ function copyScripts(projectPath) {
 }
 
 /**
- * @param projectPath android工程路径
- */
-function isInternalDev(projectPath) {
-    var configJson = path.join(projectPath, '..', '..', '.xface', 'config.json');
-    if (fs.existsSync(configJson)) {
-        var json = JSON.parse(fs.readFileSync(configJson, 'utf-8'));
-        return json.dev_type === 'internal';
-    } else {
-        return false;
-    }
-}
-
-/**
  * 修改android工程的project.properties文件
- * 1. 配置proguard混淆
- * 2. 添加lib工程依赖
+ * 配置proguard混淆
  */
-function modifyProjectProperties(androidProj) {
-    var libProject = path.join(ROOT, 'framework'),
+function modifyProjectProperties(androidProj, shared) {
+    var libProject = getFrameworkDir(androidProj, shared),
         propertiesFile = path.join(androidProj, 'project.properties'),
         content = fs.readFileSync(propertiesFile, 'utf-8'),
         matchData = content.match(/^#?proguard.config=(.*)$/m);
@@ -137,10 +123,6 @@ function modifyProjectProperties(androidProj) {
         value += (':' + relativeProguardTxt);
         shell.sed('-i', /#?proguard.config=(.*)/, 'proguard.config=' + value, propertiesFile);
     }
-
-    var relativeLibProj = path.relative(androidProj, libProject),
-        projReference = 'android.library.reference.1=' + relativeLibProj.replace(/\\\\/g, '/').replace(/\\/g, '/');
-    fs.appendFileSync(propertiesFile, '\n' + projReference + '\n');
 }
 
 /**
@@ -176,7 +158,6 @@ exports.createProject = function(project_path, package_name, project_name, proje
     var activity_path   = path.join(activity_dir, safe_activity_name + '.java');
     var target_api      = check_reqs.get_target();
     var manifest_path   = path.join(project_path, 'AndroidManifest.xml');
-    var internalDev     = isInternalDev(project_path);
 
     // Check if project already exists
     if(fs.existsSync(project_path)) {
@@ -224,14 +205,17 @@ exports.createProject = function(project_path, package_name, project_name, proje
             copyScripts(project_path);
         });
         // Link it to local android install.
-        return runAndroidUpdate(project_path, target_api, use_shared_project);
+        return runAndroidUpdate(project_path, target_api, use_shared_project)
+        .then(function() {
+            modifyProjectProperties(project_path, use_shared_project);
+        });
     }).then(function() {
         console.log('Project successfully created.');
     });
 }
 
 // Returns a promise.
-exports.updateProject = function(projectPath) {
+exports.updateProject = function(projectPath, use_shared_project) {
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
     // Check that requirements are met and proper targets are installed
     return check_reqs.run()
@@ -239,8 +223,15 @@ exports.updateProject = function(projectPath) {
         var target_api = check_reqs.get_target();
         copyJsAndLibrary(projectPath, false, null);
         copyScripts(projectPath);
-        return runAndroidUpdate(projectPath, target_api, false)
+
+        // 'android update project' command will add library reference to project.properties everytimes
+        // when the command is executed, so we remove the file first to avoid the situation
+        var projectPropertiesPath = path.join(projectPath, 'project.properties');
+        if(fs.existsSync(projectPropertiesPath)) shell.rm(projectPropertiesPath);
+
+        return runAndroidUpdate(projectPath, target_api, use_shared_project)
         .then(function() {
+            modifyProjectProperties(projectPath, use_shared_project);
             console.log('Android project is now at version ' + version);
         });
     });
