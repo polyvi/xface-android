@@ -54,7 +54,6 @@ import com.polyvi.xface.view.XIceCreamWebViewClient;
 import com.polyvi.xface.view.XStartAppView;
 import com.polyvi.xface.view.XWebChromeClient;
 import com.polyvi.xface.view.XWebViewClient;
-import com.umeng.analytics.MobclickAgent;
 
 /**
  * 该类是android程序的主activity，也是整个程序的入口. 主要管理整个程序的生命周期以及执行程序的初始化操作
@@ -195,7 +194,6 @@ public class XFaceMainActivity extends CordovaActivity implements
 	 * 程序的入口函数
 	 */
 	private void systemBoot() {
-		initMobclickAgent();
 		initSystemEventCenter();
 		mCreator = new XApplicationCreator(this);
 		createSSLManager();
@@ -365,15 +363,6 @@ public class XFaceMainActivity extends CordovaActivity implements
 	@Override
 	public Activity getActivity() {
 		return this;
-	}
-
-	/**
-	 * 初始化UMeng统计代理
-	 */
-	protected void initMobclickAgent() {
-		// 注意：这里需要将SessionContinue的设置为0，不然连续启动程序的间隔时间果断的话，不会发送数据
-		MobclickAgent.setSessionContinueMillis(0);
-		MobclickAgent.onError(this);
 	}
 
 	@Override
