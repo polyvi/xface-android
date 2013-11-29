@@ -25,6 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.cordova.CordovaInterface;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -36,18 +38,16 @@ import android.os.Vibrator;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.polyvi.xface.core.XISystemContext;
-
 /**
  * 本类提供notifcation的实现方法供所有类调用.
  */
 public class XNotification {
     private ProgressDialog mSpinnerDialog = null;
     private ProgressDialog mProgressDialog = null;
-    private XISystemContext mSystemContext = null;
+    private CordovaInterface mCordova = null;
 
-    public XNotification(XISystemContext systemContext){
-        mSystemContext = systemContext;
+    public XNotification(CordovaInterface cordova){
+        mCordova = cordova;
     }
 
     /**
@@ -68,7 +68,7 @@ public class XNotification {
                  dlg.show();
             };
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     /**
@@ -96,7 +96,7 @@ public class XNotification {
                 autoCloseDialog.show(duration);
             };
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     /**
@@ -114,7 +114,7 @@ public class XNotification {
     private AlertDialog createAlertDialog(final String message,
             final String title, final String buttonLabel,
             final AlertDialog.OnClickListener actionListener) {
-        AlertDialog.Builder dlg = new AlertDialog.Builder(mSystemContext.getContext());
+        AlertDialog.Builder dlg = new AlertDialog.Builder(mCordova.getActivity());
         dlg.setMessage(message);
         dlg.setTitle(title);
         dlg.setCancelable(false);
@@ -139,7 +139,7 @@ public class XNotification {
         Runnable runnable = new Runnable() {
             public void run() {
 
-                AlertDialog.Builder dlg = new AlertDialog.Builder(mSystemContext.getContext());
+                AlertDialog.Builder dlg = new AlertDialog.Builder(mCordova.getActivity());
                 dlg.setMessage(message);
                 dlg.setTitle(title);
                 dlg.setCancelable(false);
@@ -158,7 +158,7 @@ public class XNotification {
                 dlg.show();
             };
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     /**
@@ -170,7 +170,7 @@ public class XNotification {
     public void beep(final long count) {
         Uri ringtoneUri = RingtoneManager
                 .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone ringtone = RingtoneManager.getRingtone(mSystemContext.getContext(), ringtoneUri);
+        Ringtone ringtone = RingtoneManager.getRingtone(mCordova.getActivity(), ringtoneUri);
 
         // 如果设备设置成静音状态，则返回
         if (ringtone == null) {
@@ -208,7 +208,7 @@ public class XNotification {
         if (mills == 0) {
             time = 500;        // 如果传入的毫秒数为0，则默认为半秒.
         }
-        Vibrator vibrator = (Vibrator) mSystemContext.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        Vibrator vibrator = (Vibrator) mCordova.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(time);
     }
 
@@ -226,7 +226,7 @@ public class XNotification {
         }
         Runnable runnable = new Runnable() {
             public void run() {
-                mSpinnerDialog = ProgressDialog.show(mSystemContext.getContext(), title, message,
+                mSpinnerDialog = ProgressDialog.show(mCordova.getActivity(), title, message,
                         true, true, new DialogInterface.OnCancelListener() {
                             public void onCancel(DialogInterface dialog) {
                                 mSpinnerDialog = null;
@@ -234,7 +234,7 @@ public class XNotification {
                         });
             }
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     /**
@@ -261,7 +261,7 @@ public class XNotification {
         }
         Runnable runnable = new Runnable() {
             public void run() {
-                mProgressDialog = new ProgressDialog(mSystemContext.getContext());
+                mProgressDialog = new ProgressDialog(mCordova.getActivity());
                 mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 mProgressDialog.setTitle(title);
                 mProgressDialog.setMessage(message);
@@ -277,7 +277,7 @@ public class XNotification {
                 mProgressDialog.show();
             }
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     /**
@@ -322,13 +322,13 @@ public class XNotification {
     public void toast(final String message, final int duration) {
         Runnable runnable = new Runnable() {
             public void run() {
-                Toast toast = Toast.makeText(mSystemContext.getContext(), message,
+                Toast toast = Toast.makeText(mCordova.getActivity(), message,
                         duration);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
         };
-        mSystemContext.runOnUiThread(runnable);
+        mCordova.getActivity().runOnUiThread(runnable);
     }
 
     class AutoCloseDialog {
