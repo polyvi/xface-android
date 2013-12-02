@@ -184,6 +184,31 @@ public class XFileUtils {
     }
 
     /**
+     * 循环修改目录的权限到dir目录
+     *
+     * @param permission
+     *            文件的权限
+     * @param filePath
+     *            修改文件权限的文件路径
+     * @param dir
+     *            修改文件权限的限制位置(当需要修改到filePath的根目录的时候这个传"/"即可)
+     */
+    public static void setPermissionUntilDir(String permission,
+            String filePath, String dir) {
+        String dirPath = new File(dir).getAbsolutePath();
+        if (null == filePath || !filePath.startsWith(dirPath)) {
+            return;
+        }
+        File fileObj = new File(filePath);
+        while (!dirPath.equals(fileObj.getAbsolutePath())) {
+            String path = fileObj.getAbsolutePath();
+            // 设置文件权限
+            setPermission(permission, path);
+            fileObj = new File(fileObj.getParent());
+        }
+    }
+
+    /**
      * 检查给定的文件路径是否存在
      *
      * @param filePath
