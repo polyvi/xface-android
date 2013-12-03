@@ -50,10 +50,6 @@ public class XStrings {
 
     public static String SPLASH_LOAD_TEXT = "splash_load_text";
 
-    public static String ECOPAY_INSTALL_WARN = "ecopay_install_warn";
-
-    public static String ECOPAY_INSTALL_OPTIONS = "ecopay_install_options";
-
     public static String APP_CONFIG_ERROR = "app_config_error";
 
     private static String TAG_RESOURCES = "resources";
