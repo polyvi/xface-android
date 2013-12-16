@@ -27,14 +27,18 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebViewClient;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.TelephonyManager;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.polyvi.xface.app.XAppInfo;
@@ -60,318 +64,393 @@ import com.polyvi.xface.view.XWebViewClient;
  */
 
 public class XFaceMainActivity extends CordovaActivity implements
-		XISystemContext {
+        XISystemContext {
 
-	private static final String CLASS_NAME = XFaceMainActivity.class.getName();
+    private static final String CLASS_NAME = XFaceMainActivity.class.getName();
 
-	private static final int ANDROID4_2_API_LEVEL = 17;
+    private static final int ANDROID4_2_API_LEVEL = 17;
 
-	protected ViewGroup mBootSplashView;
+    protected TextView mVersionText;
 
-	protected TextView mVersionText;
+    protected LinearLayout.LayoutParams mVersionParams;
 
-	protected RelativeLayout.LayoutParams mVersionParams;
+    private XNotification mWaitingNotification = new XNotification(this);;
 
-	private XNotification mWaitingNotification = new XNotification(this);;
+    private XStartParams mStartParams;
 
-	private XStartParams mStartParams;
+    private XSecurityPolicy mSecurityPolicy;
 
-	private XSecurityPolicy mSecurityPolicy;
+    /** App生成器 */
+    private XApplicationCreator mCreator;
 
-	/** App生成器 */
-	private XApplicationCreator mCreator;
+    /**
+     * 标示startapp
+     */
+    private XApplication mStartApp;
 
-	/**
-	 * 标示startapp
-	 */
-	private XApplication mStartApp;
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        systemBoot();
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		systemBoot();
+    }
 
-	}
+    /**
+     * 初始化startapp
+     * 
+     * @param appInfo
+     *            startapp的信息
+     * @return
+     */
+    public boolean initStartApp(XAppInfo appInfo) {
+        XIApplication app = mCreator.create(appInfo);
+        mStartApp = XApplicationCreator.toWebApp(app);
+        return true;
+    }
 
-	/**
-	 * 初始化startapp
-	 * 
-	 * @param appInfo
-	 *            startapp的信息
-	 * @return
-	 */
-	public boolean initStartApp(XAppInfo appInfo) {
-		XIApplication app = mCreator.create(appInfo);
-		mStartApp = XApplicationCreator.toWebApp(app);
-		return true;
-	}
+    private void setCurrentAppView(XAppWebView curAppView) {
+        if (curAppView == null) {
+            this.appView = null;
+            this.webViewClient = null;
+            return;
+        }
+        this.appView = curAppView;
+        this.webViewClient = curAppView.getWebViewClient();
+        this.cancelLoadUrl = false;
+        this.appView.requestFocus();
+    }
 
-	private void setCurrentAppView(XAppWebView curAppView) {
-		if (curAppView == null) {
-			this.appView = null;
-			this.webViewClient = null;
-			return;
-		}
-		this.appView = curAppView;
-		this.webViewClient = curAppView.getWebViewClient();
-		this.cancelLoadUrl = false;
-		this.appView.requestFocus();
-	}
+    @Override
+    public XApplication getStartApp() {
+        return mStartApp;
+    }
 
-	@Override
-	public XApplication getStartApp() {
-		return mStartApp;
-	}
+    @Override
+    public void init() {
+        XAppWebView webView = null;
+        if (null == this.appView) {
+            webView = new XStartAppView(this);
+        } else {
+            webView = new XAppWebView(this);
+        }
+        CordovaWebViewClient webViewClient;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            webViewClient = new XWebViewClient(this, webView);
+        } else {
+            webViewClient = new XIceCreamWebViewClient(this, webView);
+        }
+        XWebChromeClient chrom = new XWebChromeClient(this, webView);
+        webView.setWebChromeClient(chrom);
+        this.init(webView, webViewClient, chrom);
+    }
 
-	@Override
-	public void init() {
-		XAppWebView webView = null;
-		if (null == this.appView) {
-			webView = new XStartAppView(this);
-		} else {
-			webView = new XAppWebView(this);
-		}
-		CordovaWebViewClient webViewClient;
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-			webViewClient = new XWebViewClient(this, webView);
-		} else {
-			webViewClient = new XIceCreamWebViewClient(this, webView);
-		}
-		XWebChromeClient chrom = new XWebChromeClient(this, webView);
-		webView.setWebChromeClient(chrom);
-		this.init(webView, webViewClient, chrom);
-	}
+    public XApplicationCreator getAppFactory() {
+        return mCreator;
+    }
 
-	public XApplicationCreator getAppFactory() {
-		return mCreator;
-	}
+    @Override
+    public Object onMessage(String id, Object data) {
+        if ("exit".equals(id)) {
+            return true;
+        } else if ("exit_engine".equals(id)) {
+            endActivity();
+            return true;
+        }
+        return super.onMessage(id, data);
+    }
 
-	@Override
-	public Object onMessage(String id, Object data) {
-		if ("exit".equals(id)) {
-			return true;
-		} else if ("exit_engine".equals(id)) {
-			endActivity();
-			return true;
-		}
-		return super.onMessage(id, data);
-	}
+    /**
+     * 初始化系统事件处理器
+     */
+    private void initSystemEventCenter() {
+        XSystemEventCenter.init(this);
+    }
 
-	/**
-	 * 初始化系统事件处理器
-	 */
-	private void initSystemEventCenter() {
-		XSystemEventCenter.init(this);
-	}
+    /**
+     * 创建app安全策略
+     * 
+     * @return 安全策略
+     */
+    protected XSecurityPolicy createSecurityPolicy() {
+        return new XDefaultSecurityPolicy(this);
+    }
 
-	/**
-	 * 创建app安全策略
-	 * 
-	 * @return 安全策略
-	 */
-	protected XSecurityPolicy createSecurityPolicy() {
-		return new XDefaultSecurityPolicy(this);
-	}
+    /**
+     * 创建系统启动组件
+     * 
+     * @return
+     */
+    protected XSystemBootstrap createSystemBootstrap() {
+        return new XSystemInitializer(this);
+    }
 
-	/**
-	 * 创建系统启动组件
-	 * 
-	 * @return
-	 */
-	protected XSystemBootstrap createSystemBootstrap() {
-		return new XSystemInitializer(this);
-	}
-
-	/**
+    /**
      * 创建管理与https有关证书库对象
      */
-    protected void createSSLManager(){
+    protected void createSSLManager() {
         XSSLManager.createInstance(this);
     }
-    
-	/**
-	 * 程序的入口函数
-	 */
-	private void systemBoot() {
-		initSystemEventCenter();
-		mCreator = new XApplicationCreator(this);
-		createSSLManager();
-		mSecurityPolicy = createSecurityPolicy();
-		XConfiguration.getInstance().loadPlatformStrings(getContext());
-		mStartParams = XStartParams.parse(getIntent().getStringExtra(
-				XConstant.TAG_APP_START_PARAMS));
-		// 解析系统配置
-		try {
-			initSystemConfig();
-		} catch (IOException e) {
-			this.toast("Loading System Config Failure.");
-			XLog.e(CLASS_NAME, "Loading system config failure!");
-			e.printStackTrace();
-			return;
-		} catch (XTagNotFoundException e) {
-			this.toast("Loading System Config Failure.");
-			XLog.e(CLASS_NAME, "parse config.xml error:" + e.getMessage());
-			e.printStackTrace();
-			return;
-		}
-		// 配置系统LOG等级
-		XLog.setLogLevel(XConfiguration.getInstance().readLogLevel());
-		// 配置系统的工作目录
-		XConfiguration.getInstance()
-				.configWorkDirectory(this, getWorkDirName());
-		XSystemBootstrap bootstrap = createSystemBootstrap();
-		new XPrepareWorkEnvronmentTask(bootstrap, this).execute();
-	}
 
-	@Override
-	public void unloadView(XAppWebView view) {
-		view.loadUrl("about:blank");
-		removeView(view);
-	}
+    /**
+     * 程序的入口函数
+     */
+    private void systemBoot() {
+        initSystemEventCenter();
+        mCreator = new XApplicationCreator(this);
+        createSSLManager();
+        mSecurityPolicy = createSecurityPolicy();
+        XConfiguration.getInstance().loadPlatformStrings(getContext());
+        mStartParams = XStartParams.parse(getIntent().getStringExtra(
+                XConstant.TAG_APP_START_PARAMS));
+        // 解析系统配置
+        try {
+            initSystemConfig();
+        } catch (IOException e) {
+            this.toast("Loading System Config Failure.");
+            XLog.e(CLASS_NAME, "Loading system config failure!");
+            e.printStackTrace();
+            return;
+        } catch (XTagNotFoundException e) {
+            this.toast("Loading System Config Failure.");
+            XLog.e(CLASS_NAME, "parse config.xml error:" + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+        // 启动splash
+        startSplashScreen();
+        // 配置系统LOG等级
+        XLog.setLogLevel(XConfiguration.getInstance().readLogLevel());
+        // 配置系统的工作目录
+        XConfiguration.getInstance()
+                .configWorkDirectory(this, getWorkDirName());
+        XSystemBootstrap bootstrap = createSystemBootstrap();
+        new XPrepareWorkEnvronmentTask(bootstrap, this).execute();
+    }
 
-	/**
-	 * 解析系统配置
-	 * 
-	 * @throws IOException
-	 * @throws XTagNotFoundException
-	 */
-	private void initSystemConfig() throws IOException, XTagNotFoundException {
-	    XConfiguration.getInstance().readConfig(this);
-	}
+    /**
+     * 开始splash操作
+     */
+    protected void startSplashScreen() {
+        this.splashscreenTime = this.getIntegerProperty("SplashScreenDelay",
+                this.splashscreenTime);
+        if (this.splashscreenTime > 0) {
+            this.splashscreen = this.getIntegerProperty("SplashScreen", 0);
+            if (this.splashscreen != 0) {
+                showSplashScreen(this.splashscreenTime);
+            }
+        }
+    }
 
-	/**
-	 * 获得手机的deviceId
-	 * 
-	 * @return
-	 */
-	protected String getKey() {
-		if (Build.VERSION.SDK_INT == ANDROID4_2_API_LEVEL) {
-			return null;
-		}
-		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		String deviceID = tm.getDeviceId();
-		return deviceID;
-	}
+    @Override
+    public void unloadView(XAppWebView view) {
+        view.loadUrl("about:blank");
+        removeView(view);
+    }
 
-	/**
-	 * 添加一个子视图到Activity的content view，如果view是可见的，则view会被显示在屏幕上
-	 * 
-	 * @param view
-	 *            子视图
-	 */
-	public void addView(XAppWebView view) {
-		if (view instanceof View) {
-			View subView = (View) view;
-			subView.setLayoutParams(new LinearLayout.LayoutParams(
-					ViewGroup.LayoutParams.MATCH_PARENT,
-					ViewGroup.LayoutParams.MATCH_PARENT, 1.0F));
-			setCurrentAppView(view);
-			root.addView(subView);
-		}
-	}
+    /**
+     * 解析系统配置
+     * 
+     * @throws IOException
+     * @throws XTagNotFoundException
+     */
+    private void initSystemConfig() throws IOException, XTagNotFoundException {
+        XConfiguration.getInstance().readConfig(this);
+    }
 
-	@Override
-	public XAppWebView getCurAppView() {
-		return (XAppWebView) this.appView;
-	}
+    /**
+     * 获得手机的deviceId
+     *
+     * @return
+     */
+    protected String getKey() {
+        if (Build.VERSION.SDK_INT == ANDROID4_2_API_LEVEL) {
+            return null;
+        }
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        String deviceID = tm.getDeviceId();
+        return deviceID;
+    }
 
-	@Override
-	public void loadUrl(String url) {
-		String sdelay = XConfiguration.getInstance().readSplashDelay();
-		int iDelay = 0;
-		try {
-			iDelay = Integer.parseInt(sdelay);
-		} catch (NumberFormatException e) {
-		}
-		if (iDelay != 0) {
-			super.loadUrl(url, iDelay);
-		} else {
-			super.loadUrl(url);
-		}
-	}
+    /**
+     * 添加一个子视图到Activity的content view，如果view是可见的，则view会被显示在屏幕上
+     *
+     * @param view
+     *            子视图
+     */
+    public void addView(XAppWebView view) {
+        if (view instanceof View) {
+            View subView = (View) view;
+            subView.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1.0F));
+            setCurrentAppView(view);
+            root.addView(subView);
+        }
+    }
 
-	@Override
-	public void loadView(XApplication app, String url) {
-		if (this.appView != null) {
-			this.init();
-		}
-		loadUrl(url);
-		app.setView((XAppWebView) this.appView);
-		app.setCachePolicy(this.appView.getSettings());
-	}
+    @Override
+    public XAppWebView getCurAppView() {
+        return (XAppWebView) this.appView;
+    }
 
-	/**
-	 * 从Activity的content view中remove掉一个子视图
-	 * 
-	 * @param view
-	 *            子视图
-	 */
-	public void removeView(XAppWebView view) {
-		if (view instanceof View) {
+    @Override
+    public void loadUrl(String url) {
+        String sdelay = XConfiguration.getInstance().readSplashDelay();
+        int iDelay = 0;
+        try {
+            iDelay = Integer.parseInt(sdelay);
+        } catch (NumberFormatException e) {
+        }
+        if (iDelay != 0) {
+            super.loadUrl(url, iDelay);
+        } else {
+            super.loadUrl(url);
+        }
+    }
 
-			root.removeView((View) view);
-			View pView = root.getChildAt(root.getChildCount() - 1);
-			if (pView != null && pView instanceof XAppWebView) {
-				XAppWebView pWebView = (XAppWebView) pView;
-				setCurrentAppView(pWebView);
-			} else {
-				setCurrentAppView(null);
-			}
-		}
-	}
+    @Override
+    public void loadView(XApplication app, String url) {
+        if (this.appView != null) {
+            this.init();
+        }
+        loadUrl(url);
+        app.setView((XAppWebView) this.appView);
+        app.setCachePolicy(this.appView.getSettings());
+    }
 
-	/**
-	 * 获取工作目录的名字
-	 * 
-	 * @return
-	 */
-	protected String getWorkDirName() {
-		String packageName = getPackageName();
-		String workDir = XConfiguration.getInstance().getWorkDirectory(this,
-				packageName) + XConstant.PRE_INSTALL_SOURCE_ROOT;
-		return workDir;
-	}
+    /**
+     * 从Activity的content view中remove掉一个子视图
+     *
+     * @param view
+     *            子视图
+     */
+    public void removeView(XAppWebView view) {
+        if (view instanceof View) {
 
-	@Override
-	public void runStartApp() {
-		getStartApp().start(getStartParams());
+            root.removeView((View) view);
+            View pView = root.getChildAt(root.getChildCount() - 1);
+            if (pView != null && pView instanceof XAppWebView) {
+                XAppWebView pWebView = (XAppWebView) pView;
+                setCurrentAppView(pWebView);
+            } else {
+                setCurrentAppView(null);
+            }
+        }
+    }
 
-	}
+    /**
+     * 获取工作目录的名字
+     *
+     * @return
+     */
+    protected String getWorkDirName() {
+        String packageName = getPackageName();
+        String workDir = XConfiguration.getInstance().getWorkDirectory(this,
+                packageName)
+                + XConstant.PRE_INSTALL_SOURCE_ROOT;
+        return workDir;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		System.exit(0);
-	}
+    @Override
+    public void runStartApp() {
+        getStartApp().start(getStartParams());
 
-	@Override
-	public Context getContext() {
-		return this;
-	}
+    }
 
-	@Override
-	public void toast(String message) {
-		mWaitingNotification.toast(message);
-	}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.exit(0);
+    }
 
-	@Override
-	public XStartParams getStartParams() {
-		return mStartParams;
-	}
+    @Override
+    public Context getContext() {
+        return this;
+    }
 
-	@Override
-	public Activity getActivity() {
-		return this;
-	}
+    @Override
+    public void toast(String message) {
+        mWaitingNotification.toast(message);
+    }
 
-	@Override
-	public XSecurityPolicy getSecurityPolicy() {
-		return mSecurityPolicy;
-	}
+    @Override
+    public XStartParams getStartParams() {
+        return mStartParams;
+    }
 
-	@Override
-	public CordovaInterface getCordovaInterface() {
-		return this;
-	}
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    @Override
+    public XSecurityPolicy getSecurityPolicy() {
+        return mSecurityPolicy;
+    }
+
+    @Override
+    public CordovaInterface getCordovaInterface() {
+        return this;
+    }
+
+    @Override
+    protected void showSplashScreen(final int time) {
+        if (mStartApp != null) {
+            // 如果不是startapp则不做操作返回
+            return;
+        } else if (splashDialog != null) {
+            // splash正在显示则不做操作返回
+            return;
+        }
+
+        final CordovaActivity that = this;
+        final int splashscreen = this.splashscreen;
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+                // Get reference to display
+                Display display = getWindowManager().getDefaultDisplay();
+
+                // Create the layout for the dialog
+                LinearLayout root = new LinearLayout(that.getActivity());
+                root.setMinimumHeight(display.getHeight());
+                root.setMinimumWidth(display.getWidth());
+                root.setOrientation(LinearLayout.VERTICAL);
+                root.setBackgroundColor(that.getIntegerProperty(
+                        "backgroundColor", Color.BLACK));
+                root.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
+                root.setBackgroundResource(splashscreen);
+                if (null != mVersionText && null != mVersionParams) {
+                    root.addView(mVersionText, mVersionParams);
+                }
+
+                // Create and show the dialog
+                splashDialog = new Dialog(that,
+                        android.R.style.Theme_Translucent_NoTitleBar);
+                // check to see if the splash screen should be full screen
+                if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                        == WindowManager.LayoutParams.FLAG_FULLSCREEN) {
+                    splashDialog.getWindow().setFlags(
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                }
+                splashDialog.setContentView(root);
+                splashDialog.setCancelable(false);
+                splashDialog.show();
+
+                // Set Runnable to remove splash screen just in case
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        removeSplashScreen();
+                    }
+                }, time);
+            }
+        };
+        this.runOnUiThread(runnable);
+    }
+
 }
