@@ -64,65 +64,29 @@ import android.widget.LinearLayout;
  * html file that contains the application.
  *
  * As an example:
- *
+ * 
+ * <pre>
  *     package org.apache.cordova.examples;
+ *
  *     import android.os.Bundle;
  *     import org.apache.cordova.*;
  *
  *     public class Example extends CordovaActivity {
- *       @Override
+ *       &#64;Override
  *       public void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
- *
- *         // Set properties for activity
- *         super.setStringProperty("loadingDialog", "Title,Message"); // show loading dialog
- *         super.setStringProperty("errorUrl", "file:///android_asset/www/error.html"); // if error loading file in super.loadUrl().
- *
- *         // Clear cache if you want
- *         super.appView.clearCache(true);
- *
+ *         super.init();
  *         // Load your application
- *         super.setIntegerProperty("splashscreen", R.drawable.splash); // load splash.jpg image from the resource drawable directory
- *         super.loadUrl("file:///android_asset/www/index.html", 3000); // show splash screen 3 sec before loading app
+ *         super.loadUrl(Config.getStartUrl());
  *       }
  *     }
- *
- * Properties: The application can be configured using the following properties:
- *
- *      // Display a native loading dialog when loading app.  Format for value = "Title,Message".
- *      // (String - default=null)
- *      super.setStringProperty("loadingDialog", "Wait,Loading Demo...");
- *
- *      // Display a native loading dialog when loading sub-pages.  Format for value = "Title,Message".
- *      // (String - default=null)
- *      super.setStringProperty("loadingPageDialog", "Loading page...");
- *
- *      // Load a splash screen image from the resource drawable directory.
- *      // (Integer - default=0)
- *      super.setIntegerProperty("splashscreen", R.drawable.splash);
- *
- *      // Set the background color.
- *      // (Integer - default=0 or BLACK)
- *      super.setIntegerProperty("backgroundColor", Color.WHITE);
- *
- *      // Time in msec to wait before triggering a timeout error when loading
- *      // with super.loadUrl().  (Integer - default=20000)
- *      super.setIntegerProperty("loadUrlTimeoutValue", 60000);
- *
- *      // URL to load if there's an error loading specified URL with loadUrl().
- *      // Should be a local URL starting with file://. (String - default=null)
- *      super.setStringProperty("errorUrl", "file:///android_asset/www/error.html");
- *
- *      // Enable app to keep running in background. (Boolean - default=true)
- *      super.setBooleanProperty("keepRunning", false);
- *
- * Cordova.xml configuration:
- *      Cordova uses a configuration file at res/xml/cordova.xml to specify the following settings.
- *
- *      Approved list of URLs that can be loaded into Cordova
- *          <access origin="http://server regexp" subdomains="true" />
- *      Log level: ERROR, WARN, INFO, DEBUG, VERBOSE (default=ERROR)
- *          <log level="DEBUG" />
+ * </pre>
+ * 
+ * Cordova xml configuration: Cordova uses a configuration file at 
+ * res/xml/config.xml to specify its settings. See "The config.xml File"
+ * guide in cordova-docs at http://cordova.apache.org/docs for the documentation
+ * for the configuration. The use of the set*Property() methods is
+ * deprecated in favor of the config.xml file.
  *
  */
 public class CordovaActivity extends Activity implements CordovaInterface {
@@ -266,6 +230,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
         if(this.getBooleanProperty("SetFullscreen", false))
         {
+            Log.d(TAG, "The SetFullscreen configuration is deprecated in favor of Fullscreen, and will be removed in a future version.");
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -291,7 +256,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     /**
      * Get the Android activity.
      *
-     * @return
+     * @return the Activity
      */
     public Activity getActivity() {
         return this;
@@ -541,7 +506,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      *
      * @param name
      * @param defaultValue
-     * @return
+     * @return the boolean value of the named property
      */
     public boolean getBooleanProperty(String name, boolean defaultValue) {
         Bundle bundle = this.getIntent().getExtras();
@@ -572,7 +537,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      *
      * @param name
      * @param defaultValue
-     * @return
+     * @return the int value for the named property
      */
     public int getIntegerProperty(String name, int defaultValue) {
         Bundle bundle = this.getIntent().getExtras();
@@ -597,7 +562,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      *
      * @param name
      * @param defaultValue
-     * @return
+     * @return the String value for the named property
      */
     public String getStringProperty(String name, String defaultValue) {
         Bundle bundle = this.getIntent().getExtras();
@@ -617,7 +582,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      *
      * @param name
      * @param defaultValue
-     * @return
+     * @return the double value for the named property
      */
     public double getDoubleProperty(String name, double defaultValue) {
         Bundle bundle = this.getIntent().getExtras();
@@ -639,10 +604,14 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
     /**
      * Set boolean property on activity.
+     * This method has been deprecated in 3.0 and will be removed at a future
+     * time. Please use config.xml instead.
      *
      * @param name
      * @param value
+     * @deprecated
      */
+    @Deprecated
     public void setBooleanProperty(String name, boolean value) {
         Log.d(TAG, "Setting boolean properties in CordovaActivity will be deprecated in 3.0 on July 2013, please use config.xml");
         this.getIntent().putExtra(name.toLowerCase(), value);
@@ -650,10 +619,14 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
     /**
      * Set int property on activity.
+     * This method has been deprecated in 3.0 and will be removed at a future
+     * time. Please use config.xml instead.
      *
      * @param name
      * @param value
+     * @deprecated
      */
+    @Deprecated
     public void setIntegerProperty(String name, int value) {
         Log.d(TAG, "Setting integer properties in CordovaActivity will be deprecated in 3.0 on July 2013, please use config.xml");
         this.getIntent().putExtra(name.toLowerCase(), value);
@@ -661,10 +634,14 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
     /**
      * Set string property on activity.
+     * This method has been deprecated in 3.0 and will be removed at a future
+     * time. Please use config.xml instead.
      *
      * @param name
      * @param value
+     * @deprecated
      */
+    @Deprecated
     public void setStringProperty(String name, String value) {
         Log.d(TAG, "Setting string properties in CordovaActivity will be deprecated in 3.0 on July 2013, please use config.xml");
         this.getIntent().putExtra(name.toLowerCase(), value);
@@ -672,10 +649,14 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
     /**
      * Set double property on activity.
+     * This method has been deprecated in 3.0 and will be removed at a future
+     * time. Please use config.xml instead.
      *
      * @param name
      * @param value
+     * @deprecated
      */
+    @Deprecated
     public void setDoubleProperty(String name, double value) {
         Log.d(TAG, "Setting double properties in CordovaActivity will be deprecated in 3.0 on July 2013, please use config.xml");
         this.getIntent().putExtra(name.toLowerCase(), value);
@@ -796,6 +777,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      * @param serviceType
      * @param className
      */
+    @Deprecated
     public void addService(String serviceType, String className) {
         if (this.appView != null && this.appView.pluginManager != null) {
             this.appView.pluginManager.addService(serviceType, className);
@@ -994,7 +976,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      * Determine if URL is in approved list of URLs to load.
      *
      * @param url
-     * @return
+     * @return true if the url is whitelisted
      */
     public boolean isUrlWhiteListed(String url) {
         return Config.isUrlWhiteListed(url);
@@ -1025,8 +1007,10 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     /**
      * Get Activity context.
      *
-     * @return
+     * @return self
+     * @deprecated
      */
+    @Deprecated
     public Context getContext() {
         LOG.d(TAG, "This will be deprecated December 2012");
         return this;

@@ -68,10 +68,15 @@ public class Config {
             return;
         }
 
+        // First checking the class namespace for config.xml
         int id = action.getResources().getIdentifier("config", "xml", action.getClass().getPackage().getName());
         if (id == 0) {
-            LOG.i("CordovaLog", "config.xml missing. Ignoring...");
-            return;
+            // If we couldn't find config.xml there, we'll look in the namespace from AndroidManifest.xml
+            id = action.getResources().getIdentifier("config", "xml", action.getPackageName());
+            if (id == 0) {
+                LOG.i("CordovaLog", "config.xml missing. Ignoring...");
+                return;
+            }
         }
 
         // Add implicitly allowed URLs
@@ -94,7 +99,7 @@ public class Config {
                 }
                 else if (strNode.equals("log")) {
                     String level = xml.getAttributeValue(null, "level");
-                    Log.d(TAG, "The <log> tags is deprecated. Use <preference name=\"loglevel\" value=\"" + level + "\"/> instead.");
+                    Log.d(TAG, "The <log> tag is deprecated. Use <preference name=\"loglevel\" value=\"" + level + "\"/> instead.");
                     if (level != null) {
                         LOG.setLogLevel(level);
                     }
@@ -208,7 +213,7 @@ public class Config {
      * Determine if URL is in approved list of URLs to load.
      *
      * @param url
-     * @return
+     * @return true if whitelisted
      */
     public static boolean isUrlWhiteListed(String url) {
         if (self == null) {

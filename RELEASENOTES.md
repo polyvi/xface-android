@@ -20,6 +20,36 @@
 -->
 ## Release Notes for Cordova (Android) ##
 
+### 3.3.0 (Dec 2013) ###
+
+41 commits from 11 authors. Highlights include:
+
+* CB-5481 Fix for Cordova trying to get config.xml from the wrong namespace
+* CB-5487 Enable Remote Debugging when your Android app is debuggable.
+* CB-5445 Adding onScrollChanged and the ScrollEvent object
+* CB-5422 Don't require JAVA_HOME to be defined
+* CB-5490 Add javadoc target to ant script
+* CB-5471 Deprecated DroidGap class
+* CB-5255 Prefer Google API targets over android-## targets when building.
+* CB-5232 Change create script to use Cordova as a Library Project instead of a .jar
+* CB-5302 Massive movement to get tests working again
+* CB-4996 Fix paths with spaces while launching on emulator and device
+* CB-5209 Cannot build Android app if project path contains spaces
+
+
+### 3.2.0 (Nov 2013) ###
+
+27 commits from 7 authors. Highlights include:
+
+* CB-5193 Fix Android WebSQL sometime throwing SECURITY_ERR.
+* CB-5191 Deprecate <url-filter>
+* Updating shelljs to 0.2.6. Copy now preserves mode bits.
+* CB-4872 Added android version scripts (android_sdk_version, etc)
+* CB-5117 Output confirmation message if check_reqs passes.
+* CB-5080 Find resources in a way that works with aapt's --rename-manifest-package
+* CB-4527 Don't delete .bat files even when on non-windows platform
+* CB-4892 Fix create script only escaping the first space instead of all spaces.
+
 ### 3.1.0 (Sept 2013) ###
 
 55 commits from 9 authors. Highlights include:
@@ -32,7 +62,7 @@
 * [CB-4764] Deprecated DirectoryManager.java (moved into plugins)
 * [CB-4763] Deprecated FileHelper.java (moved into plugins), Move getMimeType() into CordovaResourceApi.
 * [CB-4725] Add CordovaWebView.CORDOVA_VERSION constant
-* Incremeting version check for Android 4.3 API Level 18
+* Incrementing version check for Android 4.3 API Level 18
 * [CB-3542] rewrote cli tooling scripts in node
 * Allow CordovaChromeClient subclasses access to CordovaInterface and CordovaWebView members
 * Refactor CordovaActivity.init so that subclasses can easily override factory methods for webview objects

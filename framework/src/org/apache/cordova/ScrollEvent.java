@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -19,13 +17,51 @@
        under the License.
 */
 
-var check_reqs = require('./lib/check_reqs');
+package org.apache.cordova;
 
-check_reqs.run().done(
-    function success() {
-        console.log('Looks like your environment fully supports cordova-android development!');
-    }, function fail(err) {
-        console.log(err);
-        process.exit(2);
+import android.view.View;
+
+/*
+ * This can be used by any view, including native views
+ * 
+ */
+
+
+public class ScrollEvent {
+    
+    public int l, t, nl, nt;
+    private View targetView;
+    
+    /*
+     * ScrollEvent constructor
+     * No idea why it uses l and t instead of x and y
+     * 
+     * @param x
+     * @param y
+     * @param nx
+     * @param ny
+     * @param view
+     */
+    
+    ScrollEvent(int nx, int ny, int x, int y, View view)
+    {
+        l = x; y = t; nl = nx; nt = ny;
+        targetView = view;
     }
-);
+    
+    public int dl()
+    {
+        return nl - l;
+    }
+    
+    public int dt()
+    {
+        return nt - t;
+    }
+    
+    public View getTargetView()
+    {
+        return targetView;
+    }
+
+}

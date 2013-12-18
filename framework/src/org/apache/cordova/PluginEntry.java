@@ -107,13 +107,13 @@ public class PluginEntry {
      * Get the class.
      *
      * @param clazz
-     * @return
+     * @return a reference to the named class
      * @throws ClassNotFoundException
      */
     @SuppressWarnings("rawtypes")
     private Class getClassByName(final String clazz) throws ClassNotFoundException {
         Class c = null;
-        if (clazz != null) {
+        if ((clazz != null) && !("".equals(clazz))) {
             c = Class.forName(clazz);
         }
         return c;

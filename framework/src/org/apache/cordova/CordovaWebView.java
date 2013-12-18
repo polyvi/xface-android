@@ -37,6 +37,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,10 +59,16 @@ import android.webkit.WebView;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.widget.FrameLayout;
 
+/*
+ * This class is our web view.
+ *
+ * @see <a href="http://developer.android.com/guide/webapps/webview.html">WebView guide</a>
+ * @see <a href="http://developer.android.com/reference/android/webkit/WebView.html">WebView</a>
+ */
 public class CordovaWebView extends WebView {
 
     public static final String TAG = "CordovaWebView";
-    public static final String CORDOVA_VERSION = "3.3.0-dev";
+    public static final String CORDOVA_VERSION = "3.4.0-dev";
 
     private ArrayList<Integer> keyDownCodes = new ArrayList<Integer>();
     private ArrayList<Integer> keyUpCodes = new ArrayList<Integer>();
@@ -208,7 +217,9 @@ public class CordovaWebView extends WebView {
         this.setup();
     }
 
-
+    /**
+     * set the WebViewClient, but provide special case handling for IceCreamSandwich.
+     */
     private void initWebViewClient(CordovaInterface cordova) {
         if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB ||
                 android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -273,6 +284,28 @@ public class CordovaWebView extends WebView {
         settings.setDatabaseEnabled(true);
         settings.setDatabasePath(databasePath);
         
+        
+        //Determine whether we're in debug or release mode, and turn on Debugging!
+        try {
+            final String packageName = this.cordova.getActivity().getPackageName();
+            final PackageManager pm = this.cordova.getActivity().getPackageManager();
+            ApplicationInfo appInfo;
+            
+            appInfo = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            
+            if((appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0 &&  
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
+            {
+                setWebContentsDebuggingEnabled(true);
+            }
+        } catch (IllegalArgumentException e) {
+            Log.d(TAG, "You have one job! To turn on Remote Web Debugging! YOU HAVE FAILED! ");
+            e.printStackTrace();
+        } catch (NameNotFoundException e) {
+            Log.d(TAG, "This should never happen: Your application's package can't be found.");
+            e.printStackTrace();
+        }  
+        
         settings.setGeolocationDatabasePath(databasePath);
 
         // Enable DOM storage
@@ -313,10 +346,10 @@ public class CordovaWebView extends WebView {
     }
 
 	/**
-	 * Override this method to decide wether or not you need to request the
+	 * Override this method to decide whether or not you need to request the
 	 * focus when your application start
 	 * 
-	 * @return
+	 * @return true unless this method is overriden to return a different value
 	 */
     protected boolean shouldRequestFocusOnInit() {
 		return true;
@@ -509,6 +542,15 @@ public class CordovaWebView extends WebView {
         this.loadUrlIntoView(url);
     }
     
+    
+    public void onScrollChanged(int l, int t, int oldl, int oldt)
+    {
+        super.onScrollChanged(l, t, oldl, oldt);
+        //We should post a message that the scroll changed
+        ScrollEvent myEvent = new ScrollEvent(l, t, oldl, oldt, this);
+        this.postMessage("onScrollChanged", myEvent);
+    }
+    
     /**
      * Send JavaScript statement back to JavaScript.
      * (This is a convenience method)
@@ -634,7 +676,7 @@ public class CordovaWebView extends WebView {
      *
      * @param name
      * @param defaultValue
-     * @return
+     * @return the String value for the named property
      */
     public String getProperty(String name, String defaultValue) {
         Bundle bundle = this.cordova.getActivity().getIntent().getExtras();
@@ -718,11 +760,11 @@ public class CordovaWebView extends WebView {
                     if (this.backHistory()) {
                         return true;
                     }
-                    // If not, then invoke default behaviour
+                    // If not, then invoke default behavior
                     else {
                         //this.activityState = ACTIVITY_EXITING;
                     	//return false;
-                    	// If they hit back button when app is initializing, app should exit instead of hang until initilazation (CB2-458)
+                    	// If they hit back button when app is initializing, app should exit instead of hang until initialization (CB2-458)
                     	this.cordova.getActivity().finish();
                     }
                 }
@@ -921,7 +963,7 @@ public class CordovaWebView extends WebView {
 
     public void hideCustomView() {
         // This code is adapted from the original Android Browser code, licensed under the Apache License, Version 2.0
-        Log.d(TAG, "Hidding Custom View");
+        Log.d(TAG, "Hiding Custom View");
         if (mCustomView == null) return;
 
         // Hide the custom view.
@@ -941,7 +983,7 @@ public class CordovaWebView extends WebView {
      * if the video overlay is showing then we need to know 
      * as it effects back button handling
      * 
-     * @return
+     * @return true if custom view is showing
      */
     public boolean isCustomViewShowing() {
         return mCustomView != null;

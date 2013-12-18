@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -19,13 +17,23 @@
        under the License.
 */
 
-var check_reqs = require('./lib/check_reqs');
+/*
+ * This plugin is a test of all the message callbacks and actions available to plugins
+ * 
+ */
 
-check_reqs.run().done(
-    function success() {
-        console.log('Looks like your environment fully supports cordova-android development!');
-    }, function fail(err) {
-        console.log(err);
-        process.exit(2);
+package org.apache.cordova.pluginApi;
+
+import org.apache.cordova.CordovaPlugin;
+
+public class pluginStub extends CordovaPlugin {
+    
+    public String id;
+    public Object data;
+    
+    public Object onMessage(String id, Object input)
+    {
+       this.data = input;
+       return input;
     }
-);
+}
