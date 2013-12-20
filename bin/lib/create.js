@@ -88,7 +88,12 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
 
 function runAndroidUpdate(projectPath, target_api, shared) {
     var targetFrameworkDir = getFrameworkDir(projectPath, shared);
-    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"');
+    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"')
+    .then(function() {
+        // 由于`android update project`只有lib工程在开发工程目录下，才会更新lib工程相关配置参数，
+        // 故在shared为true的情况下，需要将local.properties拷贝到lib工程下
+        shared && shell.cp('-f', path.join(projectPath, 'local.properties'), targetFrameworkDir);
+    });
 }
 
 function copyScripts(projectPath) {
