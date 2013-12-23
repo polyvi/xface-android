@@ -47,8 +47,6 @@ public class XSysConfigParser {
     private static final String ATTR_ENGINE_BUILD = "EngineBuild";
     private static final String ATTR_SPLASH_DELAY = "SplashScreenDelayDuration";
     private static final String ATTR_AUTO_HIDE_SPLASH = "AutoHideSplashScreen";
-    private static final String ATTR_UPDATE_ADDRESS = "UpdateAddress";
-    private static final String ATTR_CHECK_UPDATE = "CheckUpdate";
 
     private XmlResourceParser mParser;
 
@@ -118,16 +116,6 @@ public class XSysConfigParser {
                         String engineBuild = mParser.getAttributeValue(null,
                                 ATTR_VALUE);
                         sysConfigInfo.setEngineBuild(engineBuild);
-                    } else if (name.equals(ATTR_CHECK_UPDATE)) {
-                        // 设置是否需要检测更新
-                        String checkUpdate = mParser.getAttributeValue(null,
-                                ATTR_VALUE);
-                        sysConfigInfo.setCheckUpdate(checkUpdate);
-                    } else if (name.equals(ATTR_UPDATE_ADDRESS)) {
-                        // 设置检测更新的服务器地址
-                        String updateAddress = mParser.getAttributeValue(null,
-                                ATTR_VALUE);
-                        sysConfigInfo.setUpdateAddress(updateAddress);
                     }
                 }
             }

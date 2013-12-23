@@ -51,12 +51,6 @@ public class XSysConfigInfo {
     /** 引擎的build号 */
     private String mEngineBuild;
 
-    /** 检测更新的服务器地址 */
-    private String mUpdateAddress;
-
-    /** 是否需要检测 */
-    private boolean mUpdateCheck;
-
     /** 加载应用时等待xface.js是否加载完成的时间 */
     private String mLoadUrlTimeout;
 
@@ -127,26 +121,6 @@ public class XSysConfigInfo {
 
     public String getEngineBuild() {
         return this.mEngineBuild;
-    }
-
-    public void setUpdateAddress(String updateAddress) {
-        this.mUpdateAddress = updateAddress;
-    }
-
-    public String getUpdateAddress() {
-        return mUpdateAddress;
-    }
-
-    public void setCheckUpdate(String checkUpdate) {
-        if (null == checkUpdate) {
-            this.mUpdateCheck = false;
-            return;
-        }
-        this.mUpdateCheck = checkUpdate.equals("true");
-    }
-
-    public boolean getCheckUpdate() {
-        return mUpdateCheck;
     }
 
     public void setLoadUrlTimeout(String loadUrlTimeout) {
