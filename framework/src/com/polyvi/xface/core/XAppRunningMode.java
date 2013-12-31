@@ -127,5 +127,5 @@ public abstract class XAppRunningMode {
      * @param filter[in]
      * @return
      */
-    public Iterator<char[]> createResourceIterator(XApplication app, XIResourceFilter filter){return null;}
+    public Iterator<byte[]> createResourceIterator(XApplication app, XIResourceFilter filter){return null;}
 }

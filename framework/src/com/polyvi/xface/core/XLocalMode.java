@@ -70,7 +70,7 @@ public class XLocalMode extends XAppRunningMode implements XAppCheckListener {
     }
 
     @Override
-    public Iterator<char[]> createResourceIterator(XApplication app,
+    public Iterator<byte[]> createResourceIterator(XApplication app,
             XIResourceFilter filter) {
         return new XLocalResourceIterator(app.getIntalledDir(), filter);
     }

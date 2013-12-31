@@ -39,7 +39,7 @@ import com.polyvi.xface.util.XUtils;
  * @param <E>
  *
  */
-public class XLocalResourceIterator implements Iterator<char[]> {
+public class XLocalResourceIterator implements Iterator<byte[]> {
 
     private static final String CLASS_NAME = XLocalResourceIterator.class.getName();
     private XIResourceFilter mFilter;
@@ -82,11 +82,10 @@ public class XLocalResourceIterator implements Iterator<char[]> {
     }
 
     @Override
-    public char[] next() {
+    public byte[] next() {
         InputStream current = mNextInputStream;
         mNextInputStream = traverseNext();
-        char[] content = XUtils.readCharArrayFromInputStream(current);
-        return content;
+        return XUtils.readBytesFromInputStream(current);
     }
 
     /**

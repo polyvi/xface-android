@@ -33,7 +33,7 @@ import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XLog;
 import com.polyvi.xface.util.XUtils;
 
-public class XOnlineResourceIterator implements Iterator<char[]>{
+public class XOnlineResourceIterator implements Iterator<byte[]>{
     private static final String CLASS_NAME = XOnlineResourceIterator.class.getName();
     private XIResourceFilter mFilter;
     private Cursor mCursor;
@@ -87,11 +87,10 @@ public class XOnlineResourceIterator implements Iterator<char[]>{
     }
 
     @Override
-    public char[] next() {
+    public byte[] next() {
         InputStream current = mNextInputStream;
         mNextInputStream = traverseNext();
-        char[] content = XUtils.readCharArrayFromInputStream(current);
-        return content;
+        return XUtils.readBytesFromInputStream(current);
     }
 
     /**

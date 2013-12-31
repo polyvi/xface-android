@@ -201,10 +201,9 @@ public class XPersistentAppList extends XAppList {
         }
         try {
             String[] ids = appsId.split(DELIMITER);
-            XStringUtils strUtils = new XStringUtils();
-            List<String> appIdList = strUtils.strArrayToList(ids);
+            List<String> appIdList = XStringUtils.strArrayToList(ids);
             appIdList.remove(appId);
-            appsId = strUtils.join(DELIMITER, appIdList);
+            appsId = XStringUtils.join(DELIMITER, appIdList);
             SharedPreferences.Editor editor = mPreference.edit();
             editor.putString(KEY_APPS_ID, appsId);
             editor.remove(appId);

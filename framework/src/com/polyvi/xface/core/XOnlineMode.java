@@ -113,7 +113,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
     }
 
     @Override
-    public Iterator<char[]> createResourceIterator(XApplication app, XIResourceFilter filter) {
+    public Iterator<byte[]> createResourceIterator(XApplication app, XIResourceFilter filter) {
         return new XOnlineResourceIterator(getAppUrl(app), filter);
     }
 
