@@ -28,7 +28,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.webkit.WebSettings;
 
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.app.XApplication;
@@ -57,8 +56,9 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
     private static final String LOCALSTORAGE = "localstorage";
 
     public XOnlineMode() {
-        String path = XConfiguration.getInstance().getOfflineCachePath();
-        mDataBasePath = path + File.separator + XOnlineMode.OFFLINE_DATABASE_NAME;
+        //example: /mnt/sdcard/Android/data/com.paas.xface/applications/sys_data/app_cache/ApplicationCache.db
+        mDataBasePath = XConfiguration.getInstance().getSysDataDir()
+                + XConstant.APP_CACHE_PATH + File.separator + XOnlineMode.OFFLINE_DATABASE_NAME;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
        String entry = app.getAppInfo().getEntry();
        if (entry.contains(XConstant.HTTP_SCHEME) ||
                entry.contains(XConstant.HTTPS_SCHEME)) {
-          return entry;
+          return addPlatformTag(entry);
        }
        app.getSystemContext().toast("app.xml: tag entry config error");
        XLog.e(CLASS_NAME, "app.xml: tag entry config error");
@@ -85,7 +85,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
            XLog.d(CLASS_NAME, "appUrl is null");
            return;
        }
-       if( hasAppCache( mDataBasePath, appUrl ) ) {
+       if( hasAppCache( appUrl ) ) {
            policy.checkAppStart(app, this);
        } else {
            if(XHttpWorker.isServerAccessable(appUrl)) {
@@ -108,10 +108,6 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
         clearAppLocalStorage(getAppUrl(app), app.getAppId(), context.getFilesDir().getParent());
     }
 
-    public void setAppCachedPolicy(WebSettings settings) {
-       settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-    }
-
     @Override
     public Iterator<byte[]> createResourceIterator(XApplication app, XIResourceFilter filter) {
         return new XOnlineResourceIterator(getAppUrl(app), filter);
@@ -122,14 +118,14 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
      * @param appUrl[in] 当前应用url
      * @return
      */
-    private boolean hasAppCache(String cachPath, String appUrl) {
-        File file = new File(cachPath);
+    private boolean hasAppCache(String appUrl) {
+        File file = new File(mDataBasePath);
         boolean hasCache = false;
         if( !file.exists() ) {
             XLog.w(CLASS_NAME, "hasAppCache: ApplicationCache.db is not exists!");
             return hasCache;
         }
-        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(cachPath, null);
+        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(mDataBasePath, null);
         try{
             String sqlCommand = "select * from CacheResources where id in ( select resource from " +
                                 "CacheEntries where cache in( select cache from CacheEntries where " +
@@ -284,7 +280,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
 
     @Override
     public void onCheckSuccess(XApplication app, XISystemContext ctx) {
-        app.loadAppIntoView(app.getBaseUrl());
+        app.loadAppIntoView(getAppUrl(app));
     }
 
     @Override
@@ -300,6 +296,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
 
     @Override
     public void onCheckStart(XApplication app, XISystemContext ctx) {
+
     }
 
     /**
@@ -316,5 +313,19 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
         appUrl = appUrl.replaceAll(":", "_");
         return appUrl.substring(0, appUrl.indexOf("/"))
                 + "." + LOCALSTORAGE;
+    }
+
+    /**
+     * 给Url加上平台标示符
+     * example:
+     * http://polyvi.com会变成http://polyvi.com?platform=android
+     * http://polyvi.com?data=test会变成http://polyvi.com?data=test&platform=android
+     */
+    private String addPlatformTag(String url) {
+        if(null == url) {
+            return url;
+        }
+        String append = url.indexOf("?") > 0 ? "&platform=android" : "?platform=android";
+        return url + append;
     }
 }
