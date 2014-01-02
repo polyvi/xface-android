@@ -40,6 +40,9 @@ import com.polyvi.xface.configXml.XAbstractAppConfigParser;
 import com.polyvi.xface.configXml.XXmlOperatorFactory;
 import com.polyvi.xface.core.XConfiguration;
 import com.polyvi.xface.core.XISystemContext;
+import com.polyvi.xface.event.XEvent;
+import com.polyvi.xface.event.XEventType;
+import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.util.XAppUtils;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
@@ -318,6 +321,9 @@ public class XAppInstaller {
     public synchronized void update(String packagePath,
             XInstallListener listener) {
         assert (null != listener);
+        //发送清除webview缓存的事件
+        XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
+        XSystemEventCenter.getInstance().sendEventSync(evt);
 
         // 1. 初始化
         if (!installInitialize(packagePath, listener,

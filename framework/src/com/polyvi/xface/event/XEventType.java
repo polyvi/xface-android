@@ -40,6 +40,8 @@ public interface XEventType {
     public static final int TRANSFER_COMPLETE = 12;
     // 预装app的md5校验失败事件
     public static final int MD5_INVALID = 13;
+    // 清除webview内存的缓存
+    public static final int CLEAR_MEMORY_CACHE = 14;
     //用户自定义事件类型
     public static final int USER_CUSTOM_EVENT = 10000;
 }

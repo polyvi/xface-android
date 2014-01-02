@@ -37,6 +37,9 @@ import com.polyvi.xface.core.XIResourceFilter;
 import com.polyvi.xface.core.XISystemContext;
 import com.polyvi.xface.core.XIdleWatcher;
 import com.polyvi.xface.core.XLocalMode;
+import com.polyvi.xface.event.XEvent;
+import com.polyvi.xface.event.XEventType;
+import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XStringUtils;
@@ -339,12 +342,22 @@ public class XApplication implements XIApplication {
     }
 
     /**
+     * 清理页面缓存.
+     * @param includeDiskFile 是否包含磁盘文件
+     */
+    public void clearCache(boolean includeDiskFile) {
+        mAppView.clearCache(includeDiskFile);
+    }
+
+    /**
      * 卸载应用的缓存数据,例如：离线应用的缓存、http缓存、localStorage信息
      *
      * @param context
      */
     public void releaseData(Context context) {
-        // TODO: 要清除http cache
+        //发送清除webview的缓存的事件
+        XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
+        XSystemEventCenter.getInstance().sendEventSync(evt);
         mRunningMode.clearAppData(this, context);
     }
 

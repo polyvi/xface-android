@@ -37,6 +37,8 @@ public class XStartAppView extends XAppWebView implements XISystemEventReceiver 
                 XEventType.XAPP_MESSAGE);
         XSystemEventCenter.getInstance().registerReceiver(this,
                 XEventType.CLOSE_APP);
+        XSystemEventCenter.getInstance().registerReceiver(this,
+                XEventType.CLEAR_MEMORY_CACHE);
     }
 
     public void setAppManagement(XAppManagement ams) {
@@ -136,6 +138,8 @@ public class XStartAppView extends XAppWebView implements XISystemEventReceiver 
         } else if (evt.getType() == XEventType.CLOSE_APP) {
             int viewId = (Integer) evt.getData();
             handleCloseApplication(viewId);
+        } else if (evt.getType() == XEventType.CLEAR_MEMORY_CACHE) {
+            mOwnerApp.clearCache(false);
         }
     }
 }
