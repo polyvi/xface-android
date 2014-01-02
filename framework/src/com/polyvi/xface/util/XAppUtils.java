@@ -30,6 +30,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 
 import com.polyvi.xface.app.XAppInfo;
 import com.polyvi.xface.app.XApplication;
@@ -142,5 +144,41 @@ public class XAppUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 启动应用程序
+     *
+     * @param context
+     * @param packageName
+     *            应用程序包的名字
+     * @param parameterName
+     *            intent启动参数名称
+     * @param parameterValue
+     *            intent启动参数值
+     * @return 成功返回true,失败返回false
+     */
+    public static boolean startNativeApp(Context context,
+            String packageName, String parameterName, String parameterValue) {
+        if (null == packageName) {
+            return false;
+        }
+
+        PackageManager pm = context.getPackageManager();
+        Intent intent = null;
+        try {
+            intent = pm.getLaunchIntentForPackage(packageName);
+            if (null == intent) {
+                return false;
+            }
+            intent.putExtra(parameterName, parameterValue);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            XLog.e(CLASS_NAME, "error when startNativeApp:" + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 }
