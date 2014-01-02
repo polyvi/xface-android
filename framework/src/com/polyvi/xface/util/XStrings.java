@@ -52,6 +52,8 @@ public class XStrings {
 
     public static String APP_CONFIG_ERROR = "app_config_error";
 
+    public static String ENTRY_NOT_FOUND = "entry_not_found";
+
     private static String TAG_RESOURCES = "resources";
 
     private static String XML_NAME = "xface_string";

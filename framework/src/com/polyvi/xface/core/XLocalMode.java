@@ -29,6 +29,7 @@ import com.polyvi.xface.app.XApplication;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XLog;
+import com.polyvi.xface.util.XStrings;
 
 /**
  * 本地模式，应用的所有文件都在本地目录 指应用放到本地磁盘 离散的形式
@@ -42,7 +43,6 @@ public class XLocalMode extends XAppRunningMode implements XAppCheckListener {
             XLog.e(CLASS_NAME, "Application object is null!");
             return null;
         }
-        String indexUrl = null;
         String appSourceRoot = app.getAppInfo().getSrcRoot();
         if (null == appSourceRoot) {
             appSourceRoot = XConstant.FILE_SCHEME
@@ -51,12 +51,10 @@ public class XLocalMode extends XAppRunningMode implements XAppCheckListener {
         }
         String startPage = app.getAppInfo().getEntry();
         if (startPage.startsWith(File.separator)) {
-            indexUrl =  appSourceRoot + startPage;
+            return appSourceRoot + startPage;
         } else {
-            indexUrl =  appSourceRoot + File.separator + startPage;
+            return appSourceRoot + File.separator + startPage;
         }
-        return indexUrl;
-        
     }
 
     @Override
@@ -77,9 +75,12 @@ public class XLocalMode extends XAppRunningMode implements XAppCheckListener {
 
     @Override
     public void onCheckSuccess(XApplication app, XISystemContext ctx) {
-        if( XFileUtils.fileExists(ctx.getContext(), getAppUrl(app)) ) {
-        	app.loadAppIntoView( app.getBaseUrl());
+        String appUrl = getAppUrl(app);
+        if (XFileUtils.fileExists(ctx.getContext(), appUrl)) {
+            app.loadAppIntoView(appUrl);
         } else {
+            app.getSystemContext().toast(
+                    XStrings.getInstance().getString(XStrings.ENTRY_NOT_FOUND));
             app.loadErrorPage();
         }
     }
@@ -91,6 +92,7 @@ public class XLocalMode extends XAppRunningMode implements XAppCheckListener {
 
     @Override
     public void onCheckStart(XApplication app, XISystemContext ctx) {
+
     }
 
 }
