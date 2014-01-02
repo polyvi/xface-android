@@ -21,6 +21,7 @@
 
 package com.polyvi.xface.core;
 
+import java.io.File;
 import java.util.Iterator;
 
 import android.content.Context;
@@ -47,6 +48,8 @@ public abstract class XAppRunningMode {
     private static final String LOCAL_RUNNING_MODE = "local";
     /** 在线应用运行模式 */
     private static final String ONLINE_RUNNING_MODE = "online";
+    private static final int BUFFER_SIZE = 1024*1024*8;
+    protected static String mCachePath;
 
     /**
      * 根据配置串创建具体的运行模式对象
@@ -58,6 +61,8 @@ public abstract class XAppRunningMode {
         if (null == modeStr) {
             return null;
         }
+        //example: /mnt/sdcard/Android/data/com.paas.xface/applications/sys_data/app_cache
+        mCachePath = XConfiguration.getInstance().getSysDataDir() + XConstant.APP_CACHE_PATH;
         if (modeStr.equals(LOCAL_RUNNING_MODE)) {
             return new XLocalMode();
         }
@@ -104,6 +109,15 @@ public abstract class XAppRunningMode {
      *
      */
     public void setAppCachedPolicy(WebSettings settings) {
+        File file = new File(mCachePath);
+        if( !file.exists() ) {
+            file.mkdirs();
+        }
+        settings.setAppCachePath(mCachePath);
+        settings.setAppCacheMaxSize(BUFFER_SIZE);
+        settings.setAppCacheEnabled(true);
+        settings.setAllowFileAccess(true);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
     }
 
     /**
