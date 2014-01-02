@@ -35,7 +35,7 @@ public class XAppInstallListener implements XInstallListener {
 
     private final static String TAG_APP_ID = "appid";
     private final static String TAG_INSTALL_PROGRESS = "progress";
-    private final static String TAG_ERROR_CODE = "code";
+    private final static String TAG_ERROR_CODE = "errorcode";
     private final static String TAG_OPERATION_TYPE = "type";
     private final static String TAG_CALLBACK = "callback";
 
