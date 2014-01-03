@@ -431,7 +431,6 @@ public class XFileUtils {
      *            解压的目标路径
      * @param zipFilePath
      *            zip包路径
-     *
      * @return 是否成功
      */
     public static boolean unzipFile(String targetPath, String zipFilePath) {
@@ -526,46 +525,97 @@ public class XFileUtils {
     }
 
     /**
-     * 拷贝xface.js到新安装应用所在目录
+     * 拷贝xface.js, plugin, cordova_plugins.js到新安装应用所在目录
      *
      * @param context
      *            android程序运行时上下文
      * @param targetDir
-     *            拷贝xface.js的目的目录（绝对路径）
+     *            拷贝xface.js, plugin, cordova_plugins.js的目的目录（绝对路径）
      */
     public static void copyEmbeddedJsFile(XISystemContext systemContext,
-            String targetDir) {
+            String startAppDir, String targetDir) {
         try {
-            String jsFileparentPath = XConstant.PRE_INSTALL_SOURCE_ROOT
-                    + systemContext.getStartApp().getAppId() + File.separator;
-            Context context = systemContext.getContext();
-            // 1.copy xface.js
-            File desjsFile = new File(targetDir, XConstant.XFACE_JS_FILE_NAME);
-            boolean ret = XAssetsFileUtils.copyAssetsToTarget(context,
-                    jsFileparentPath + XConstant.XFACE_JS_FILE_NAME,
-                    desjsFile.getAbsolutePath());
-            if (!ret) {
-                throw new NotFoundException();
-            }
-            // 2.copy cordova_plugins.js
-            desjsFile = new File(targetDir, XConstant.PLUGIN_JS_METADATA_FILE);
-            ret = XAssetsFileUtils.copyAssetsToTarget(context,
-                    jsFileparentPath + XConstant.PLUGIN_JS_METADATA_FILE,
-                    desjsFile.getAbsolutePath());
-            if (!ret) {
-                throw new NotFoundException();
-            }
-            // copy plugin js dir
-            ret = XAssetsFileUtils.copyAssetsToTarget(context,
-                    jsFileparentPath + "plugins", targetDir + "/" + "plugins");
-            if (!ret) {
-                throw new NotFoundException();
+            String jsFileparentPath = startAppDir + File.separator;
+
+            if (jsFileparentPath.contains(XConstant.ASSERT_PROTACAL)) {
+                copyJsFromAssets(systemContext, targetDir, jsFileparentPath);
+            } else {
+                copyJsFromSdcard(targetDir, jsFileparentPath);
             }
 
         } catch (NotFoundException e) {
             XLog.e(CLASS_NAME, "copyEmbeddedJsFile error!");
             e.printStackTrace();
+        } catch (IOException e) {
+            XLog.e(CLASS_NAME, "copyEmbeddedJsFile error!");
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * 从assets下进行拷贝js文件
+     *
+     * @param systemContext
+     * @param targetDir
+     *            目标路径
+     * @param jsFileparentPath
+     *            js文件的父目录
+     */
+    private static void copyJsFromAssets(XISystemContext systemContext,
+            String targetDir, String jsFileparentPath) {
+        jsFileparentPath = jsFileparentPath.substring(XConstant.ASSERT_PROTACAL
+                .length());
+        Context context = systemContext.getContext();
+        // 1.copy xface.js
+        File desjsFile = new File(targetDir, XConstant.XFACE_JS_FILE_NAME);
+        boolean ret = XAssetsFileUtils.copyAssetsToTarget(context,
+                jsFileparentPath + XConstant.XFACE_JS_FILE_NAME,
+                desjsFile.getAbsolutePath());
+        if (!ret) {
+            throw new NotFoundException();
+        }
+        // 2.copy cordova_plugins.js
+        desjsFile = new File(targetDir, XConstant.PLUGIN_JS_METADATA_FILE);
+        ret = XAssetsFileUtils.copyAssetsToTarget(context, jsFileparentPath
+                + XConstant.PLUGIN_JS_METADATA_FILE,
+                desjsFile.getAbsolutePath());
+        if (!ret) {
+            throw new NotFoundException();
+        }
+        // 3.copy plugin js dir
+        ret = XAssetsFileUtils.copyAssetsToTarget(context, jsFileparentPath
+                + "plugins", targetDir + "/" + "plugins");
+        if (!ret) {
+            throw new NotFoundException();
+        }
+    }
+
+    /**
+     * 从sdcard下进行拷贝js文件
+     *
+     * @param targetDir
+     *            目标路径
+     * @param jsFileparentPath
+     *            js文件的父目录
+     */
+    private static void copyJsFromSdcard(String targetDir,
+            String jsFileparentPath) throws IOException {
+        jsFileparentPath = jsFileparentPath.substring(XConstant.FILE_SCHEME
+                .length());
+        // 1.copy xface.js
+        File srcJsFile = new File(jsFileparentPath,
+                XConstant.XFACE_JS_FILE_NAME);
+        File desJsFile = new File(targetDir, XConstant.XFACE_JS_FILE_NAME);
+        copy(srcJsFile, desJsFile);
+        // 2.copy cordova_plugins.js
+        srcJsFile = new File(jsFileparentPath,
+                XConstant.PLUGIN_JS_METADATA_FILE);
+        desJsFile = new File(targetDir, XConstant.PLUGIN_JS_METADATA_FILE);
+        copy(srcJsFile, desJsFile);
+        // 3.copy plugin js dir
+        srcJsFile = new File(jsFileparentPath, "plugins");
+        desJsFile = new File(targetDir + "/" + "plugins");
+        copy(srcJsFile, desJsFile);
     }
 
     /**
@@ -663,7 +713,6 @@ public class XFileUtils {
      *
      * @param filePath
      *            [in] 文件路径
-     *
      * @return
      * */
     public static boolean fileExists(Context context, String filePath) {

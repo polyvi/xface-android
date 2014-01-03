@@ -484,10 +484,10 @@ public class XAppInstaller {
         if (null == app) {
             return;
         }
-
+        String startAppDir = mSysContext.getStartApp().getAppInfo().getSrcRoot();
         File appDir = new File(XConfiguration.getInstance().getAppInstallDir(), appId);
         String indexDir = new File(appDir, app.getAppInfo().getEntry()).getParent();
-        XFileUtils.copyEmbeddedJsFile(mSysContext, indexDir);
+        XFileUtils.copyEmbeddedJsFile(mSysContext, startAppDir, indexDir);
     }
 
     /**
