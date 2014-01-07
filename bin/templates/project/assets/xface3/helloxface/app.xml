@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="helloxface" version="1.0" xmlns="http://www.w3.org/ns/widgets">
+
+  <name short="helloxface">helloxface</name>
+  <icon src="icon.png" />
+  <content encoding="UTF-8" src="index.html" />
+
+  <preference name="type" readonly="true" value="xapp" />
+  <preference name="mode" readonly="true" value="local" />
+
+  <description>
+      A sample widget to demonstrate some of the possibilities.
+  </description>
+
+  <author email="foo-bar@polyvi.com/" href="http://polyvi.com/">polyvi</author>
+
+  <license> Copyright 2012-2013, Polyvi Inc. </license>
+
+</widget>
