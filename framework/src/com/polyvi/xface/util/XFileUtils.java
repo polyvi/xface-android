@@ -561,7 +561,7 @@ public class XFileUtils {
      * @param jsFileparentPath
      *            js文件的父目录
      */
-    private static void copyJsFromAssets(XISystemContext systemContext,
+    public static void copyJsFromAssets(XISystemContext systemContext,
             String targetDir, String jsFileparentPath) {
         jsFileparentPath = jsFileparentPath.substring(XConstant.ASSERT_PROTACAL
                 .length());
