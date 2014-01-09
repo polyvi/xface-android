@@ -46,7 +46,7 @@ public class XAsyncHttpResponseHandler {
     protected static final int SUCCESS_MESSAGE = 0;
     protected static final int FAILURE_MESSAGE = 1;
 
-    private   static Handler mHandler;
+    private Handler mHandler;
 
     public XAsyncHttpResponseHandler() {
         if (Looper.myLooper() != null) {
