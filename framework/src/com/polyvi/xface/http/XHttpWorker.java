@@ -77,7 +77,7 @@ public class XHttpWorker {
     /** 检查网络连接的间隔时间 */
     private static final int SERVER_CONNECT_TIMEOUT = 10000;
     private static final int DEFAULT_MAX_CONNECTIONS = 10;
-    private static final int DEFAULT_SOCKET_TIMEOUT = 10 * 1000;
+    private static final int DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
     private static int maxConnections = DEFAULT_MAX_CONNECTIONS;
     private static int socketTimeout = DEFAULT_SOCKET_TIMEOUT;
     private static final int DEFAULT_SOCKET_BUFFER_SIZE = 8192;
@@ -186,7 +186,7 @@ public class XHttpWorker {
         HttpEntity entity = null;
         if (postData != null) {
             try {
-                entity = new StringEntity(postData);
+                entity = new StringEntity(postData, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 throw e;
             }
