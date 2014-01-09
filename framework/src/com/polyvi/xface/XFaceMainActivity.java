@@ -295,21 +295,6 @@ public class XFaceMainActivity extends CordovaActivity implements
     }
 
     @Override
-    public void loadUrl(String url) {
-        String sdelay = XConfiguration.getInstance().readSplashDelay();
-        int iDelay = 0;
-        try {
-            iDelay = Integer.parseInt(sdelay);
-        } catch (NumberFormatException e) {
-        }
-        if (iDelay != 0) {
-            super.loadUrl(url, iDelay);
-        } else {
-            super.loadUrl(url);
-        }
-    }
-
-    @Override
     public void loadView(XApplication app, String url) {
         if (this.appView != null) {
             this.init();

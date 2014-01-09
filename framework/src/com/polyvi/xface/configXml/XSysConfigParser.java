@@ -45,7 +45,6 @@ public class XSysConfigParser {
     private static final String ATTR_WORK_DIR = "WorkDir";
     private static final String ATTR_ENGINE_VERSION = "EngineVersion";
     private static final String ATTR_ENGINE_BUILD = "EngineBuild";
-    private static final String ATTR_SPLASH_DELAY = "SplashScreenDelayDuration";
     private static final String ATTR_AUTO_HIDE_SPLASH = "AutoHideSplashScreen";
 
     private XmlResourceParser mParser;
@@ -91,11 +90,6 @@ public class XSysConfigParser {
                         String loglevel = mParser.getAttributeValue(null,
                                 ATTR_VALUE);
                         sysConfigInfo.setLogLevel(loglevel);
-                    } else if (name.equals(ATTR_SPLASH_DELAY)) {
-                        // 设置splash的延迟时间
-                        String splashDelay = mParser.getAttributeValue(null,
-                                ATTR_VALUE);
-                        sysConfigInfo.setSplashDelay(splashDelay);
                     } else if (name.equals(ATTR_AUTO_HIDE_SPLASH)) {
                         // 设置是否自动隐藏splash
                         String autoHideSplash = mParser.getAttributeValue(null,

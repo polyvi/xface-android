@@ -36,9 +36,6 @@ public class XSysConfigInfo {
     /** 系统LOG等级 */
     private String mLogLevel;
 
-    /** splash图片显示的时间 */
-    private String mSplashDelay;
-
     /** 工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先 */
     private String mWorkDir;
 
@@ -77,14 +74,6 @@ public class XSysConfigInfo {
 
     public String getLogLevel() {
         return mLogLevel;
-    }
-
-    public void setSplashDelay(String splashDelay) {
-        this.mSplashDelay = splashDelay;
-    }
-
-    public String getSplashDelay() {
-        return mSplashDelay;
     }
 
     public void setAutoHideSplash(String autoHideSplash) {

@@ -183,16 +183,6 @@ public class XConfiguration {
     }
 
     /**
-     * 从config.xml配置文件中读取splash显示的时间
-     *
-     * @return
-     */
-    public String readSplashDelay() {
-        return (null == mSysConfigInfo) ? null : mSysConfigInfo
-                .getSplashDelay();
-    }
-
-    /**
      * 从config.xml配置文件中读取引擎版本
      *
      * @return
