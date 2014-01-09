@@ -39,7 +39,7 @@ public class XAssetsFileUtils {
      * @return
      * @throws IOException
      */
-    public static boolean isDirectory(Context context, String filePath){
+    public static boolean isDirectory(Context context, String filePath) {
         try {
             context.getAssets().open(filePath);
         } catch (IOException e) {
@@ -99,41 +99,43 @@ public class XAssetsFileUtils {
     }
 
     /**
-	 * @param context
-	 *            系统上下文
-	 * @param fileName
-	 *            源文件名或者源目录名
-	 * @param desPath
-	 *            需要拷贝的目标路径
-	 * @return 成功 true 失败 false
-	 */
-	public static boolean copyAssetsToTarget(Context context,
-			String srcFileName, String desPath) {
-		try {
-			String childrens[] = context.getAssets().list(srcFileName);
-			if (childrens.length > 0) {
-				File desFile = new File(desPath);
-				if (!desFile.exists() && !desFile.mkdirs()) {
-					throw new IOException();
-				}
-				int len = childrens.length;
-				for (int i = 0; i < len; i++) {
-					copyAssetsToTarget(context, srcFileName + "/"
-							+ childrens[i],
-							new File(desPath, childrens[i]).getAbsolutePath());
-				}
-			} else {
-				String targetFilePath = new File(desPath).getAbsolutePath();
-				InputStream is = context.getAssets().open(srcFileName);
-				XFileUtils.createFileByData(targetFilePath, is);
-				is.close();
-			}
+     * @param context
+     *            系统上下文
+     * @param fileName
+     *            源文件名或者源目录名
+     * @param desPath
+     *            需要拷贝的目标路径
+     * @return 成功 true 失败 false
+     */
+    public static boolean copyAssetsToTarget(Context context,
+            String srcFileName, String desPath) {
+        try {
+            String childrens[] = context.getAssets().list(srcFileName);
+            if (childrens.length > 0) {
+                File desFile = new File(desPath);
+                if (!desFile.exists() && !desFile.mkdirs()) {
+                    throw new IOException();
+                }
+                int len = childrens.length;
+                for (int i = 0; i < len; i++) {
+                    copyAssetsToTarget(context, srcFileName + "/"
+                            + childrens[i],
+                            new File(desPath, childrens[i]).getAbsolutePath());
+                }
+            } else {
+                if (isFile(context, srcFileName)) {
+                    String targetFilePath = new File(desPath).getAbsolutePath();
+                    InputStream is = context.getAssets().open(srcFileName);
+                    XFileUtils.createFileByData(targetFilePath, is);
+                    is.close();
+                }
+            }
 
-		} catch (IOException e) {
-			XLog.e(CLASS_NAME, e.getMessage());
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
+        } catch (IOException e) {
+            XLog.e(CLASS_NAME, e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
