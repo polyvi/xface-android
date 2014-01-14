@@ -21,12 +21,16 @@
         id        = "io.cordova.helloCordova"
         version   = "2.0.0">
 
+    <pre_install_packages>
+        <app_package id = "helloxface" name = "helloxface" />
+    </pre_install_packages>
+
     <!-- Preferences for Android -->
     <preference name="loglevel" value="DEBUG" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
     <preference name="loadingDialog" value="please waiting...."/>
-    <preference name="splashscreen" value="xface_logo" />
+    <preference name="splashscreen" value="splash" />
     <preference name="backgroundColor" value="0xFFF" />
     <preference name="loadUrlTimeoutValue" value="20000" />
     <preference name="InAppBrowserStorageEnabled" value="true" />
