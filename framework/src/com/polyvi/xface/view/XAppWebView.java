@@ -1,3 +1,4 @@
+
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -16,7 +17,7 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 package com.polyvi.xface.view;
 
@@ -57,10 +58,11 @@ public class XAppWebView extends CordovaWebView implements
 	private boolean mIsValid;
 
 	protected XApplication mOwnerApp;
+	protected XISystemContext mSystemCtx;
 
 	public XAppWebView(XISystemContext systemContext) {
 		super(systemContext.getContext());
-
+		mSystemCtx = systemContext;
 		setAppCachePath(XConfiguration.getInstance().getOfflineCachePath());
 		mViewId = XUtils.generateRandomId();
 		mTouchEventHandler = new XTouchEventHandler();
