@@ -48,6 +48,8 @@ import com.polyvi.xface.app.XIApplication;
 import com.polyvi.xface.configXml.XTagNotFoundException;
 import com.polyvi.xface.core.XConfiguration;
 import com.polyvi.xface.core.XISystemContext;
+import com.polyvi.xface.event.XEvent;
+import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.ssl.XSSLManager;
 import com.polyvi.xface.util.XConstant;
@@ -152,6 +154,10 @@ public class XFaceMainActivity extends CordovaActivity implements
     @Override
     public Object onMessage(String id, Object data) {
         if ("exit".equals(id)) {
+            XAppWebView xAppView = ((XAppWebView) appView);
+            int viewId = xAppView.getViewId();
+            XEvent evt = XEvent.createEvent(XEventType.CLOSE_APP, viewId);
+            XSystemEventCenter.getInstance().sendEventSync(evt);
             return true;
         } else if ("exit_engine".equals(id)) {
             endActivity();
