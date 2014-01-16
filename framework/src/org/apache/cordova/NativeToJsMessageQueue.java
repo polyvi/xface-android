@@ -140,7 +140,9 @@ public class NativeToJsMessageQueue {
      */
     public String popAndEncode(boolean fromOnlineEvent) {
         synchronized (this) {
-            registeredListeners[activeListenerIndex].notifyOfFlush(fromOnlineEvent);
+            if (null != registeredListeners[activeListenerIndex]) {
+                registeredListeners[activeListenerIndex].notifyOfFlush(fromOnlineEvent);
+            }
             if (queue.isEmpty()) {
                 return null;
             }
