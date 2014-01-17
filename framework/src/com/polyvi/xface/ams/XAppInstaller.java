@@ -321,10 +321,6 @@ public class XAppInstaller {
     public synchronized void update(String packagePath,
             XInstallListener listener) {
         assert (null != listener);
-        //发送清除webview缓存的事件
-        XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
-        XSystemEventCenter.getInstance().sendEventSync(evt);
-
         // 1. 初始化
         if (!installInitialize(packagePath, listener,
                 AMS_OPERATION_TYPE.OPERATION_TYPE_UPDATE))
@@ -346,6 +342,11 @@ public class XAppInstaller {
             listener.onError(AMS_OPERATION_TYPE.OPERATION_TYPE_UPDATE, appId,
                     AMS_ERROR.NO_TARGET_APP);
             return;
+        }
+        if (oldApp instanceof XApplication) {
+            //发送清除webview缓存的事件
+            XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
+            XSystemEventCenter.getInstance().sendEventSync(evt);
         }
 
         listener.onProgressUpdated(AMS_OPERATION_TYPE.OPERATION_TYPE_UPDATE,
