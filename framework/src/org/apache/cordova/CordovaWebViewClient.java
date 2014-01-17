@@ -208,6 +208,15 @@ public class CordovaWebViewClient extends WebViewClient {
                 LOG.e(TAG, "Error loading Google Play Store: " + url, e);
             }
         }
+        else if (url.startsWith("content://media/external")) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setData(Uri.parse(url));
+                this.cordova.getActivity().startActivity(intent);
+            } catch (android.content.ActivityNotFoundException e) {
+                LOG.e(TAG, "Error loading url " + url, e);
+            }
+        }
 
         // All else
         else {
