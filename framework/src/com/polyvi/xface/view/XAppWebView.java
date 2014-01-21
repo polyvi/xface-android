@@ -42,81 +42,83 @@ import com.polyvi.xface.util.XUtils;
  * application对应的WebView封装，用于显示application
  */
 public class XAppWebView extends CordovaWebView implements
-		XISystemEventReceiver {
+        XISystemEventReceiver {
 
-	public static final String CLASS_NAME = "XAppWebView";
+    public static final String CLASS_NAME = "XAppWebView";
 
-	public static final int EMPTPY_VIEW_ID = Integer.MAX_VALUE;
+    public static final int EMPTPY_VIEW_ID = Integer.MAX_VALUE;
 
-	private int mViewId;
-	/** < view id，每个view的id唯一 */
-	private XTouchEventHandler mTouchEventHandler;
+    private int mViewId;
+    /** < view id，每个view的id唯一 */
+    private XTouchEventHandler mTouchEventHandler;
 
-	private XWebViewClient mWebViewClient;
+    private XWebViewClient mWebViewClient;
 
-	/** 该视图是否有效 */
-	private boolean mIsValid;
+    /** 该视图是否有效 */
+    private boolean mIsValid;
 
-	protected XApplication mOwnerApp;
-	protected XISystemContext mSystemCtx;
+    protected XApplication mOwnerApp;
+    protected XISystemContext mSystemCtx;
 
-	public XAppWebView(XISystemContext systemContext) {
-		super(systemContext.getContext());
-		mSystemCtx = systemContext;
-		setAppCachePath(XConfiguration.getInstance().getOfflineCachePath());
-		mViewId = XUtils.generateRandomId();
-		mTouchEventHandler = new XTouchEventHandler();
-		registerSystemEventReceiver();
-	}
+    public XAppWebView(XISystemContext systemContext) {
+        super(systemContext.getContext());
+        mSystemCtx = systemContext;
+        setAppCachePath(XConfiguration.getInstance().getOfflineCachePath());
+        mViewId = XUtils.generateRandomId();
+        mTouchEventHandler = new XTouchEventHandler();
+        registerSystemEventReceiver();
+    }
 
-	private void setAppCachePath(String path) {
-		File file = new File(path);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		getSettings().setAppCachePath(path);
-	}
+    private void setAppCachePath(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        getSettings().setAppCachePath(path);
+    }
 
-	private void registerSystemEventReceiver() {
-		XSystemEventCenter.getInstance().registerReceiver(this,
-				XEventType.MSG_RECEIVED);
-		XSystemEventCenter.getInstance().registerReceiver(this,
-				XEventType.CALL_RECEIVED);
-		XSystemEventCenter.getInstance().registerReceiver(this,
-				XEventType.PUSH_MSG_RECEIVED);
-	}
+    private void registerSystemEventReceiver() {
+        XSystemEventCenter.getInstance().registerReceiver(this,
+                XEventType.MSG_RECEIVED);
+        XSystemEventCenter.getInstance().registerReceiver(this,
+                XEventType.CALL_RECEIVED);
+        XSystemEventCenter.getInstance().registerReceiver(this,
+                XEventType.PUSH_MSG_RECEIVED);
+    }
 
-	private void unRegisterSystemEventReceiver() {
-		XSystemEventCenter.getInstance().unregisterReceiver(this);
-	}
+    private void unRegisterSystemEventReceiver() {
+        XSystemEventCenter.getInstance().unregisterReceiver(this);
+    }
 
-	@Override
-	public void onReceived(Context context, XEvent evt) {
-		if (evt.getType() == XEventType.MSG_RECEIVED) {
-			String msgs = (String) evt.getData();
-			handleMsgEvent(msgs);
-		} else if (evt.getType() == XEventType.CALL_RECEIVED) {
-			int callStatus = (Integer) evt.getData();
-			handleCallReceived(callStatus);
-		}
-	}
+    @Override
+    public void onReceived(Context context, XEvent evt) {
+        if (evt.getType() == XEventType.MSG_RECEIVED) {
+            String msgs = (String) evt.getData();
+            handleMsgEvent(msgs);
+        } else if (evt.getType() == XEventType.CALL_RECEIVED) {
+            int callStatus = (Integer) evt.getData();
+            handleCallReceived(callStatus);
+        }
+    }
 
-	/**
-	 * 处理短信事件
-	 * @param msgs
-	 */
-	private void handleMsgEvent(String msgs) {
-		//TODO
-	}
+    /**
+     * 处理短信事件
+     *
+     * @param msgs
+     */
+    private void handleMsgEvent(String msgs) {
+        // TODO
+    }
 
-	/**
-	 * 处理来电事件
-	 * @param callStatus
-	 */
-	private void handleCallReceived(int callStatus) {
-		//TODO
-	}
-	
+    /**
+     * 处理来电事件
+     *
+     * @param callStatus
+     */
+    private void handleCallReceived(int callStatus) {
+        // TODO
+    }
+
     /**
      * 处理通知事件
      *
@@ -125,93 +127,109 @@ public class XAppWebView extends CordovaWebView implements
     public void handleNotificationReceived(String message) {
         String jsScript = "try{ cordova.require('com.polyvi.xface.extension.push.PushNotification').fire('"
                 + message + "');}catch(e){console.log('call rcv : ' + e);}";
-    
+
         sendJavascript(jsScript);
     }
 
+    /**
+     * 处理双击以及多次连击时自动放大的情况
+     *
+     * @param event
+     *            交互事件
+     * @return 如果事件被处理了返回true，否则返回false
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            mOwnerApp.resetIdleWatcher();
+        }
+        mTouchEventHandler.handleTouchEvent(event, this);
+        return super.onTouchEvent(event);
+    }
 
-	/**
-	 * 处理双击以及多次连击时自动放大的情况
-	 * 
-	 * @param event
-	 *            交互事件
-	 * 
-	 * @return 如果事件被处理了返回true，否则返回false
-	 */
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			mOwnerApp.resetIdleWatcher();
-		}
-		mTouchEventHandler.handleTouchEvent(event, this);
-		return super.onTouchEvent(event);
-	}
+    public int getViewId() {
+        return mViewId;
+    }
 
-	public int getViewId() {
-		return mViewId;
-	}
+    @Override
+    public void loadUrl(String url) {
+        super.loadUrl(url);
+        this.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // 重载onLongClick，阻止Android 4.0系统中出现默认text selection行为.
+                // 经过测试，不影响touchstart, touchmove, touchend等events
+                return true;
+            }
+        });
+    }
 
-	@Override
-	public void loadUrl(String url) {
-		super.loadUrl(url);
-		this.setOnLongClickListener(new View.OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				// 重载onLongClick，阻止Android 4.0系统中出现默认text selection行为.
-				// 经过测试，不影响touchstart, touchmove, touchend等events
-				return true;
-			}
-		});
-	}
+    /**
+     * 设置适配是否完成标志
+     *
+     * @param adapt
+     *            adapt为true则表示适配完成，false表示适配未完成这时不响应双击时将viewport设置为false
+     */
+    public void setAdapated(boolean adapt) {
+        mTouchEventHandler.setAdapated(adapt);
+    }
 
-	/**
-	 * 设置适配是否完成标志
-	 * 
-	 * @param adapt
-	 *            adapt为true则表示适配完成，false表示适配未完成这时不响应双击时将viewport设置为false
-	 */
-	public void setAdapated(boolean adapt) {
-		mTouchEventHandler.setAdapated(adapt);
-	}
+    public void setValid(boolean isValid) {
+        this.mIsValid = isValid;
+    }
 
-	public void setValid(boolean isValid) {
-		this.mIsValid = isValid;
-	}
+    public boolean isValid() {
+        return mIsValid;
+    }
 
-	public boolean isValid() {
-		return mIsValid;
-	}
+    /**
+     * 获取ownerApp
+     *
+     * @return
+     */
+    public XApplication getOwnerApp() {
+        return mOwnerApp;
+    }
 
-	/**
-	 * 获取ownerApp
-	 * 
-	 * @return
-	 */
-	public XApplication getOwnerApp() {
-		return mOwnerApp;
-	}
+    public void setOwnerApp(XApplication app) {
+        this.mOwnerApp = app;
 
-	public void setOwnerApp(XApplication app) {
-		this.mOwnerApp = app;
+    }
 
-	}
+    public XWebViewClient getWebViewClient() {
+        return mWebViewClient;
+    }
 
-	public XWebViewClient getWebViewClient() {
-		return mWebViewClient;
-	}
+    /**
+     * 关闭app
+     *
+     * @param viewId
+     *            须要被关闭app对应的viewid
+     */
+    public void handleCloseApplication(int viewId) {
+        // 调用父类的消息发送
+        super.postMessage("exit_engine", null);
+    }
 
-	/**
-	 * 关闭app
-	 * 
-	 * @param viewId
-	 *            须要被关闭app对应的viewid
-	 */
-	public void handleCloseApplication(int viewId) {
-		// 调用父类的消息发送
-		super.postMessage("exit_engine", null);
-	}
+    public void willClosed() {
+        unRegisterSystemEventReceiver();
+    }
 
-	public void willClosed() {
-		unRegisterSystemEventReceiver();
-	}
+    /**
+     * 调用父类的clearHistory，避免super在UI线程的语法错误
+     */
+    private void callSuperClearHistory() {
+        super.clearHistory();
+    }
+
+    @Override
+    public void clearHistory() {
+        mSystemCtx.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callSuperClearHistory();
+            }
+        });
+    }
+
 }
