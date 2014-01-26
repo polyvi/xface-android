@@ -1,7 +1,7 @@
 #
 # Settings for post-review (used for uploading diffs to reviews.apache.org).
 #
-REPOSITORY = 'git@git.polyvi.com:xface-android.git'
+REPOSITORY = 'git@gitlab.polyvi.com:xface/xface-android.git'
 REVIEWBOARD_URL = 'http://review.polyvi.com/reviews/'
 GUESS_FIELDS = 'true'
 TARGET_GROUPS = 'xFaceApolloCCGroup'
