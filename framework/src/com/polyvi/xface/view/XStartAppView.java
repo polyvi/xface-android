@@ -166,6 +166,8 @@ public class XStartAppView extends XAppWebView implements XISystemEventReceiver 
                     mOwnerApp.clearCache(false);
                 }
             });
+        } else {
+            super.onReceived(context, evt);
         }
     }
 }
