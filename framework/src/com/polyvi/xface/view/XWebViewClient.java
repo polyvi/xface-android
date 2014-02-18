@@ -80,10 +80,6 @@ public class XWebViewClient extends CordovaWebViewClient {
                 // currentAppId
                 + currentApp.getAppId()
                 + "','"
-                // currentAppWorkspace
-                + "file://"
-                + currentApp.getWorkSpace()
-                + "','"
                 // appData
                 + startParams
                 + "']);}catch(e){console.log('exception in initPrivateData:' + e);}";
