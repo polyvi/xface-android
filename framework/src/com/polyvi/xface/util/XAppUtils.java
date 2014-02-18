@@ -123,7 +123,7 @@ public class XAppUtils {
     }
 
     /**
-     * 初始化app的数据 从只读空间解压到安装目录
+     * 初始化app的数据 从预置数据目录解压到安装目录
      *
      * @param ctx
      * @param appId
@@ -132,14 +132,12 @@ public class XAppUtils {
     public static boolean initAppData(Context ctx, String appId) {
         // 将内置数据解压到sdcard 速度较慢 不推荐内置太多数据
         String dataPackageName = XConstant.PRE_INSTALL_SOURCE_ROOT + appId
-                + File.separator + XConstant.APP_WORK_DIR_NAME + File.separator
-                + XConstant.APP_DATA_PACKAGE_NAME_IN_WORKSAPCE;
-        String appRootInstalled = XConfiguration.getInstance()
-                .getAppInstallDir() + appId + File.separator;
+                + File.separator + XConstant.APP_PRESET_DATA_NAME;
+        String unzipDataDir = XConfiguration.getInstance()
+                .getPresetDir();
         if (XFileUtils.fileExists(ctx, XConstant.ASSERT_PROTACAL
                 + dataPackageName)) {
-            XFileUtils.unzipFileFromAsset(appRootInstalled
-                    + XConstant.APP_WORK_DIR_NAME + File.separator, ctx,
+            XFileUtils.unzipFileFromAsset(unzipDataDir, ctx,
                     dataPackageName);
             return true;
         }

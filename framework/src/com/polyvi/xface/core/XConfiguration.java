@@ -1,3 +1,4 @@
+
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -16,7 +17,7 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 package com.polyvi.xface.core;
 
@@ -24,12 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Looper;
 
 import com.polyvi.xface.XStartParams;
@@ -49,17 +52,10 @@ public class XConfiguration {
 
     private static final String CLASS_NAME = XConfiguration.class
             .getSimpleName();
-
     private static final String APPS_FOLDER_NAME = "apps";
-
     /** 系统数据路径 */
     public static final String SYS_DATA_DIR_NAME = "sys_data";
-
     private static final int TAG_SYSTEM_EXIT_CODE = 1;
-
-    private boolean mWorkDirectoryChanged = false;
-    // 解析config.xml得到的configInfo对象
-    private XSysConfigInfo mSysConfigInfo;
 
     // 表示工作目录的三种配置方式
     private enum WorkDirConfig {
@@ -75,12 +71,14 @@ public class XConfiguration {
 
     /** singleton */
     private static XConfiguration instance = null;
-
     /** 工作目录路径 */
     private String mWorkDir;
-
     /** 是否支持点击view上的数字触发联系人添加操作 */
     private boolean mTelLinkEnabled = true;
+    private boolean mWorkDirectoryChanged = false;
+    // 解析config.xml得到的configInfo对象
+    private XSysConfigInfo mSysConfigInfo;
+    private Activity mActivity;
 
     private XConfiguration() {
     }
@@ -212,23 +210,22 @@ public class XConfiguration {
                 .getLoadUrlTimeout();
     }
 
-    /** 因为只加载config.xml配置文件中xFace标签中的内容，该方法用于判断是否到了配置文件结尾或者遇到xFace结束标签 */
-
     /**
      * 配置系统的工作目录
      *
-     * @param context
-     *            android程序对应的Context对象
+     * @param activity
+     *            android程序对应的activity对象
      * @param workDirName
      *            工作目录名称
      */
-    public void configWorkDirectory(Context context, String workDirName) {
+    public void configWorkDirectory(Activity activity, String workDirName) {
+        mActivity = activity;
         if (null == workDirName) {
             alerExitMessage(
                     XStrings.getInstance().getString(
                             XStrings.EXIT_MESSAGE_TITLE),
                     XStrings.getInstance().getString(
-                            XStrings.EXIT_MESSAGE_CONTENT), context);
+                            XStrings.EXIT_MESSAGE_CONTENT), activity);
         } else {
             // 设置系统的工作目录到config中
             setWorkDirectory(workDirName);
@@ -410,5 +407,37 @@ public class XConfiguration {
 
     public String getOfflineCachePath() {
         return getSysDataDir() + XConstant.APP_CACHE_PATH;
+    }
+
+    /**
+     * 获取预置数据的目录
+     *
+     * @return
+     */
+    public String getPresetDir() {
+        // FIXME: preset dir 为文件系统的根目录和file扩展的temporary类型根保持一致
+        // TODO: 如何消除与file的重复代码？
+        String packageName = mActivity.getPackageName();
+        String location = mActivity.getIntent().getStringExtra(
+                "androidpersistentfilelocation");
+        if (location == null) {
+            location = "compatibility";
+        }
+        if ("internal".equalsIgnoreCase(location)) {
+            return mActivity.getCacheDir().getAbsolutePath();
+        } else if ("compatibility".equalsIgnoreCase(location)) {
+            if (Environment.getExternalStorageState().equals(
+                    Environment.MEDIA_MOUNTED)) {
+                return Environment.getExternalStorageDirectory()
+                        .getAbsolutePath()
+                        + "/Android/data/"
+                        + packageName
+                        + "/cache/";
+            } else {
+                return "/data/data/" + packageName + "/cache/";
+            }
+        }
+        XLog.e(CLASS_NAME, "Get preset dir failed!");
+        return null;
     }
 }

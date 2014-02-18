@@ -76,6 +76,9 @@ public class XConstant {
     /** 应用在工作目录中内置数据包名*/
     public static final String APP_DATA_PACKAGE_NAME_IN_WORKSAPCE = "workspace.zip";
 
+    /** 应用的预置数据文件名称 */
+    public static final String APP_PRESET_DATA_NAME = "com.polyvi.xface.preset.zip";
+
     /** 存储应用数据的目录名称 */
     public static final String APP_DATA_DIR_NAME = "data";
 
