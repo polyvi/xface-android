@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Looper;
 
 import com.polyvi.xface.XStartParams;
@@ -78,7 +77,6 @@ public class XConfiguration {
     private boolean mWorkDirectoryChanged = false;
     // 解析config.xml得到的configInfo对象
     private XSysConfigInfo mSysConfigInfo;
-    private Activity mActivity;
 
     private XConfiguration() {
     }
@@ -219,7 +217,6 @@ public class XConfiguration {
      *            工作目录名称
      */
     public void configWorkDirectory(Activity activity, String workDirName) {
-        mActivity = activity;
         if (null == workDirName) {
             alerExitMessage(
                     XStrings.getInstance().getString(
@@ -409,35 +406,4 @@ public class XConfiguration {
         return getSysDataDir() + XConstant.APP_CACHE_PATH;
     }
 
-    /**
-     * 获取预置数据的目录
-     *
-     * @return
-     */
-    public String getPresetDir() {
-        // FIXME: preset dir 为文件系统的根目录和file扩展的temporary类型根保持一致
-        // TODO: 如何消除与file的重复代码？
-        String packageName = mActivity.getPackageName();
-        String location = mActivity.getIntent().getStringExtra(
-                "androidpersistentfilelocation");
-        if (location == null) {
-            location = "compatibility";
-        }
-        if ("internal".equalsIgnoreCase(location)) {
-            return mActivity.getCacheDir().getAbsolutePath();
-        } else if ("compatibility".equalsIgnoreCase(location)) {
-            if (Environment.getExternalStorageState().equals(
-                    Environment.MEDIA_MOUNTED)) {
-                return Environment.getExternalStorageDirectory()
-                        .getAbsolutePath()
-                        + "/Android/data/"
-                        + packageName
-                        + "/cache/";
-            } else {
-                return "/data/data/" + packageName + "/cache/";
-            }
-        }
-        XLog.e(CLASS_NAME, "Get preset dir failed!");
-        return null;
-    }
 }
