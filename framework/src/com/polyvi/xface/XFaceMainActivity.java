@@ -90,6 +90,8 @@ public class XFaceMainActivity extends CordovaActivity implements
      */
     private XApplication mStartApp;
 
+    private XApplication mCurrentApp;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -145,6 +147,7 @@ public class XFaceMainActivity extends CordovaActivity implements
         XWebChromeClient chrom = new XWebChromeClient(this, webView);
         webView.setWebChromeClient(chrom);
         this.init(webView, webViewClient, chrom);
+        mCurrentApp.setView(webView);
     }
 
     public XApplicationCreator getAppFactory() {
@@ -302,11 +305,11 @@ public class XFaceMainActivity extends CordovaActivity implements
 
     @Override
     public void loadView(XApplication app, String url) {
+        mCurrentApp = app;
         if (this.appView != null) {
             this.init();
         }
         loadUrl(url);
-        app.setView((XAppWebView) this.appView);
         app.setCachePolicy(this.appView.getSettings());
     }
 
