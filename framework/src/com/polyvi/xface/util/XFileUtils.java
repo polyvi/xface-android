@@ -471,6 +471,24 @@ public class XFileUtils {
     }
 
     /**
+     * 判断文件路径是否有效，或者含有特殊字符
+     *
+     * @param filePath
+     * @return
+     */
+    public static boolean isFilePathValid(String filePath) {
+        if (null == filePath) {
+            XLog.e(CLASS_NAME, "This path is null.");
+            return false;
+        } else if (filePath.contains(":")) {
+            // Check for a ":" character in the file to line up with BB and iOS
+            XLog.e(CLASS_NAME, "This path has an invalid \":\" in it.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 判断指定文件是否在另一个文件夹中 当childPath和parentPath相同时也表示childPath在parentPath中
      *
      * @param parentPath

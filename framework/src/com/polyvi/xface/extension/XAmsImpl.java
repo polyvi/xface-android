@@ -56,11 +56,11 @@ public class XAmsImpl implements XAms {
     }
 
     @Override
-    public void installApp(CordovaWebView webContext, String path,
+    public void installApp(CordovaWebView webview, String path,
             XInstallListener listener) {
-        String workspace = getApp(webContext).getWorkSpace();
+        String workspace = getApp(webview).getWorkSpace();
         XPathResolver pr = new XPathResolver(path, workspace);
-        path = pr.resolve();
+        path = pr.resolve(webview.getResourceApi());
         if (path != null) {
             mAppManagement.installApp(path, listener);
         } else {
@@ -72,11 +72,11 @@ public class XAmsImpl implements XAms {
     }
 
     @Override
-    public void updateApp(CordovaWebView webContext, String path,
+    public void updateApp(CordovaWebView webview, String path,
             XInstallListener listener) {
-        String workspace = getApp(webContext).getWorkSpace();
+        String workspace = getApp(webview).getWorkSpace();
         XPathResolver pr = new XPathResolver(path, workspace);
-        path = pr.resolve();
+        path = pr.resolve(webview.getResourceApi());
         if (path != null) {
             mAppManagement.updateApp(path, listener);
         } else {
