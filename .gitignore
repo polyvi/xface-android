@@ -7,8 +7,9 @@ local.properties
 framework/lib
 proguard.cfg
 proguard.cfg
-proguard-project.txt
 framework/bin
+framework/ant-build
+framework/ant-gen
 framework/test/org/apache/cordova/*.class
 framework/assets/www/.DS_Store
 framework/assets/www/cordova-*.js
