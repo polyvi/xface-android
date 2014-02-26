@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.cordova.CordovaResourceApi;
 
 import android.net.Uri;
+
 /**
  * 把传入的路径解析为对应的相对于app workspace的路径、sdcard路径或其他绝对路径
  */
@@ -48,11 +49,9 @@ public class XPathResolver {
      * 解析路径
      *
      * @param resourceApi
-     * @return 路径合法就返回在当前系统中对应的路径，否则就返回null。
-     *         路径不合法可能是因为以下原因之一：
+     * @return 路径合法就返回在当前系统中对应的路径，否则就返回null。 路径不合法可能是因为以下原因之一：
      *         1、file://...uri不符合格式或主机不存在，目前只有sdcard host和默认的local host
-     *         2、sdcard不可访问
-     *         3、相对app workspace的路径不在app workspace之内。
+     *         2、sdcard不可访问 3、相对app workspace的路径不在app workspace之内。
      */
     public String resolve(CordovaResourceApi resourceApi) {
         // 根据协议解析路径
@@ -68,6 +67,29 @@ public class XPathResolver {
         } else {
             // 相对app workspace的路径，无'/'开头
             return resolveAppRelativePath(mPath);
+        }
+    }
+
+    /**
+     * 获取Uri
+     *
+     * @param resourceApi
+     * @return
+     */
+    public Uri getUri(CordovaResourceApi resourceApi) {
+        if (null == mPath) {
+            return null;
+        }
+        Uri uri = Uri.parse(mPath);
+        if (null != uri.getScheme()) {
+            return resourceApi.remapUri(uri);
+        } else if (mPath.startsWith("/")) {
+            // 全路径形式，例如：/mnt/sdcard/mypath
+            return Uri.parse(XConstant.FILE_SCHEME + mPath);
+        } else {
+            // 相对app workspace的路径，无'/'开头
+            return Uri.parse(XConstant.FILE_SCHEME
+                    + resolveAppRelativePath(mPath));
         }
     }
 
