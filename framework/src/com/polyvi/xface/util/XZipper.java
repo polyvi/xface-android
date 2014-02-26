@@ -43,24 +43,24 @@ public class XZipper {
     /**
      * 对目录或文件进行zip压缩
      *
-     * @param srcFilePath
-     *            待压缩的目录
+     * @param srcFileURL
+     *            待压缩的目录或文件url
      * @param zipFileName
      *            要压缩成的zip文件名
      */
-    public void zipDir(String srcFilePath, String zipFileName)
+    public void zipDir(String srcFileURL, String zipFileName)
             throws NullPointerException, FileNotFoundException, IOException,
             IllegalArgumentException {
-        if (XStringUtils.isEmptyString(srcFilePath)
+        if (XStringUtils.isEmptyString(srcFileURL)
                 || XStringUtils.isEmptyString(zipFileName)) {
             throw new IllegalArgumentException();
         }
-        File srcFile = new File(srcFilePath);
+        File srcFile = new File(srcFileURL);
         if (!srcFile.exists()) {
             throw new FileNotFoundException();
         }
         //当要压缩的是一个文件时候，如果要压缩成的文件名和它同名，则抛出异常
-        if (srcFile.isFile() && zipFileName.equals(srcFilePath)) {
+        if (srcFile.isFile() && zipFileName.equals(srcFileURL)) {
             throw new IllegalArgumentException();
         }
         File zipFile = new File(zipFileName);
@@ -73,7 +73,7 @@ public class XZipper {
         if (srcFile.isDirectory()) {
             entryPath = srcFile.getName() + File.separator;
         }
-        compressDir(srcFilePath, zos, entryPath);
+        compressDir(srcFileURL, zos, entryPath);
         zos.close();
     }
 

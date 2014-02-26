@@ -1128,7 +1128,10 @@ public class CordovaActivity extends Activity implements CordovaInterface {
      * @return              Object or null
      */
     public Object onMessage(String id, Object data) {
-        LOG.d(TAG, "onMessage(" + id + "," + data + ")");
+        if (!"onScrollChanged".equals(id)) {
+            LOG.d(TAG, "onMessage(" + id + "," + data + ")");
+        }
+
         if ("splashscreen".equals(id)) {
             if ("hide".equals(data.toString())) {
                 this.removeSplashScreen();
@@ -1175,4 +1178,3 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         }
     }
 }
-    
