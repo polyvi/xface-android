@@ -108,7 +108,8 @@ public class XConstant {
     /**存放程序数据的文件夹*/
     public static final String ANDROID_DIR = "Android";
 
-    public static final String ASSERT_PROTACAL =  "file:///android_asset/" ;
+    public static final String ASSERT_PROTACAL =  "file:///android_asset/";
+    public static final String ANDROID_ASSET = "/android_asset/";
     public static final String PREF_SETTING_FILE_NAME = "preference.pref";
     public static final String TAG_WD_STRATEGY = "wd_strategy";
 
