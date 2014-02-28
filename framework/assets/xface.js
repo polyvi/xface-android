@@ -1,5 +1,5 @@
 // Platform: android
-// 3.3.0-dev-aac4947
+// 3.3.0-dev-c20f7f2
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-aac4947';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-c20f7f2';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -1196,9 +1196,13 @@ modulemapper.clobbers('cordova/exec', 'Cordova.exec');
 // Call the platform-specific initialization.
 platform.bootstrap && platform.bootstrap();
 
-pluginloader.load(function() {
-    channel.onPluginsReady.fire();
-});
+// Wrap in a setTimeout to support the use-case of having plugin JS appended to cordova.js.
+// The delay allows the attached modules to be defined before the plugin loader looks for them.
+setTimeout(function() {
+    pluginloader.load(function() {
+        channel.onPluginsReady.fire();
+    });
+}, 0);
 
 /**
  * Create all cordova objects once native side is ready.
@@ -1486,42 +1490,50 @@ var modulemapper = require('cordova/modulemapper');
 var urlutil = require('cordova/urlutil');
 
 // Helper function to inject a <script> tag.
-function injectScript(url, onload, onerror) {
+// Exported for testing.
+exports.injectScript = function(url, onload, onerror) {
     var script = document.createElement("script");
     // onload fires even when script fails loads with an error.
     script.onload = onload;
-    script.onerror = onerror || onload;
+    // onerror fires for malformed URLs.
+    script.onerror = onerror;
     script.src = url;
     document.head.appendChild(script);
+};
+
+function injectIfNecessary(id, url, onload, onerror) {
+    onerror = onerror || onload;
+    if (id in define.moduleMap) {
+        onload();
+    } else {
+        exports.injectScript(url, function() {
+            if (id in define.moduleMap) {
+                onload();
+            } else {
+                onerror();
+            }
+        }, onerror);
+    }
 }
 
 function onScriptLoadingComplete(moduleList, finishPluginLoading) {
     // Loop through all the plugins and then through their clobbers and merges.
     for (var i = 0, module; module = moduleList[i]; i++) {
-        if (module) {
-            try {
-                if (module.clobbers && module.clobbers.length) {
-                    for (var j = 0; j < module.clobbers.length; j++) {
-                        modulemapper.clobbers(module.id, module.clobbers[j]);
-                    }
-                }
-
-                if (module.merges && module.merges.length) {
-                    for (var k = 0; k < module.merges.length; k++) {
-                        modulemapper.merges(module.id, module.merges[k]);
-                    }
-                }
-
-                // Finally, if runs is truthy we want to simply require() the module.
-                // This can be skipped if it had any merges or clobbers, though,
-                // since the mapper will already have required the module.
-                if (module.runs && !(module.clobbers && module.clobbers.length) && !(module.merges && module.merges.length)) {
-                    modulemapper.runs(module.id);
-                }
+        if (module.clobbers && module.clobbers.length) {
+            for (var j = 0; j < module.clobbers.length; j++) {
+                modulemapper.clobbers(module.id, module.clobbers[j]);
             }
-            catch(err) {
-                // error with module, most likely clobbers, should we continue?
+        }
+
+        if (module.merges && module.merges.length) {
+            for (var k = 0; k < module.merges.length; k++) {
+                modulemapper.merges(module.id, module.merges[k]);
             }
+        }
+
+        // Finally, if runs is truthy we want to simply require() the module.
+        if (module.runs) {
+            modulemapper.runs(module.id);
         }
     }
 
@@ -1547,24 +1559,8 @@ function handlePluginsObject(path, moduleList, finishPluginLoading) {
     }
 
     for (var i = 0; i < moduleList.length; i++) {
-        injectScript(path + moduleList[i].file, scriptLoadedCallback);
+        injectIfNecessary(moduleList[i].id, path + moduleList[i].file, scriptLoadedCallback);
     }
-}
-
-function injectPluginScript(pathPrefix, finishPluginLoading) {
-    var pluginPath = pathPrefix + 'cordova_plugins.js';
-
-    injectScript(pluginPath, function() {
-        try {
-            var moduleList = require("cordova/plugin_list");
-            handlePluginsObject(pathPrefix, moduleList, finishPluginLoading);
-        }
-        catch (e) {
-            // Error loading cordova_plugins.js, file not found or something
-            // this is an acceptable error, pre-3.0.0, so we just move on.
-            finishPluginLoading();
-        }
-    }, finishPluginLoading); // also, add script load error handler for file not found
 }
 
 function findCordovaPath() {
@@ -1577,13 +1573,14 @@ function findCordovaPath() {
             path = src.substring(0, src.length - term.length);
 
             if('ios' === require('cordova/platform').id){
-                //TODO:查找更合适的方法？
                 var index = path.indexOf('.app');
                 if(-1 != index){
                     index = path.lastIndexOf('/', index);
-                    path = path.substring(0, index) + '/Documents/xface3/js_core/';
+                    path = path.substring(0, index) + '/Library/xface3/js_core/';
                 }else if(-1 != path.indexOf('Documents')){
-                    path = path.substring(0, path.indexOf('Documents')) + 'Documents/xface3/js_core/';
+                    path = path.substring(0, path.indexOf('Library')) + 'Library/xface3/js_core/';
+                }else if(-1 != path.indexOf('Library')){
+                    path = path.substring(0, path.indexOf('Library')) + 'Library/xface3/js_core/';
                 }
             }
             break;
@@ -1601,7 +1598,10 @@ exports.load = function(callback) {
         console.log('Could not find cordova.js script tag. Plugin loading may fail.');
         pathPrefix = '';
     }
-    injectPluginScript(pathPrefix, callback);
+    injectIfNecessary('cordova/plugin_list', pathPrefix + 'cordova_plugins.js', function() {
+        var moduleList = require("cordova/plugin_list");
+        handlePluginsObject(pathPrefix, moduleList, callback);
+    }, callback);
 };
 
 
@@ -1615,7 +1615,6 @@ define("xFace/privateModule", function(require, exports, module) {
  */
 var channel = require('cordova/channel');
 var currentAppId = null;        //当前应用ID
-var currentAppWorkspace = null; //当前应用工作空间
 var appData = null;             //传递给应用的启动参数
 
 var privateModule = function() {
@@ -1626,17 +1625,12 @@ var privateModule = function() {
  */
 privateModule.prototype.initPrivateData = function(initData) {
     currentAppId = initData[0];
-    currentAppWorkspace = initData[1];
-    appData = initData[2];
+    appData = initData[1];
     channel.onPrivateDataReady.fire();
 };
 
 privateModule.prototype.appId = function() {
     return currentAppId;
-};
-
-privateModule.prototype.appWorkspace = function() {
-    return currentAppWorkspace;
 };
 
 privateModule.prototype.appData = function() {
@@ -1831,148 +1825,6 @@ function UUIDcreatePart(length) {
     return uuidpart;
 }
 
-
-});
-
-// file: src/common/workspace.js
-define("xFace/workspace", function(require, exports, module) {
-
-/**
- * 该模块用于处理web app workspace相关的逻辑
- */
-var privateModule = require('xFace/privateModule'),
-    urlUtil = require("cordova/urlutil");
-
-var Workspace= function() {
-};
-
-Workspace.prototype.updateFileSystemRoot = function(type, fs){
-    //TODO:考虑LocalFileSystem为TEMPORARY的情况
-    if (!module.exports.enableWorkspaceCheck) {
-        return;
-    }
-    fs.root.fullPath = privateModule.appWorkspace();
-};
-
-//TODO:迁移strStartsWith类似方法到独立的js模块
-Workspace.prototype.strStartsWith = function(str, prefix) {
-    return str.indexOf(prefix) === 0;
-};
-
-Workspace.prototype.strEndsWith = function(str, suffix) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
-};
-
-Workspace.prototype.toURL = function(path) {
-    if(isAndroid()){
-        path = path.replace('file://','');
-    }
-    return "file://localhost" + path;
-};
-
-Workspace.prototype.toPath = function(url) {
-    // path为"file://localhost/user/..", 不同的平台执行urlUtil.makeAbsolute(path)后,返回的url可能有以下形式：
-    // 1）file://localhost/user/..
-    // 2）file:///user/..
-    // 3）file://\\\\localhost  windows phone执行urlUtil.makeAbsolute(path)返回的URL形式
-    var path;
-    if(this.strStartsWith(url, 'file://localhost')) {
-        path = url.replace('file://localhost', '');
-    } else if (this.strStartsWith(url, 'file://\\\\localhost')) {
-        path = url.replace('file://\\\\localhost', '');
-    } else if (-1 != url.indexOf("://")) {
-        //remove scheme(e.g., file://)
-        path = url.substring(url.indexOf("://") + 3, url.length);
-    } else {
-        // Don't log when running unit tests.
-        if (typeof jasmine == 'undefined') {
-            console.log(url + ' is not an url!');
-        }
-        path = url;
-    }
-    if(isAndroid()){
-        path = "file://" + path;
-    }
-    return path;
-};
-
-function isAndroid(){
-    return 'android' === require('cordova/platform').id;
-}
-
-Workspace.prototype.isAbsolutePath = function(path){
-    // FIXME:Confirm this is right on all platforms
-    // Absolute path starts with a slash
-    return this.strStartsWith(path, '/') || this.strStartsWith(path, 'file://') ;
-};
-
-Workspace.prototype.buildPath = function(aString, bString){
-    var path = null;
-    if(this.strEndsWith(aString, '/')){
-        path = aString + bString;
-    }else{
-        path = aString + '/' + bString;
-    }
-    return path;
-};
-
-Workspace.prototype.resolvePath = function(path){
-    var result = this.toURL(path);
-    result = urlUtil.makeAbsolute(result);
-    result = decodeURI(result);
-    result = this.toPath(result);
-
-    return result;
-};
-
-/**
- * 检查workspace
- *
- * workspace检查逻辑如下：
- * 1）当enableWorkspaceCheck为false时，直接返回relativePath
- * 2）iOS平台，当relativePath包含'assets-library://'前缀时，直接返回relativePath
- * 3）根据basePath对relativePath进行resolve,如果resolved结果以'basePath'为前缀，返回resolved结果，否则返回null
- * @return 满足workspace检查条件，返回非空串；否则，返回null
- */
-Workspace.prototype.checkWorkspace = function(basePath, relativePath, functionName) {
-    if (!module.exports.enableWorkspaceCheck) {
-        return relativePath;
-    }
-
-    if('ios' === require('cordova/platform').id){
-        if(this.strStartsWith(relativePath, 'assets-library://')){
-            return relativePath;
-        }
-    }
-
-    var result = null;
-    result = relativePath.replace(/\\/g,'/');
-
-    var isAbs = this.isAbsolutePath(result);
-    if (isAbs){
-        // relativePath为绝对路径且包含'..'时，对其进行resolve
-        if(-1 != result.indexOf('..')){
-            result = this.resolvePath(result);
-        }
-    }else{
-        // relativePath为相对路径时，对其进行resolve
-        result = this.buildPath(basePath, result);
-        result = this.resolvePath(result);
-    }
-    result = result.replace(/\\/g,'/');
-    if (this.strStartsWith(result, basePath)){
-        return result;
-    }else{
-        // Don't log when running unit tests.
-        if (typeof jasmine == 'undefined') {
-            console.error(functionName + " check workspace failed:" + result);
-        }
-        return null;
-    }
-};
-
-module.exports = new Workspace();
-module.exports.enableWorkspaceCheck = true;
 
 });
 
