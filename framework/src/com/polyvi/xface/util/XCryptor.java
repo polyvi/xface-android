@@ -550,6 +550,22 @@ public class XCryptor {
     }
 
     /**
+     * 通过DES算法对输入流加密，并返回加密后的二进制数组
+     *
+     * @param key
+     *            密钥
+     * @param sourceIs
+     *            输入流
+     * @return 加密后的二进制数组
+     * @throws XCryptionException
+     * @throws NullPointerException
+     */
+    public byte[] encryptStreamForDES(byte[] key, InputStream sourceIs)
+            throws NullPointerException, XCryptionException {
+        return cryptStream(DES_ALGORITHM, DES_ALGORITHM, key, sourceIs, true);
+    }
+
+    /**
      * 用DES算法对字符串解密
      *
      * @param content
@@ -562,6 +578,22 @@ public class XCryptor {
     public byte[] decryptBytesForDES(byte[] content, byte[] key)
             throws XCryptionException {
         return cryptBytes(DES_ALGORITHM, DES_ALGORITHM, content, key, false);
+    }
+
+    /**
+     * 通过DES算法对输入流解密，并返回解密后的二进制数组
+     *
+     * @param key
+     *            密钥
+     * @param sourceIs
+     *            输入流
+     * @return 解密后的二进制数组
+     * @throws XCryptionException
+     * @throws NullPointerException
+     */
+    public byte[] decryptStreamForDES(byte[] key, InputStream sourceIs)
+            throws NullPointerException, XCryptionException {
+        return cryptStream(DES_ALGORITHM, DES_ALGORITHM, key, sourceIs, false);
     }
 
     /**
@@ -645,6 +677,51 @@ public class XCryptor {
                 throw new XCryptionException(CRYPTION_ERROR);
             }
             return cipher.doFinal(content);
+        } catch (Exception e) {
+            XLog.e(CLASS_NAME, CRYPTION_ERROR);
+            throw new XCryptionException(CRYPTION_ERROR);
+        } catch (OutOfMemoryError e) {
+            XLog.e(CLASS_NAME, OUT_OF_MEMORY_ERROR);
+            throw new XCryptionException(CRYPTION_ERROR);
+        }
+    }
+
+    /**
+     * 对称加解密输入流操作,并返回处理后的二进制数组
+     *
+     * @param cryptAlogrithem
+     *            加解密算法
+     * @param keyAlogrithem
+     *            key的算法
+     * @param sKey
+     *            密钥
+     * @param sourceIs
+     *            待加解密的输入流
+     * @param isEncrypt
+     *            标示加密还是解密，true：加密，false：解密。
+     * @return 加解密处理后的二进制数组
+     */
+    private byte[] cryptStream(String cryptAlogrithem, String keyAlogrithem,
+            byte[] sKey, InputStream sourceIs ,boolean isEncrypt)
+                    throws IllegalArgumentException, XCryptionException {
+        // 检查要加解密的key为空
+        if (null == sKey || XStringUtils.isEmptyString(new String(sKey))) {
+            XLog.e(CLASS_NAME, KEY_EMPTY_ERROR);
+            throw new IllegalArgumentException(KEY_EMPTY_ERROR);
+        }
+        try {
+            byte[] inOutb = XUtils.readBytesFromInputStream(sourceIs);
+            // TODO:目前为了和服务器兼容，文件加解密有base64转码操作，以后考虑去掉。
+            if (!isEncrypt) {
+                inOutb = XBase64.decode(inOutb, XBase64.NO_WRAP);
+            }
+            // 解密缓冲区数据
+            byte[] result = cryptBytes(cryptAlogrithem, keyAlogrithem, inOutb,
+                    sKey, isEncrypt);
+            if (isEncrypt) {
+                result = XBase64.encode(result, XBase64.NO_WRAP);
+            }
+            return result;
         } catch (Exception e) {
             XLog.e(CLASS_NAME, CRYPTION_ERROR);
             throw new XCryptionException(CRYPTION_ERROR);

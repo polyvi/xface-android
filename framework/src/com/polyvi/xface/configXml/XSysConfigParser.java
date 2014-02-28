@@ -38,6 +38,9 @@ public class XSysConfigParser {
     private static final String TAG_APP_PACKAGE = "app_package";
     private static final String TAG_PREFERENCE = "preference";
 
+    private static String XML_NAME = "config";
+    private static String XML_DIRECTORY = "xml";
+
     private static final String ATTR_NAME = "name";
     private static final String ATTR_VALUE = "value";
     private static final String ATTR_ID = "id";
@@ -50,7 +53,9 @@ public class XSysConfigParser {
     private XmlResourceParser mParser;
 
     public XSysConfigParser(Context context) {
-        mParser = context.getResources().getXml(R.xml.config);
+		int id = context.getResources().getIdentifier(XML_NAME, XML_DIRECTORY,
+				context.getPackageName());
+		mParser = context.getResources().getXml(id);
     }
 
     /**

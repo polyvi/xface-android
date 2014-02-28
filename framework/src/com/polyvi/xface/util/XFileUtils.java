@@ -35,9 +35,6 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.res.Resources.NotFoundException;
 import android.os.Environment;
@@ -170,38 +167,6 @@ public class XFileUtils {
             return null;
         }
         return filePath.getAbsolutePath();
-    }
-
-    /**
-     * 返回一个代表文件（夹）的JSON对象
-     *
-     * @param appWorkSpace
-     *            当前应用工作目录
-     * @param file
-     *            文件流对象
-     * @return 代表文件的JSON对象
-     * @throws JSONException
-     */
-    public static JSONObject getEntry(String appWorkspace, File file)
-            throws JSONException {
-        JSONObject entry = new JSONObject();
-        entry.put("isFile", file.isFile());
-        entry.put("isDirectory", file.isDirectory());
-        String fileName = null;
-        String fullPath = null;
-        String absolutePath = file.getAbsolutePath();
-        if (absolutePath.equals(appWorkspace)) {
-            fileName = File.separator;
-            fullPath = File.separator;
-        } else if (XFileUtils.isFileAncestorOf(appWorkspace, absolutePath)) {
-            fullPath = file.getAbsolutePath().substring(appWorkspace.length());
-            fileName = file.getName();
-        }
-        entry.put("name", fileName);
-        entry.put("fullPath", fullPath);
-        entry.put("start", 0);
-        entry.put("end", file.length());
-        return entry;
     }
 
     /**
@@ -503,6 +468,24 @@ public class XFileUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * 判断文件路径是否有效，或者含有特殊字符
+     *
+     * @param filePath
+     * @return
+     */
+    public static boolean isFilePathValid(String filePath) {
+        if (null == filePath) {
+            XLog.e(CLASS_NAME, "This path is null.");
+            return false;
+        } else if (filePath.contains(":")) {
+            // Check for a ":" character in the file to line up with BB and iOS
+            XLog.e(CLASS_NAME, "This path has an invalid \":\" in it.");
+            return false;
+        }
+        return true;
     }
 
     /**

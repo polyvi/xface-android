@@ -96,6 +96,11 @@ function runAndroidUpdate(projectPath, target_api, shared) {
     });
 }
 
+function copyAntRules(projectPath) {
+    var srcDir = path.join(ROOT, 'bin', 'templates', 'project');
+    shell.cp('-f', path.join(srcDir, 'custom_rules.xml'), projectPath);
+}
+
 function copyScripts(projectPath) {
     var srcScriptsDir = path.join(ROOT, 'bin', 'templates', 'cordova');
     var destScriptsDir = path.join(projectPath, 'cordova');
@@ -145,7 +150,7 @@ function modifyProjectProperties(androidProj, shared) {
  * Returns a promise.
  */
 
-exports.createProject = function(project_path, package_name, project_name, project_template_dir, use_shared_project) {
+exports.createProject = function(project_path, package_name, project_name, project_template_dir, use_shared_project, use_cli_template) {
     var VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
 
     // Set default values for path, package and name
@@ -173,6 +178,10 @@ exports.createProject = function(project_path, package_name, project_name, proje
         return Q.reject('Package name must look like: com.company.Name');
     }
 
+    if (project_name === 'CordovaActivity') {
+        return Q.reject('Project name cannot be CordovaActivity');
+    }
+
     // Check that requirements are met and proper targets are installed
     return check_reqs.run()
     .then(function() {
@@ -189,11 +198,23 @@ exports.createProject = function(project_path, package_name, project_name, proje
             // copy project template
             shell.cp('-r', path.join(project_template_dir, 'assets'), project_path);
             shell.cp('-r', path.join(project_template_dir, 'res'), project_path);
+            shell.cp('-r', path.join(ROOT, 'framework', 'res', 'xml'), path.join(project_path, 'res'));
+
             // Manually create directories that would be empty within the template (since git doesn't track directories).
             shell.mkdir(path.join(project_path, 'libs'));
 
-            // copy xface.js, xface.jar and res/xml
-            shell.cp('-r', path.join(ROOT, 'framework', 'res', 'xml'), path.join(project_path, 'res'));
+            // Add in the proper eclipse project file.
+            if (use_cli_template) {
+                var note = 'To show `assets/www` or `res/xml/config.xml`, go to:\n' +
+                           '    Project -> Properties -> Resource -> Resource Filters\n' +
+                           'And delete the exclusion filter.\n';
+                shell.cp(path.join(project_template_dir, 'eclipse-project-CLI'), path.join(project_path, '.project'));
+                fs.writeFileSync(path.join(project_path, 'assets', '_where-is-www.txt'), note);
+            } else {
+                shell.cp(path.join(project_template_dir, 'eclipse-project'), path.join(project_path, '.project'));
+            }
+
+            // copy cordova.js, cordova.jar and res/xml
             copyJsAndLibrary(project_path, use_shared_project, safe_activity_name);
 
             // interpolate the activity name and package
@@ -201,6 +222,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
             shell.cp('-f', path.join(project_template_dir, 'Activity.java'), activity_path);
             shell.sed('-i', /__ACTIVITY__/, safe_activity_name, activity_path);
             shell.sed('-i', /__NAME__/, project_name, path.join(project_path, 'res', 'values', 'strings.xml'));
+            shell.sed('-i', /__NAME__/, project_name, path.join(project_path, '.project'));
             shell.sed('-i', /__ID__/, package_name, activity_path);
 
             shell.cp('-f', path.join(project_template_dir, 'AndroidManifest.xml'), manifest_path);
@@ -208,6 +230,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
             shell.sed('-i', /__PACKAGE__/, package_name, manifest_path);
             shell.sed('-i', /__APILEVEL__/, target_api.split('-')[1], manifest_path);
             copyScripts(project_path);
+            copyAntRules(project_path);
         });
         // Link it to local android install.
         return runAndroidUpdate(project_path, target_api, use_shared_project)
@@ -219,17 +242,33 @@ exports.createProject = function(project_path, package_name, project_name, proje
     });
 }
 
+// Attribute removed in Cordova 4.4 (CB-5447).
+function removeDebuggableFromManifest(projectPath) {
+    var manifestPath = path.join(projectPath, 'AndroidManifest.xml');
+    shell.sed('-i', /\s*android:debuggable="true"/, '', manifestPath);
+}
+
+function extractProjectNameFromManifest(projectPath) {
+    var manifestPath = path.join(projectPath, 'AndroidManifest.xml');
+    var manifestData = fs.readFileSync(manifestPath, 'utf8');
+    var m = /<activity[\s\S]*?android:name\s*=\s*"(.*?)"/i.exec(manifestData);
+    if (!m) {
+      throw new Error('Could not find activity name in ' + manifestPath);
+    }
+    return m[1];
+}
+
 // Returns a promise.
 exports.updateProject = function(projectPath, use_shared_project) {
     var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
     // Check that requirements are met and proper targets are installed
     return check_reqs.run()
     .then(function() {
+        var projectName = extractProjectNameFromManifest(projectPath);
         var target_api = check_reqs.get_target();
-        copyJsAndLibrary(projectPath, false, null);
+        copyJsAndLibrary(projectPath, false, projectName);
         copyScripts(projectPath);
-
-        // 'android update project' command will add library reference to project.properties everytimes
+        copyAntRules(projectPath);
         // when the command is executed, so we remove the file first to avoid the situation
         var projectPropertiesPath = path.join(projectPath, 'project.properties');
         if(fs.existsSync(projectPropertiesPath)) shell.rm(projectPropertiesPath);
@@ -238,6 +277,7 @@ exports.updateProject = function(projectPath, use_shared_project) {
         .then(function() {
             modifyProjectProperties(projectPath, use_shared_project);
             console.log('Android project is now at version ' + version);
+            console.log('If you updated from a pre-3.2.0 version and use an IDE, we now require that you import the "CordovaLib" library project.');
         });
     });
 };
