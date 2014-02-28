@@ -20,6 +20,6 @@
 */
 
 // Coho updates this line:
-var VERSION = "3.5.0-dev";
+var VERSION = "3.2.0-rc3";
 
 console.log(VERSION);
