@@ -20,10 +20,9 @@
 #}
 -keep class org.** {*;}
 -ignorewarnings
-#-keepnames class * extends com.polyvi.xface.extension.XExtension {
-#}
+#
 -libraryjars jar/cert.jar
--keep public class * extends com.polyvi.xface.extension.XExtension
+-keep public class * extends org.apache.cordova.CordovaPlugin
 
 -keep public class com.polyvi.xface.view.XWebViewClient
 {*;}
@@ -35,10 +34,4 @@
 -keepclassmembers public class *
 {
     native <methods>;
-}
-
--keepclasseswithmembers class com.polyvi.xface.core.XJSNativeBridge {
-    public java.lang.String exec(java.lang.String,java.lang.String,java.lang.String,java.lang.String);
-    public void setNativeToJsBridgeMode(int);
-    public java.lang.String retrieveJsMessages();
 }
