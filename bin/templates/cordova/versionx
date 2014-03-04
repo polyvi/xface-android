@@ -19,7 +19,7 @@
        under the License.
 */
 
-// Coho updates this line:
-var VERSION = "3.5.0-dev";
+// xsrc updates this line:
+var VERSION = "3.3.0-dev";
 
 console.log(VERSION);

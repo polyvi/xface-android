@@ -151,7 +151,7 @@ function modifyProjectProperties(androidProj, shared) {
  */
 
 exports.createProject = function(project_path, package_name, project_name, project_template_dir, use_shared_project, use_cli_template) {
-    var VERSION = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
+    var VERSION = fs.readFileSync(path.join(ROOT, 'VERSIONX'), 'utf-8').trim();
 
     // Set default values for path, package and name
     project_path = typeof project_path !== 'undefined' ? project_path : "xFaceExample";
@@ -260,7 +260,7 @@ function extractProjectNameFromManifest(projectPath) {
 
 // Returns a promise.
 exports.updateProject = function(projectPath, use_shared_project) {
-    var version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf-8').trim();
+    var version = fs.readFileSync(path.join(ROOT, 'VERSIONX'), 'utf-8').trim();
     // Check that requirements are met and proper targets are installed
     return check_reqs.run()
     .then(function() {
