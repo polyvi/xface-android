@@ -476,8 +476,8 @@ public class XFileUtils {
 	 * @return
 	 */
 	public static boolean isFilePathValid(String filePath) {
-		if (null == filePath) {
-			XLog.e(CLASS_NAME, "This path is null.");
+		if (XStringUtils.isEmptyString(filePath)) {
+			XLog.e(CLASS_NAME, "This path is illegal.");
 			return false;
 		} else if (filePath.contains(":")) {
 			// Check for a ":" character in the file to line up with BB and iOS
