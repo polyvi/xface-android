@@ -103,6 +103,8 @@
         <delete file="cordova-${version}.jar" failonerror="false" />
     </target>
 
+    <import file="custom_rules.xml" optional="true" />
+
     <!-- Import the actual build file.
 
          To customize existing targets, there are two options:
@@ -164,15 +166,6 @@
         <pathelement location="${test.dir}" />
     </path>
 
-    <target name="-pre-compile">
-     <property name="system.default.jar" refid="project.all.jars.path" />
-     <echo message="${system.default.jar}" />
-      <path id="project.all.jars.path">
-        <path path="${system.default.jar}" />
-        <pathelement location="jar/cert.jar"></pathelement> 
-     </path>
-    </target>
-    
     <target name="compile-test">
         <javac srcdir="${test.dir}" >
             <classpath refid="test.classpath" />

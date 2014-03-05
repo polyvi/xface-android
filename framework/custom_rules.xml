@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <target name="-pre-compile">
+        <property name="system.default.jar" refid="project.all.jars.path" />
+        <echo message="${system.default.jar}" />
+        <path id="project.all.jars.path">
+        <path path="${system.default.jar}" />
+            <pathelement location="jar/cert.jar"></pathelement> 
+        </path>
+    </target>
+</project>
+

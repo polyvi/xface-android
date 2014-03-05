@@ -71,11 +71,12 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
         shell.mkdir('-p', nestedCordovaLibPath);
         shell.cp('-f', path.join(ROOT, 'framework', 'AndroidManifest.xml'), nestedCordovaLibPath);
         shell.cp('-f', path.join(ROOT, 'framework', 'project.properties'), nestedCordovaLibPath);
-        shell.cp('-r', path.join(ROOT, 'framework', '.classpath'), nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', '.classpath'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'src'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'jar'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'libs'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'res'), nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', 'custom_rules.xml'), nestedCordovaLibPath);
         // Create an eclipse project file and set the name of it to something unique.
         // Without this, you can't import multiple xFaceLib projects into the same workspace.
         var eclipseProjectFilePath = path.join(nestedCordovaLibPath, '.project');
@@ -116,10 +117,11 @@ function copyScripts(projectPath) {
 }
 
 /**
- * 修改android工程的project.properties文件
- * 配置proguard混淆
+ * 在执行完'android update'命令之后，做一些其它操作
+ * 1. 修改android工程的project.properties文件，配置proguard混淆
+ * 2. 在非link方式下，拷贝proguard-project.txt
  */
-function modifyProjectProperties(androidProj, shared) {
+function afterAndroidUpdate(androidProj, shared) {
     var libProject = getFrameworkDir(androidProj, shared),
         propertiesFile = path.join(androidProj, 'project.properties'),
         content = fs.readFileSync(propertiesFile, 'utf-8'),
@@ -132,6 +134,9 @@ function modifyProjectProperties(androidProj, shared) {
         relativeProguardTxt = relativeProguardTxt.replace(/\\\\/g, '/').replace(/\\/g, '/');
         value += (':' + relativeProguardTxt);
         shell.sed('-i', /#?proguard.config=(.*)/, 'proguard.config=' + value, propertiesFile);
+    }
+    if(!shared) {
+        shell.cp('-f', path.join(ROOT, 'framework', 'proguard-project.txt'), getFrameworkDir(androidProj, false));
     }
 }
 
@@ -235,7 +240,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
         // Link it to local android install.
         return runAndroidUpdate(project_path, target_api, use_shared_project)
         .then(function() {
-            modifyProjectProperties(project_path, use_shared_project);
+            afterAndroidUpdate(project_path, use_shared_project);
         });
     }).then(function() {
         console.log('Project successfully created.');
@@ -275,7 +280,7 @@ exports.updateProject = function(projectPath, use_shared_project) {
 
         return runAndroidUpdate(projectPath, target_api, use_shared_project)
         .then(function() {
-            modifyProjectProperties(projectPath, use_shared_project);
+            afterAndroidUpdate(projectPath, use_shared_project);
             console.log('Android project is now at version ' + version);
             console.log('If you updated from a pre-3.2.0 version and use an IDE, we now require that you import the "CordovaLib" library project.');
         });
