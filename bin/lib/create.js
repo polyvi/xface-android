@@ -89,17 +89,13 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
 
 function runAndroidUpdate(projectPath, target_api, shared) {
     var targetFrameworkDir = getFrameworkDir(projectPath, shared);
-    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"')
-    .then(function() {
-        // 由于`android update project`只有lib工程在开发工程目录下，才会更新lib工程相关配置参数，
-        // 故在shared为true的情况下，需要将local.properties拷贝到lib工程下
-        shared && shell.cp('-f', path.join(projectPath, 'local.properties'), targetFrameworkDir);
-    });
+    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"');
 }
 
 function copyAntRules(projectPath) {
     var srcDir = path.join(ROOT, 'bin', 'templates', 'project');
     shell.cp('-f', path.join(srcDir, 'custom_rules.xml'), projectPath);
+    shell.cp('-f', path.join(srcDir, 'build_lib.xml'), projectPath);
 }
 
 function copyScripts(projectPath) {
@@ -135,8 +131,17 @@ function afterAndroidUpdate(androidProj, shared) {
         value += (':' + relativeProguardTxt);
         shell.sed('-i', /#?proguard.config=(.*)/, 'proguard.config=' + value, propertiesFile);
     }
+
+    // 由于`android update project`只有lib工程在开发工程目录下，才会更新lib工程相关配置参数，
+    // 故在shared为true的情况下，需要将local.properties拷贝到lib工程下
+    shared && shell.cp('-f', path.join(androidProj, 'local.properties'), libProject);
+    //修改local.properties 增加lib.framework属性 供库模式编译使用
+    localPropertiesPath = path.join(androidProj, 'local.properties');
+    libProject = libProject.replace(/\\\\?/g, '/');
+    willWrite = '\nlib.framework=' + libProject;
+    fs.appendFileSync(localPropertiesPath, willWrite, 'utf-8');
     if(!shared) {
-        shell.cp('-f', path.join(ROOT, 'framework', 'proguard-project.txt'), getFrameworkDir(androidProj, false));
+        shell.cp('-f', path.join(ROOT, 'framework', 'proguard-project.txt'), libProject);
     }
 }
 
@@ -245,7 +250,7 @@ exports.createProject = function(project_path, package_name, project_name, proje
     }).then(function() {
         console.log('Project successfully created.');
     });
-}
+};
 
 // Attribute removed in Cordova 4.4 (CB-5447).
 function removeDebuggableFromManifest(projectPath) {
