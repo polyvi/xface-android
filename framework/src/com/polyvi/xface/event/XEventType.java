@@ -42,6 +42,8 @@ public interface XEventType {
     public static final int MD5_INVALID = 13;
     // 清除webview内存的缓存
     public static final int CLEAR_MEMORY_CACHE = 14;
+    //收到外部第三方程序发送过来参数的消息
+    public static final int EXTERNAL_MESSAGE_RECEIVED= 15;
     //用户自定义事件类型
     public static final int USER_CUSTOM_EVENT = 10000;
 }
