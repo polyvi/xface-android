@@ -34,7 +34,7 @@ public class XAssetsFileUtils {
 
     /**
      * 判断路径是否为目录
-     *
+     * 
      * @param context
      * @param filePath
      * @return
@@ -54,7 +54,7 @@ public class XAssetsFileUtils {
 
     /**
      * 判断路径是否为文件
-     *
+     * 
      * @param context
      * @param filePath
      * @return
@@ -74,7 +74,7 @@ public class XAssetsFileUtils {
 
     /**
      * asset文件是否存在
-     *
+     * 
      * @param context
      * @param filePath
      * @return
@@ -86,36 +86,27 @@ public class XAssetsFileUtils {
         List<String> mapList = null;
         String root = "";
         String[] fNames = assetName.split(File.separator);
-        try {
-            mapList = Arrays.asList(ctx.getAssets().list(""));
-        } catch (IOException e) {
-            return false;
-        }
         for (int index = 0; index < fNames.length; index++) {
-            if (mapList.contains(fNames[index])) {
-                if (index == fNames.length - 1) {
-                    return true;
+            try {
+                mapList = Arrays.asList(ctx.getAssets().list(root));
+                if (!mapList.contains(fNames[index])) {
+                    return false;
                 }
                 if (root.equals("")) {
                     root = fNames[index];
                 } else {
                     root = root + File.separator + fNames[index];
                 }
-                try {
-                    mapList = Arrays.asList(ctx.getAssets().list(root));
-                } catch (IOException e) {
-                    return false;
-                }
-            } else {
+            } catch (IOException e) {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
      * 递归的遍历assets目录
-     *
+     * 
      * @param context
      *            上下文环境
      * @param srcDir
