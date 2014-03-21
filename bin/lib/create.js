@@ -71,11 +71,12 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
         shell.mkdir('-p', nestedCordovaLibPath);
         shell.cp('-f', path.join(ROOT, 'framework', 'AndroidManifest.xml'), nestedCordovaLibPath);
         shell.cp('-f', path.join(ROOT, 'framework', 'project.properties'), nestedCordovaLibPath);
-        shell.cp('-r', path.join(ROOT, 'framework', '.classpath'), nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', '.classpath'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'src'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'jar'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'libs'), nestedCordovaLibPath);
         shell.cp('-r', path.join(ROOT, 'framework', 'res'), nestedCordovaLibPath);
+        shell.cp('-f', path.join(ROOT, 'framework', 'custom_rules.xml'), nestedCordovaLibPath);
         // Create an eclipse project file and set the name of it to something unique.
         // Without this, you can't import multiple xFaceLib projects into the same workspace.
         var eclipseProjectFilePath = path.join(nestedCordovaLibPath, '.project');
@@ -88,12 +89,7 @@ function copyJsAndLibrary(projectPath, shared, projectName) {
 
 function runAndroidUpdate(projectPath, target_api, shared) {
     var targetFrameworkDir = getFrameworkDir(projectPath, shared);
-    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"')
-    .then(function() {
-        // 由于`android update project`只有lib工程在开发工程目录下，才会更新lib工程相关配置参数，
-        // 故在shared为true的情况下，需要将local.properties拷贝到lib工程下
-        shared && shell.cp('-f', path.join(projectPath, 'local.properties'), targetFrameworkDir);
-    });
+    return exec('android update project --subprojects --path "' + projectPath + '" --target ' + target_api + ' --library "' + path.relative(projectPath, targetFrameworkDir) + '"');
 }
 
 function copyAntRules(projectPath) {
@@ -116,10 +112,11 @@ function copyScripts(projectPath) {
 }
 
 /**
- * 修改android工程的project.properties文件
- * 配置proguard混淆
+ * 在执行完'android update'命令之后，做一些其它操作
+ * 1. 修改android工程的project.properties文件，配置proguard混淆
+ * 2. 在非link方式下，拷贝proguard-project.txt
  */
-function modifyProjectProperties(androidProj, shared) {
+function afterAndroidUpdate(androidProj, shared) {
     var libProject = getFrameworkDir(androidProj, shared),
         propertiesFile = path.join(androidProj, 'project.properties'),
         content = fs.readFileSync(propertiesFile, 'utf-8'),
@@ -132,6 +129,18 @@ function modifyProjectProperties(androidProj, shared) {
         relativeProguardTxt = relativeProguardTxt.replace(/\\\\/g, '/').replace(/\\/g, '/');
         value += (':' + relativeProguardTxt);
         shell.sed('-i', /#?proguard.config=(.*)/, 'proguard.config=' + value, propertiesFile);
+    }
+
+    // 由于`android update project`只有lib工程在开发工程目录下，才会更新lib工程相关配置参数，
+    // 故在shared为true的情况下，需要将local.properties拷贝到lib工程下
+    shared && shell.cp('-f', path.join(androidProj, 'local.properties'), libProject);
+    //修改local.properties 增加lib.framework属性 供库模式编译使用
+    localPropertiesPath = path.join(androidProj, 'local.properties');
+    libProject = libProject.replace(/\\\\?/g, '/');
+    willWrite = '\nlib.framework=' + libProject;
+    fs.appendFileSync(localPropertiesPath, willWrite, 'utf-8');
+    if(!shared) {
+        shell.cp('-f', path.join(ROOT, 'framework', 'proguard-project.txt'), libProject);
     }
 }
 
@@ -235,12 +244,12 @@ exports.createProject = function(project_path, package_name, project_name, proje
         // Link it to local android install.
         return runAndroidUpdate(project_path, target_api, use_shared_project)
         .then(function() {
-            modifyProjectProperties(project_path, use_shared_project);
+            afterAndroidUpdate(project_path, use_shared_project);
         });
     }).then(function() {
         console.log('Project successfully created.');
     });
-}
+};
 
 // Attribute removed in Cordova 4.4 (CB-5447).
 function removeDebuggableFromManifest(projectPath) {
@@ -275,7 +284,7 @@ exports.updateProject = function(projectPath, use_shared_project) {
 
         return runAndroidUpdate(projectPath, target_api, use_shared_project)
         .then(function() {
-            modifyProjectProperties(projectPath, use_shared_project);
+            afterAndroidUpdate(projectPath, use_shared_project);
             console.log('Android project is now at version ' + version);
             console.log('If you updated from a pre-3.2.0 version and use an IDE, we now require that you import the "CordovaLib" library project.');
         });

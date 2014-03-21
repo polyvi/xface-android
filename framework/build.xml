@@ -20,7 +20,7 @@
 <project name="xFaceApollo" default="jar">
 
     <!-- LOAD VERSION -->
-    <loadfile property="version" srcFile="../VERSION">
+    <loadfile property="version" srcFile="../VERSIONX">
         <filterchain>
             <striplinebreaks/>
         </filterchain>
@@ -31,10 +31,10 @@
     <fail message="The required minimum version of ant is 1.8.0, you have ${ant.version}"
           unless="thisantversion" />
 
-    <!-- The local.properties file is created and updated by the 'android' 
+    <!-- The local.properties file is created and updated by the 'android'
          tool. (For example "sdkdir/tools/android update project -p ." inside
          of this directory where the AndroidManifest.xml file exists. This
-         properties file that gets built contains the path to the SDK. It 
+         properties file that gets built contains the path to the SDK. It
          should *NOT* be checked into Version Control Systems since it holds
          data about the local machine. -->
     <available file="local.properties" property="exists.local.properties" />
@@ -103,6 +103,8 @@
         <delete file="cordova-${version}.jar" failonerror="false" />
     </target>
 
+    <import file="custom_rules.xml" optional="true" />
+
     <!-- Import the actual build file.
 
          To customize existing targets, there are two options:
@@ -132,11 +134,11 @@
             excludes="org/apache/cordova/R.class,org/apache/cordova/R$*.class"
             jarfile="xFace-${version}.jar" />
     </target>
-    
+
     <target name="javadoc">
         <delete dir="javadoc-public" failonerror="false" />
         <javadoc
-            access="public" 
+            access="public"
             destdir="javadoc-public"
             classpath="${sdk.dir}/platforms/${target}/android.jar">
             <packageset dir="src">
@@ -145,7 +147,7 @@
         </javadoc>
         <delete dir="javadoc-private" failonerror="false" />
         <javadoc
-            access="private" 
+            access="private"
             destdir="javadoc-private"
             classpath="${sdk.dir}/platforms/${target}/android.jar">
             <packageset dir="src">
@@ -164,15 +166,6 @@
         <pathelement location="${test.dir}" />
     </path>
 
-    <target name="-pre-compile">
-     <property name="system.default.jar" refid="project.all.jars.path" />
-     <echo message="${system.default.jar}" />
-      <path id="project.all.jars.path">
-        <path path="${system.default.jar}" />
-        <pathelement location="jar/cert.jar"></pathelement> 
-     </path>
-    </target>
-    
     <target name="compile-test">
         <javac srcdir="${test.dir}" >
             <classpath refid="test.classpath" />

@@ -35,8 +35,6 @@
     <preference name="loadUrlTimeoutValue" value="20000" />
     <preference name="InAppBrowserStorageEnabled" value="true" />
     <preference name="disallowOverscroll" value="true" />
-    <!-- 配置splash显示的时间 单位ms -->
-    <preference name="SplashScreenDelay" value="0" />
     <!-- 配置splash是否自动隐藏 -->
     <preference name="AutoHideSplashScreen" value="true" />
     <!-- 工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先  -->

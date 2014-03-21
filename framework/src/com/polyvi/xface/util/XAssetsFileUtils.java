@@ -1,4 +1,3 @@
-
 /*
  Copyright 2012-2013, Polyvi Inc. (http://polyvi.github.io/openxface)
  This program is distributed under the terms of the GNU General Public License.
@@ -17,13 +16,15 @@
 
  You should have received a copy of the GNU General Public License
  along with xFace.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package com.polyvi.xface.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import android.content.Context;
 
@@ -33,13 +34,16 @@ public class XAssetsFileUtils {
 
     /**
      * 判断路径是否为目录
-     *
+     * 
      * @param context
      * @param filePath
      * @return
      * @throws IOException
      */
     public static boolean isDirectory(Context context, String filePath) {
+        if (!checkIfInAssets(context, filePath)) {
+            return false;
+        }
         try {
             context.getAssets().open(filePath);
         } catch (IOException e) {
@@ -50,14 +54,16 @@ public class XAssetsFileUtils {
 
     /**
      * 判断路径是否为文件
-     *
+     * 
      * @param context
      * @param filePath
      * @return
      * @throws IOException
      */
-    public static boolean isFile(Context context, String filePath)
-            throws IOException {
+    public static boolean isFile(Context context, String filePath) {
+        if (!checkIfInAssets(context, filePath)) {
+            return false;
+        }
         try {
             context.getAssets().open(filePath);
         } catch (IOException e) {
@@ -67,8 +73,40 @@ public class XAssetsFileUtils {
     }
 
     /**
+     * asset文件是否存在
+     * 
+     * @param context
+     * @param filePath
+     * @return
+     */
+    public static boolean checkIfInAssets(Context ctx, String assetName) {
+        if (assetName.startsWith(XConstant.ASSERT_PROTACAL)) {
+            assetName = assetName.substring(XConstant.ASSERT_PROTACAL.length());
+        }
+        List<String> mapList = null;
+        String root = "";
+        String[] fNames = assetName.split(File.separator);
+        for (int index = 0; index < fNames.length; index++) {
+            try {
+                mapList = Arrays.asList(ctx.getAssets().list(root));
+                if (!mapList.contains(fNames[index])) {
+                    return false;
+                }
+                if (root.equals("")) {
+                    root = fNames[index];
+                } else {
+                    root = root + File.separator + fNames[index];
+                }
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 递归的遍历assets目录
-     *
+     * 
      * @param context
      *            上下文环境
      * @param srcDir

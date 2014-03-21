@@ -53,6 +53,9 @@ module.exports.run = function(build_type) {
         case '--release' :
             args[0] = 'release';
             break;
+        case '--lib' :
+            args = ['lib', '-f', path.join(ROOT, 'build_lib.xml')];
+            break;
         case '--nobuild' :
             console.log('Skipping build...');
             return Q();
@@ -61,13 +64,27 @@ module.exports.run = function(build_type) {
     }
     // Without our custom_rules.xml, we need to clean before building.
     var ret = Q();
-    if (!hasCustomRules()) {
+    if (!hasCustomRules() || build_type == '--lib') {
         ret = require('./clean').run();
     }
     return ret.then(function() {
         return spawn('ant', args);
     });
-}
+};
+
+/*
+ * Gets the path to the lib that will be generated at bin/xFaceLib.zip, if not such file exists then
+ * the script will error out .
+ */
+module.exports.get_lib = function(){
+    var libPath = path.join(ROOT, 'bin', 'xFaceLib.zip');
+    if(!fs.existsSync(libPath)){
+        console.error('ERROR : unable to  locate xFaceLib.zip');
+        process.exit(2);
+    }
+    console.log('xFaceLib.zip generated:' + libPath);
+    return libPath;
+};
 
 /*
  * Gets the path to the apk file, if not such file exists then
@@ -103,6 +120,7 @@ module.exports.help = function() {
     console.log('Build Types : ');
     console.log('    \'--debug\': Default build, will build project in using ant debug');
     console.log('    \'--release\': will build project using ant release');
+    console.log('    \'--lib\': will build xFaceLib package using ant lib');
     console.log('    \'--nobuild\': will skip build process (can be used with run command)');
     process.exit(0);
 }

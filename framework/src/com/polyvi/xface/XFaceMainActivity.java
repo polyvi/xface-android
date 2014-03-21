@@ -23,7 +23,9 @@ package com.polyvi.xface;
 import java.io.IOException;
 
 import org.apache.cordova.CordovaActivity;
+import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 
 import android.app.Activity;
@@ -97,12 +99,11 @@ public class XFaceMainActivity extends CordovaActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         systemBoot();
-
     }
 
     /**
      * 初始化startapp
-     * 
+     *
      * @param appInfo
      *            startapp的信息
      * @return
@@ -131,23 +132,28 @@ public class XFaceMainActivity extends CordovaActivity implements
     }
 
     @Override
-    public void init() {
-        XAppWebView webView = null;
-        if (null == this.appView) {
-            webView = new XStartAppView(this);
-        } else {
-            webView = new XAppWebView(this);
-        }
+    protected CordovaWebView makeWebView() {;
+        XAppWebView  webView = this.appView == null ? new XStartAppView(this) : new XAppWebView(this);
+        mCurrentApp.setView(webView);
+        return webView;
+    }
+
+    @Override
+    protected CordovaWebViewClient makeWebViewClient(CordovaWebView webView) {
         CordovaWebViewClient webViewClient;
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
             webViewClient = new XWebViewClient(this, webView);
         } else {
             webViewClient = new XIceCreamWebViewClient(this, webView);
         }
+        return webViewClient;
+    }
+
+    @Override
+    protected CordovaChromeClient makeChromeClient(CordovaWebView webView) {
         XWebChromeClient chrom = new XWebChromeClient(this, webView);
         webView.setWebChromeClient(chrom);
-        this.init(webView, webViewClient, chrom);
-        mCurrentApp.setView(webView);
+        return chrom;
     }
 
     public XApplicationCreator getAppFactory() {
@@ -178,7 +184,7 @@ public class XFaceMainActivity extends CordovaActivity implements
 
     /**
      * 创建app安全策略
-     * 
+     *
      * @return 安全策略
      */
     protected XSecurityPolicy createSecurityPolicy() {
@@ -187,7 +193,7 @@ public class XFaceMainActivity extends CordovaActivity implements
 
     /**
      * 创建系统启动组件
-     * 
+     *
      * @return
      */
     protected XSystemBootstrap createSystemBootstrap() {
@@ -259,7 +265,7 @@ public class XFaceMainActivity extends CordovaActivity implements
 
     /**
      * 解析系统配置
-     * 
+     *
      * @throws IOException
      * @throws XTagNotFoundException
      */
@@ -446,5 +452,4 @@ public class XFaceMainActivity extends CordovaActivity implements
         };
         this.runOnUiThread(runnable);
     }
-
 }

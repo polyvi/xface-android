@@ -23,9 +23,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.LOG;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,11 +49,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.webkit.ValueCallback;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * This class is the main Android activity that represents the Cordova
@@ -64,7 +60,7 @@ import android.widget.LinearLayout;
  * html file that contains the application.
  *
  * As an example:
- * 
+ *
  * <pre>
  *     package org.apache.cordova.examples;
  *
@@ -81,8 +77,8 @@ import android.widget.LinearLayout;
  *       }
  *     }
  * </pre>
- * 
- * Cordova xml configuration: Cordova uses a configuration file at 
+ *
+ * Cordova xml configuration: Cordova uses a configuration file at
  * res/xml/config.xml to specify its settings. See "The config.xml File"
  * guide in cordova-docs at http://cordova.apache.org/docs for the documentation
  * for the configuration. The use of the set*Property() methods is
@@ -222,7 +218,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         {
             initCallbackClass = savedInstanceState.getString("callbackClass");
         }
-        
+
         if(!this.getBooleanProperty("ShowTitle", false))
         {
             getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -346,7 +342,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
         // Clear cancel flag
         this.cancelLoadUrl = false;
-        
+
     }
 
     /**
@@ -370,7 +366,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
                 this.showSplashScreen(this.splashscreenTime);
             }
         }
-        
+
         // Set backgroundColor
         this.backgroundColor = this.getIntegerProperty("BackgroundColor", Color.BLACK);
         this.root.setBackgroundColor(this.backgroundColor);
@@ -385,7 +381,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
             this.loadSpinner();
         }
         //Load the correct splashscreen
-        
+
         if(this.splashscreen != 0)
         {
             this.appView.loadUrl(url, this.splashscreenTime);
@@ -417,7 +413,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         this.showSplashScreen(this.splashscreenTime);
         this.appView.loadUrl(url, time);
     }
-    
+
     /*
      * Load the spinner
      */
@@ -709,12 +705,12 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         Config.init(this);
 
         LOG.d(TAG, "Resuming the App");
-        
+
 
         //Code to test CB-3064
         String errorUrl = this.getStringProperty("ErrorUrl", null);
         LOG.d(TAG, "CB-3064: The errorUrl is " + errorUrl);
-          
+
         if (this.activityState == ACTIVITY_STARTING) {
             this.activityState = ACTIVITY_RUNNING;
             return;
@@ -752,7 +748,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
             appView.handleDestroy();
         }
         else {
-            this.activityState = ACTIVITY_EXITING; 
+            this.activityState = ACTIVITY_EXITING;
         }
     }
 
@@ -959,7 +955,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     if (exit) {
-                                        me.endActivity();
+                                        me.postMessage("exit", "");
                                     }
                                 }
                             });
@@ -1065,7 +1061,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
                 root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
                 root.setBackgroundResource(that.splashscreen);
-                
+
                 // Create and show the dialog
                 splashDialog = new Dialog(that, android.R.style.Theme_Translucent_NoTitleBar);
                 // check to see if the splash screen should be full screen
@@ -1100,14 +1096,14 @@ public class CordovaActivity extends Activity implements CordovaInterface {
             return super.onKeyUp(keyCode, event);
     	}
     }
-    
+
     /*
      * Android 2.x needs to be able to check where the cursor is.  Android 4.x does not
-     * 
+     *
      * (non-Javadoc)
      * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
      */
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
@@ -1118,8 +1114,8 @@ public class CordovaActivity extends Activity implements CordovaInterface {
         else
             return super.onKeyDown(keyCode, event);
     }
-    
-    
+
+
     /**
      * Called when a message is sent to plugin.
      *
@@ -1167,7 +1163,7 @@ public class CordovaActivity extends Activity implements CordovaInterface {
     public ExecutorService getThreadPool() {
         return threadPool;
     }
-    
+
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
