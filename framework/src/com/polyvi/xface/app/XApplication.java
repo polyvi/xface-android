@@ -412,16 +412,6 @@ public class XApplication implements XIApplication {
     }
 
     /**
-     * 尝试显示app视图
-     */
-    public void tryShowView() {
-        // mSysContext.waitingDialogForAppStartFinished();
-        // if (!mSysContext.isSplashShowing()) {
-        // showView();
-        // }
-    }
-
-    /**
      * 启动监视器
      */
     public void startIdleWatcher(long interval, Runnable task) {
