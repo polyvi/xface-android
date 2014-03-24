@@ -360,7 +360,6 @@ public class XFaceMainActivity extends CordovaActivity implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.exit(0);
     }
 
     @Override
