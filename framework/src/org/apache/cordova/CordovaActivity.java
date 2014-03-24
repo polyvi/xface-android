@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.polyvi.xface.view.XStartAppView;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -363,7 +365,9 @@ public class CordovaActivity extends Activity implements CordovaInterface {
             this.splashscreen = this.getIntegerProperty("SplashScreen", 0);
             if(this.splashscreen != 0)
             {
-                this.showSplashScreen(this.splashscreenTime);
+            	if(this.appView instanceof XStartAppView){
+            		this.showSplashScreen(this.splashscreenTime);
+            	}
             }
         }
 
@@ -410,7 +414,9 @@ public class CordovaActivity extends Activity implements CordovaInterface {
 
         this.splashscreenTime = time;
         this.splashscreen = this.getIntegerProperty("SplashScreen", 0);
-        this.showSplashScreen(this.splashscreenTime);
+        if(this.appView instanceof XStartAppView){
+           	this.showSplashScreen(this.splashscreenTime);
+        }
         this.appView.loadUrl(url, time);
     }
 

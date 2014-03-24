@@ -23,6 +23,7 @@ package com.polyvi.xface.view;
 import java.io.File;
 
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.LOG;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -147,6 +148,28 @@ public class XAppWebView extends CordovaWebView implements
 		jsScript = jsScript.replaceAll("'", "\\\\'");
 		jsScript = jsScript.replaceAll("\"", "\\\\\"");
 		sendJavascript(jsScript);
+	}
+
+	@Override
+	public void loadUrlIntoView(String url, int time) {
+		  // If not first page of app, then load immediately
+        // Add support for browser history if we use it.
+        if ((url.startsWith("javascript:")) || this.canGoBack()) {
+        }
+
+        // If first page, then show splashscreen
+        else {
+
+            LOG.d(TAG, "loadUrlIntoView(%s, %d)", url, time);
+
+            // Send message to show splashscreen now if desired
+            if(this instanceof XStartAppView){
+            	this.postMessage("splashscreen", "show");
+            }
+        }
+
+        // Load url
+        this.loadUrlIntoView(url);
 	}
 
 	/**

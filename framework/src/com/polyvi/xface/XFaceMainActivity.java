@@ -327,7 +327,6 @@ public class XFaceMainActivity extends CordovaActivity implements
      */
     public void removeView(XAppWebView view) {
         if (view instanceof View) {
-
             root.removeView((View) view);
             View pView = root.getChildAt(root.getChildCount() - 1);
             if (pView != null && pView instanceof XAppWebView) {
@@ -380,6 +379,14 @@ public class XFaceMainActivity extends CordovaActivity implements
     }
 
     @Override
+	protected void showSplashScreen(int time) {
+		if(splashDialog != null && splashDialog.isShowing()){
+			return;
+		}
+		super.showSplashScreen(time);
+	}
+
+	@Override
     public Activity getActivity() {
         return this;
     }
@@ -392,64 +399,5 @@ public class XFaceMainActivity extends CordovaActivity implements
     @Override
     public CordovaInterface getCordovaInterface() {
         return this;
-    }
-
-    @Override
-    protected void showSplashScreen(final int time) {
-        if (mStartApp != null) {
-            // 如果不是startapp则不做操作返回
-            return;
-        } else if (splashDialog != null) {
-            // splash正在显示则不做操作返回
-            return;
-        }
-
-        final CordovaActivity that = this;
-        final int splashscreen = this.splashscreen;
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                // Get reference to display
-                Display display = getWindowManager().getDefaultDisplay();
-
-                // Create the layout for the dialog
-                LinearLayout root = new LinearLayout(that.getActivity());
-                root.setMinimumHeight(display.getHeight());
-                root.setMinimumWidth(display.getWidth());
-                root.setOrientation(LinearLayout.VERTICAL);
-                root.setBackgroundColor(that.getIntegerProperty(
-                        "backgroundColor", Color.BLACK));
-                root.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
-                root.setBackgroundResource(splashscreen);
-                if (null != mVersionText && null != mVersionParams) {
-                    root.addView(mVersionText, mVersionParams);
-                }
-
-                // Create and show the dialog
-                splashDialog = new Dialog(that,
-                        android.R.style.Theme_Translucent_NoTitleBar);
-                // check to see if the splash screen should be full screen
-                if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                        == WindowManager.LayoutParams.FLAG_FULLSCREEN) {
-                    splashDialog.getWindow().setFlags(
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                }
-                splashDialog.setContentView(root);
-                splashDialog.setCancelable(false);
-                splashDialog.show();
-
-                // Set Runnable to remove splash screen just in case
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        removeSplashScreen();
-                    }
-                }, time);
-            }
-        };
-        this.runOnUiThread(runnable);
     }
 }
