@@ -112,7 +112,9 @@ public class XAppWebView extends CordovaWebView implements
 	 * @param msgs
 	 */
 	private void handleMsgEvent(String msgs) {
-		// TODO
+	    String jsScript = "try{ cordova.require('cordova/channel').onMsgReceived.fire('"
+                + msgs + "');}catch(e){console.log('msg rcv : ' + e);}";
+	    sendJavascript(jsScript);
 	}
 
 	/**
@@ -121,7 +123,9 @@ public class XAppWebView extends CordovaWebView implements
 	 * @param callStatus
 	 */
 	private void handleCallReceived(int callStatus) {
-		// TODO
+	    String jsScript = "try{ cordova.require('cordova/channel').onCallReceived.fire('"
+                + callStatus + "');}catch(e){console.log('call rcv : ' + e);}";
+	    sendJavascript(jsScript);
 	}
 
 	/**

@@ -1375,6 +1375,48 @@ module.exports = {
         // Add hardware MENU and SEARCH button handlers
         cordova.addDocumentEventHandler('menubutton');
         cordova.addDocumentEventHandler('searchbutton');
+        /**
+         * 当短信到来时，会触发该事件（Android）<br/>
+         * @example
+                function onMessageReceived(msgs) {
+                    alert("短信长度：" + msgs.length);
+                }
+                document.addEventListener("messagereceived", onMessageReceived, false);
+         * @event messagereceived
+         * @for BaseEvent
+         * @param {xFace.Message[]} msgs 接收到的短信的数组
+         * @platform Android
+         * @since 3.0.0
+         */
+        channel.onMsgReceived = cordova.addDocumentEventHandler('messagereceived');
+        /**
+         * 当电话呼入时，会触发该事件（Android）<br/>
+         * @example
+                function onCallReceived(callStatus) {
+                    //callStatus是字符串需要转换成整形
+                    var callStatus = parseInt(CallStatus);
+                    switch(callStatus){
+                    case 0:
+                        alert("无状态(挂断)");
+                        break;
+                    case 1:
+                        alert("电话呼入，响铃中");
+                        break;
+                    case 2:
+                        alert("接听电话。。。。");
+                        break;
+                }
+                document.addEventListener("callreceived", onCallReceived, false);
+         * @event callreceived
+         * @for BaseEvent
+         * @param {String} CallStatus 接入状态信息.<br/>
+         *            0：无状态 （挂断）<br/>
+         *            1：电话拨入，响铃中<br/>
+         *            2：接听中
+         * @platform Android
+         * @since 3.0.0
+         */
+        channel.onCallReceived = cordova.addDocumentEventHandler('callreceived');
 
         // Let native code know we are all done on the JS side.
         // Native code will then un-hide the WebView.
