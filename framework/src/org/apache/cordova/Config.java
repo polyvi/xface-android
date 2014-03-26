@@ -109,10 +109,10 @@ public class Config {
                     /* Java 1.6 does not support switch-based strings
                        Java 7 does, but we're using Dalvik, which is apparently not Java.
                        Since we're reading XML, this has to be an ugly if/else.
-                       
-                       Also, due to cast issues, each of them has to call their separate putExtra!  
+
+                       Also, due to cast issues, each of them has to call their separate putExtra!
                        Wheee!!! Isn't Java FUN!?!?!?
-                       
+
                        Note: We should probably pass in the classname for the variable splash on splashscreen!
                        */
                     if (name.equalsIgnoreCase("LogLevel")) {
@@ -125,8 +125,8 @@ public class Config {
                         {
                             value = "splash";
                         }
-                        resource = action.getResources().getIdentifier(value, "drawable", action.getClass().getPackage().getName());
-                        
+                        resource = action.getResources().getIdentifier(value, "drawable", action.getPackageName());
+
                         action.getIntent().putExtra(name, resource);
                     }
                     else if(name.equalsIgnoreCase("BackgroundColor")) {
