@@ -39,7 +39,7 @@
     <preference name="AutoHideSplashScreen" value="true" />
     <!-- 工作目录设定策略，1：仅手机内存;2：仅外部存储（FlashROM及SD/TF扩展卡）;3：外部存储优先  -->
     <preference name="WorkDir" value="3" />
-    <preference name="EngineVersion" value="3.1.x" />
+    <preference name="EngineVersion" value="3.2.x" />
     <preference name="EngineBuild" value="12345" />
 
     <!-- This is required for native Android hooks -->
