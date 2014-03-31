@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,7 +73,6 @@ import com.polyvi.xface.util.XStringUtils;
 public class XHttpWorker {
 
     /** 检查网络连接的间隔时间 */
-    private static final int SERVER_CONNECT_TIMEOUT = 10000;
     private static final int DEFAULT_MAX_CONNECTIONS = 10;
     private static final int DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
     private static int maxConnections = DEFAULT_MAX_CONNECTIONS;
@@ -370,32 +367,6 @@ public class XHttpWorker {
      */
     public void addHeader(String header, String value) {
         mClientHeaderMap.put(header, value);
-    }
-
-    /**
-     * 检查指定url的服务器是否可用
-     *
-     * @param url
-     *            [in]
-     * @return
-     */
-    public static boolean isServerAccessable(String url) {
-        boolean usable = false;
-        try {
-            URL urlCon = new URL(url);
-            HttpURLConnection httpUrl = (HttpURLConnection) urlCon
-                    .openConnection();
-            httpUrl.setConnectTimeout(SERVER_CONNECT_TIMEOUT);
-            httpUrl.setReadTimeout(SERVER_CONNECT_TIMEOUT);
-            if (httpUrl.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                usable = true;
-                return usable;
-            }
-        } catch (IOException e) {
-            usable = false;
-            e.printStackTrace();
-        }
-        return usable;
     }
 
     /**
