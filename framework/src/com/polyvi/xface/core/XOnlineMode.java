@@ -31,7 +31,6 @@ import android.database.sqlite.SQLiteException;
 
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.app.XApplication;
-import com.polyvi.xface.http.XHttpWorker;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XFileVisitor;
@@ -88,12 +87,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
        if( hasAppCache( appUrl ) ) {
            policy.checkAppStart(app, this);
        } else {
-           if(XHttpWorker.isServerAccessable(appUrl)) {
-               //页面在服务器上，加载有可能比较慢 故设置参数true, 显示waiting loading框
-               app.loadAppIntoView( getAppUrl(app), true );
-           } else {
-               app.loadErrorPage();
-           }
+           app.loadAppIntoView( getAppUrl(app), true );
        }
      }
 
@@ -287,11 +281,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
     public void onCheckError(XApplication app, XISystemContext ctx) {
         String appUrl = getAppUrl(app);
         clearOfflineAppCache(appUrl);
-        if( XHttpWorker.isServerAccessable(appUrl) ) {
-            app.loadAppIntoView(appUrl);
-        } else {
-            app.loadErrorPage();
-        }
+        app.loadAppIntoView(appUrl);
     }
 
     @Override
