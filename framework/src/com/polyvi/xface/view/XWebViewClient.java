@@ -40,14 +40,11 @@ import android.webkit.ClientCertRequestHandler;
 import com.polyvi.xface.app.XApplication;
 import com.polyvi.xface.ssl.XSSLManager;
 import com.polyvi.xface.util.XConstant;
-import com.polyvi.xface.util.XLog;
 
 /**
  * 主要实现WebView提供的回调函数
  */
 public class XWebViewClient extends CordovaWebViewClient {
-    private static final String CLASS_NAME = XWebViewClient.class
-            .getSimpleName();
 
     public XWebViewClient(CordovaInterface cordova) {
         super(cordova);

@@ -29,17 +29,12 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.telephony.TelephonyManager;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -240,7 +235,7 @@ public class XFaceMainActivity extends CordovaActivity implements
         XConfiguration.getInstance()
                 .configWorkDirectory(this, getWorkDirName());
         XSystemBootstrap bootstrap = createSystemBootstrap();
-        new XPrepareWorkEnvronmentTask(bootstrap, this).execute();
+        new XPrepareWorkEnvronmentTask(bootstrap).execute();
     }
 
     /**
