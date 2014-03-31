@@ -22,14 +22,11 @@
 
 package com.polyvi.xface;
 
-import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.LOG;
 
 import com.polyvi.xface.core.XISystemContext;
-import com.polyvi.xface.util.XLog;
 
 import android.content.Context;
-import android.view.View.MeasureSpec;
 import android.widget.RelativeLayout;
 
 /**

@@ -31,12 +31,8 @@ public class XPrepareWorkEnvronmentTask extends AsyncTask<Void, Void, Void> {
 
     private XSystemBootstrap mBootstrap;
 
-    private XFaceMainActivity mActivity;
-
-    public XPrepareWorkEnvronmentTask(XSystemBootstrap bootstrap,
-            XFaceMainActivity activity) {
+    public XPrepareWorkEnvronmentTask(XSystemBootstrap bootstrap) {
         this.mBootstrap = bootstrap;
-        this.mActivity = activity;
     }
 
     /**

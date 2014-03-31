@@ -22,7 +22,6 @@
 package com.polyvi.xface.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
