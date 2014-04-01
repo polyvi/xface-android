@@ -68,6 +68,7 @@ public class XAppWebView extends CordovaWebView implements
         mViewId = XUtils.generateRandomId();
         mTouchEventHandler = new XTouchEventHandler();
         registerSystemEventReceiver();
+        getSettings().setUseWideViewPort(true);
     }
 
     private void setAppCachePath(String path) {
