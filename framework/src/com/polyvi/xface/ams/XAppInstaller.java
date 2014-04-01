@@ -488,7 +488,8 @@ public class XAppInstaller {
         String startAppDir = mSysContext.getStartApp().getAppInfo().getSrcRoot();
         File appDir = new File(XConfiguration.getInstance().getAppInstallDir(), appId);
         String indexDir = new File(appDir, app.getAppInfo().getEntry()).getParent();
-        if (app.getAppInfo().getEntry().toLowerCase().contains("http:")) {
+        String entry = app.getAppInfo().getEntry().toLowerCase();
+        if (entry.contains("http:") || entry.contains("https:")) {
             XLog.i(CLASS_NAME,
                     "Online mode, skip copying embedded js files");
             return;
