@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Base64;
+
 /**
  * 对字符串的处理工具类
  */
@@ -119,6 +121,25 @@ public class XStringUtils {
      */
     public static boolean isEmptyString(String str) {
         return null == str || "".equals(str);
+    }
+
+    /**
+     * Base64编码的字符串转成二进制字符串
+     *
+     * @param base64EncodedStr
+     * @return
+     */
+    public static String base64EncodedStrToBinaryStr(String base64EncodedStr) {
+        if (null == base64EncodedStr) {
+            XLog.e(CLASS_NAME, "base64EncodedStrToBinaryStr : params is null");
+            return null;
+        }
+        byte[] bytes = Base64.decode(base64EncodedStr, Base64.NO_WRAP);
+        char[] chars = new char[bytes.length];
+        for (int i = 0; i < bytes.length; ++i) {
+            chars[i] = (char) (bytes[i] & 0xFF);
+        }
+        return new String(chars);
     }
 
 }
