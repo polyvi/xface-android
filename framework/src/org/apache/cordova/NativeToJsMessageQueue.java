@@ -24,9 +24,6 @@ import java.util.LinkedList;
 
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.PluginResult;
-import org.json.JSONObject;
-
-import com.polyvi.xface.util.XStringUtils;
 
 import android.os.Message;
 import android.util.Log;
@@ -489,28 +486,28 @@ public class NativeToJsMessageQueue {
             } else {
                 int status = pluginResult.getStatus();
                 boolean success = (status == PluginResult.Status.OK.ordinal()) || (status == PluginResult.Status.NO_RESULT.ordinal());
-                String resultMessage = "";
-                switch (pluginResult.getMessageType()) {
-                    case PluginResult.MESSAGE_TYPE_BINARYSTRING:
-                        String binaryString = XStringUtils.base64EncodedStrToBinaryStr(pluginResult.getMessage());
-                        resultMessage = JSONObject.quote(binaryString);
-                        break;
-                    case PluginResult.MESSAGE_TYPE_ARRAYBUFFER:
-                        resultMessage = JSONObject.quote(pluginResult.getMessage());
-                        break;
-                    default:
-                        resultMessage = pluginResult.getMessage();
-                        break;
-                }
                 sb.append("cordova.callbackFromNative('")
                   .append(jsPayloadOrCallbackId)
                   .append("',")
                   .append(success)
                   .append(",")
                   .append(status)
-                  .append(",[")
-                  .append(resultMessage)
-                  .append("],")
+                  .append(",[");
+                switch (pluginResult.getMessageType()) {
+                    case PluginResult.MESSAGE_TYPE_BINARYSTRING:
+                        sb.append("atob('")
+                          .append(pluginResult.getMessage())
+                          .append("')");
+                        break;
+                    case PluginResult.MESSAGE_TYPE_ARRAYBUFFER:
+                        sb.append("cordova.require('cordova/base64').toArrayBuffer('")
+                          .append(pluginResult.getMessage())
+                          .append("')");
+                        break;
+                    default:
+                    sb.append(pluginResult.getMessage());
+                }
+                sb.append("],")
                   .append(pluginResult.getKeepCallback())
                   .append(");");
             }

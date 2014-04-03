@@ -1,5 +1,5 @@
 // Platform: android
-// 3.2.0-rc4
+// 3.3.0-dev-304cd59
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.2.0-rc4';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-dev-304cd59';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -436,6 +436,15 @@ var base64 = exports;
 base64.fromArrayBuffer = function(arrayBuffer) {
     var array = new Uint8Array(arrayBuffer);
     return uint8ToBase64(array);
+};
+base64.toArrayBuffer = function(str) {
+    var decodedStr = typeof atob != 'undefined' ? atob(str) : new Buffer(str,'base64').toString('binary');
+    var arrayBuffer = new ArrayBuffer(decodedStr.length);
+    var array = new Uint8Array(arrayBuffer);
+    for (var i=0, len=decodedStr.length; i < len; i++) {
+        array[i] = decodedStr.charCodeAt(i);
+    }
+    return arrayBuffer;
 };
 
 //------------------------------------------------------------------------------
