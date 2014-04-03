@@ -54,11 +54,11 @@ public class XStartAppView extends XAppWebView implements XISystemEventReceiver 
      * 注册事件接收器
      */
     private void registerSystemEventReceiver() {
-        XSystemEventCenter.getInstance().registerReceiver(this,
+    	mSystemCtx.getEventCenter().registerReceiver(this,
                 XEventType.XAPP_MESSAGE);
-        XSystemEventCenter.getInstance().registerReceiver(this,
+    	mSystemCtx.getEventCenter().registerReceiver(this,
                 XEventType.CLOSE_APP);
-        XSystemEventCenter.getInstance().registerReceiver(this,
+    	mSystemCtx.getEventCenter().registerReceiver(this,
                 XEventType.CLEAR_MEMORY_CACHE);
     }
 

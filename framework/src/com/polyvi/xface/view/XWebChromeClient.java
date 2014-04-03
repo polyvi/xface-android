@@ -32,6 +32,7 @@ import android.util.Pair;
 import android.webkit.JsPromptResult;
 import android.webkit.WebView;
 
+import com.polyvi.xface.XFaceMainActivity;
 import com.polyvi.xface.event.XEvent;
 import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.event.XSystemEventCenter;
@@ -39,30 +40,34 @@ import com.polyvi.xface.util.XLog;
 
 /**
  * 主要负责实现webview提供的回调函数
- * 
+ *
  */
 public class XWebChromeClient extends CordovaChromeClient {
+
+	private CordovaInterface mInterface;
 
 	private static final String CLASS_NAME = XWebChromeClient.class
 			.getSimpleName();
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param cordova
 	 */
 	public XWebChromeClient(CordovaInterface cordova) {
 		super(cordova);
+		mInterface = cordova;
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param ctx
 	 * @param app
 	 */
 	public XWebChromeClient(CordovaInterface ctx, CordovaWebView app) {
 		super(ctx, app);
+		mInterface = ctx;
 	}
 
 	@Override
@@ -77,7 +82,8 @@ public class XWebChromeClient extends CordovaChromeClient {
 			XAppWebView appView = ((XAppWebView) view);
 			int viewId = appView.getViewId();
 			XEvent evt = XEvent.createEvent(XEventType.CLOSE_APP, viewId);
-			XSystemEventCenter.getInstance().sendEventSync(evt);
+			((XFaceMainActivity) mInterface.getActivity()).getEventCenter()
+					.sendEventSync(evt);
 			result.confirm("");
 			return true;
 		} else if (reqOk && defaultValue != null
@@ -88,7 +94,8 @@ public class XWebChromeClient extends CordovaChromeClient {
 						(XAppWebView) view, args.getString(0));
 				XEvent evt = XEvent.createEvent(XEventType.XAPP_MESSAGE,
 						appMessage);
-				XSystemEventCenter.getInstance().sendEventSync(evt);
+				((XFaceMainActivity) mInterface.getActivity()).getEventCenter()
+				.sendEventSync(evt);
 			} catch (JSONException e) {
 				XLog.e(CLASS_NAME, "");
 				XLog.e(CLASS_NAME, e.getMessage());

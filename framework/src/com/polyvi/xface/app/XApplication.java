@@ -357,7 +357,7 @@ public class XApplication implements XIApplication {
     public void releaseData(Context context) {
         //发送清除webview的缓存的事件
         XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
-        XSystemEventCenter.getInstance().sendEventSync(evt);
+        mSysContext.getEventCenter().sendEventSync(evt);
         mRunningMode.clearAppData(this, context);
     }
 

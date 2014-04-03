@@ -80,18 +80,18 @@ public class XAppWebView extends CordovaWebView implements
     }
 
     private void registerSystemEventReceiver() {
-        XSystemEventCenter.getInstance().registerReceiver(this,
-                XEventType.MSG_RECEIVED);
-        XSystemEventCenter.getInstance().registerReceiver(this,
-                XEventType.CALL_RECEIVED);
-        XSystemEventCenter.getInstance().registerReceiver(this,
-                XEventType.PUSH_MSG_RECEIVED);
-        XSystemEventCenter.getInstance().registerReceiver(this,
-                XEventType.EXTERNAL_MESSAGE_RECEIVED);
+		mSystemCtx.getEventCenter().registerReceiver(this,
+				XEventType.MSG_RECEIVED);
+		mSystemCtx.getEventCenter().registerReceiver(this,
+				XEventType.CALL_RECEIVED);
+		mSystemCtx.getEventCenter().registerReceiver(this,
+				XEventType.PUSH_MSG_RECEIVED);
+		mSystemCtx.getEventCenter().registerReceiver(this,
+				XEventType.EXTERNAL_MESSAGE_RECEIVED);
     }
 
     private void unRegisterSystemEventReceiver() {
-        XSystemEventCenter.getInstance().unregisterReceiver(this);
+    	mSystemCtx.getEventCenter().unregisterReceiver(this);
     }
 
     @Override

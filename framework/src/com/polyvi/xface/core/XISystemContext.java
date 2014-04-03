@@ -30,6 +30,7 @@ import android.content.Context;
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.XStartParams;
 import com.polyvi.xface.app.XApplication;
+import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.view.XAppWebView;
 
 public interface XISystemContext {
@@ -45,7 +46,7 @@ public interface XISystemContext {
      */
     public Context getContext();
 
-  
+
     /**
      * 弹出Toast提示框
      */
@@ -86,4 +87,6 @@ public interface XISystemContext {
     public void unloadView(XAppWebView view);
 
     public CordovaInterface getCordovaInterface();
+
+    public XSystemEventCenter getEventCenter();
 }
