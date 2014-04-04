@@ -85,9 +85,9 @@ public class XPreInstallAppsTransferPolicy implements XISystemEventReceiver {
      * 注册转移预装app系统事件
      */
     private void registerSystemEventReceiver() {
-        XSystemEventCenter.getInstance().registerReceiver(this,
+    	mSysContext.getEventCenter().registerReceiver(this,
                 XEventType.TRANSFER_COMPLETE);
-        XSystemEventCenter.getInstance().registerReceiver(this,
+    	mSysContext.getEventCenter().registerReceiver(this,
                 XEventType.MD5_INVALID);
     }
 
@@ -152,7 +152,7 @@ public class XPreInstallAppsTransferPolicy implements XISystemEventReceiver {
                         mMd5Array.clear();
                         XEvent evt = XEvent.createEvent(
                                 XEventType.TRANSFER_COMPLETE, data);
-                        XSystemEventCenter.getInstance().sendEventAsync(evt);
+                        mSysContext.getEventCenter().sendEventAsync(evt);
                         XLog.d(CLASS_NAME, "Transfer app finish");
                     }
                 }
@@ -233,7 +233,7 @@ public class XPreInstallAppsTransferPolicy implements XISystemEventReceiver {
             @Override
             public void run() {
                 XEvent evt = XEvent.createEvent(XEventType.CLOSE_ENGINE);
-                XSystemEventCenter.getInstance().sendEventSync(evt);
+                mSysContext.getEventCenter().sendEventSync(evt);
             }
         };
         timer.schedule(task, 5000);

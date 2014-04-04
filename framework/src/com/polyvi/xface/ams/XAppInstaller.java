@@ -346,7 +346,7 @@ public class XAppInstaller {
         if (oldApp instanceof XApplication) {
             //发送清除webview缓存的事件
             XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
-            XSystemEventCenter.getInstance().sendEventSync(evt);
+            mSysContext.getEventCenter().sendEventSync(evt);
         }
 
         listener.onProgressUpdated(AMS_OPERATION_TYPE.OPERATION_TYPE_UPDATE,

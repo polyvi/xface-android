@@ -22,7 +22,7 @@ public class XExternalMessageBroadcastReceiver extends BroadcastReceiver {
 			String message = intent.getStringExtra(RECEIVE_EXTERNAL_MESSAGE);
 			XEvent evt = XEvent.createEvent(
 					XEventType.EXTERNAL_MESSAGE_RECEIVED, message);
-			XSystemEventCenter.getInstance().sendEventSync(evt);
+			((XFaceMainActivity)context).getEventCenter().sendEventSync(evt);
 		}
 	}
 

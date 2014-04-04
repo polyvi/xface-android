@@ -36,7 +36,7 @@ import android.os.Message;
 
 /**
  * 系统事件中心 处理系统事件的分发以及注册事件接收器
- * 
+ *
  */
 public class XSystemEventCenter {
     private static final String CLASS_NAME = XSystemEventCenter.class.getName();
@@ -45,30 +45,10 @@ public class XSystemEventCenter {
     private final Context mContext;
     private static final Object mLock = new Object();
     private final Handler mHandler;
-    private static XSystemEventCenter mInstance;
     private Map<Integer, ArrayList<XISystemEventReceiver>> mReceivers;
     private List<EventReceiverRecord> mEvtReceiverRecords;
 
-    public static XSystemEventCenter getInstance() {
-        if(null == mInstance) {
-            XLog.e(CLASS_NAME, "System Event Center not init!");
-        }
-        return mInstance;
-    }
-
-    /**
-     * 初始化XSystemEventCenter
-     * @param context
-     */
-    public static void init(Context context) {
-        synchronized (mLock) {
-            if (mInstance == null) {
-                mInstance = new XSystemEventCenter(context);
-            }
-        }
-    }
-
-    private XSystemEventCenter(Context context) {
+    public XSystemEventCenter(Context context) {
         mContext = context;
         mEvtReceiverRecords = new ArrayList<XSystemEventCenter.EventReceiverRecord>();
         mReceivers = new ConcurrentHashMap<Integer, ArrayList<XISystemEventReceiver>>();
@@ -90,7 +70,7 @@ public class XSystemEventCenter {
 
     /**
      * 表示等待执行的事件记录
-     * 
+     *
      */
     private static class EventReceiverRecord {
         public XEvent evt;
@@ -105,7 +85,7 @@ public class XSystemEventCenter {
 
     /**
      * 注册事件接收器
-     * 
+     *
      * @param receiver
      * @param evtType
      */
@@ -125,7 +105,7 @@ public class XSystemEventCenter {
 
     /**
      * 反注册事件接收器
-     * 
+     *
      * @param receiver
      */
     public void unregisterReceiver(XISystemEventReceiver receiver) {
@@ -155,7 +135,7 @@ public class XSystemEventCenter {
 
     /**
      * 发送事件(同步)
-     * 
+     *
      * @param evt
      */
     public void sendEventSync(XEvent evt) {
@@ -173,7 +153,7 @@ public class XSystemEventCenter {
 
     /**
      * 发送事件(异步)
-     * 
+     *
      * @param evt
      * @return
      */

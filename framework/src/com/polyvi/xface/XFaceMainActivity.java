@@ -89,6 +89,8 @@ public class XFaceMainActivity extends CordovaActivity implements
 
     private XApplication mCurrentApp;
 
+    private XSystemEventCenter mEventCenter;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,12 @@ public class XFaceMainActivity extends CordovaActivity implements
         systemBoot();
     }
 
-    /**
+    @Override
+	public XSystemEventCenter getEventCenter() {
+		return mEventCenter;
+	}
+
+	/**
      * 初始化startapp
      *
      * @param appInfo
@@ -161,7 +168,7 @@ public class XFaceMainActivity extends CordovaActivity implements
             XAppWebView xAppView = ((XAppWebView) appView);
             int viewId = xAppView.getViewId();
             XEvent evt = XEvent.createEvent(XEventType.CLOSE_APP, viewId);
-            XSystemEventCenter.getInstance().sendEventSync(evt);
+           mEventCenter.sendEventSync(evt);
             return true;
         } else if ("exit_engine".equals(id)) {
             endActivity();
@@ -174,7 +181,7 @@ public class XFaceMainActivity extends CordovaActivity implements
      * 初始化系统事件处理器
      */
     private void initSystemEventCenter() {
-        XSystemEventCenter.init(this);
+        mEventCenter = new XSystemEventCenter(this);
     }
 
     /**

@@ -128,7 +128,7 @@ public class XTransferSecurityPolicy implements XSecurityPolicy, XFileVisitor {
      */
     private void sendMd5InvalidEvt(XApplication app) {
         XEvent evt = new XEvent(XEventType.MD5_INVALID, app.getAppId());
-        XSystemEventCenter.getInstance().sendEventSync(evt);
+        mSysCtx.getEventCenter().sendEventSync(evt);
     }
 
     @Override
