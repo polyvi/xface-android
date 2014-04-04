@@ -87,3 +87,38 @@
  *  xFace library read the config.xml to change the way
  *  Fixed bug: phone call or message event has no reponse when portal receives them
  *  Update JS snapshot to version 3.3.0-dev (via xsrc)
+
+
+## 3.2.0 (Fri Apr 04 2014)
+
+
+ *  Update JS snapshot to version 3.2.0 (via xsrc)
+ *  去除event的单列模式，针对库模式可能出现多activity的模式
+ *  [CB-6388]Synchronize cordova:LOAD_URL Bridge fails to return binary data
+ *  Fix readAsArrayBuffer and readAsBinaryString can't work on LOAD_URL native to js mode
+ *  Fix optimization of installing app in online mode
+ *  Fix screen adaptation problem on Android 4.4
+ *  Optimize for installing app in online mode
+ *  xface/xface-test-appsissue 2:xFace crashed when load app in online mode at Android 4.4 version. Bug reason:Network on main thread exception at Android 4.4 version. Solution:Delete isServerAccessable method
+ *  Delete useless import statements
+ *  fix the xfaceLib bug of the splash is not show
+ *  polyvi/xface-mobile-specissue 21 Splash screen shows 'xFaceVersion:3.1.x',but it should show 3.2.x. Bug reason:config error in config.xml. Solution:modify engine version in config.xml
+ *  [Android]Add message and call received event handler
+ *  remove method System.exit(),fix xfaceLib bug
+ *  remove splash showing when children app is loaded by ams
+ *  remove unused code
+ *  Update JS snapshot to version 3.3.0-dev (via xsrc)
+ *  Update default app and resources.
+ *  [CB-6388]Synchronize cordova:LOAD_URL Bridge fails to return binary data
+ *  Fix readAsArrayBuffer and readAsBinaryString can't work on LOAD_URL native to js mode
+ *  Fix optimization of installing app in online mode
+ *  Fix screen adaptation problem on Android 4.4
+ *  Optimize for installing app in online mode
+ *  xface/xface-test-appsissue 2:xFace crashed when load app in online mode at Android 4.4 version. Bug reason:Network on main thread exception at Android 4.4 version. Solution:Delete isServerAccessable method
+ *  Delete useless import statements
+ *  polyvi/xface-mobile-specissue 21 Splash screen shows 'xFaceVersion:3.1.x',but it should show 3.2.x. Bug reason:config error in config.xml. Solution:modify engine version in config.xml
+ *  [Android]Add message and call received event handler
+ *  remove splash showing when children app is loaded by ams
+ *  remove unused code
+ *  fix the xfaceLib bug of the splash is not show
+ *  remove method System.exit(),fix xfaceLib bug
