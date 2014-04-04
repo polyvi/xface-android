@@ -208,6 +208,15 @@ public class XConfiguration {
                 .getLoadUrlTimeout();
     }
 
+    public boolean isAppTransferNeeded(){
+    	String transfer = mSysConfigInfo.getAppTransfer();
+    	if(null == transfer || null== mSysConfigInfo ){
+    		return false;
+    	}
+    	return mSysConfigInfo.getAppTransfer().equals("true");
+    }
+
+
     /**
      * 配置系统的工作目录
      *

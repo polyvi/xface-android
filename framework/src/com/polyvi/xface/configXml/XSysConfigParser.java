@@ -49,6 +49,7 @@ public class XSysConfigParser {
     private static final String ATTR_ENGINE_VERSION = "EngineVersion";
     private static final String ATTR_ENGINE_BUILD = "EngineBuild";
     private static final String ATTR_AUTO_HIDE_SPLASH = "AutoHideSplashScreen";
+    private static final String ATTR_APP_TRANSFER = "TransferApp";
 
     private XmlResourceParser mParser;
 
@@ -115,6 +116,10 @@ public class XSysConfigParser {
                         String engineBuild = mParser.getAttributeValue(null,
                                 ATTR_VALUE);
                         sysConfigInfo.setEngineBuild(engineBuild);
+                    }else if (name.equals(ATTR_APP_TRANSFER)) {
+                        String transfer = mParser.getAttributeValue(null,
+                                ATTR_VALUE);
+                        sysConfigInfo.setAppTransfer(transfer);
                     }
                 }
             }

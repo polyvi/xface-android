@@ -51,6 +51,8 @@ public class XSysConfigInfo {
     /** 加载应用时等待xface.js是否加载完成的时间 */
     private String mLoadUrlTimeout;
 
+    private String mAppTransfer;
+
     public List<XPreInstallPackageItem> getPreinstallPackages() {
         return mPreinstallPackages;
     }
@@ -118,6 +120,14 @@ public class XSysConfigInfo {
 
     public String getLoadUrlTimeout() {
         return mLoadUrlTimeout;
+    }
+
+    public String getAppTransfer(){
+    	return mAppTransfer;
+    }
+
+    public void setAppTransfer(String transfer){
+    	mAppTransfer = transfer;
     }
 
 }

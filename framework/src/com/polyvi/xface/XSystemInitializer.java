@@ -24,6 +24,7 @@ package com.polyvi.xface;
 import java.io.File;
 import java.io.IOException;
 
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -124,7 +125,9 @@ public class XSystemInitializer implements XSystemBootstrap,
         mActivity.runStartApp();
         mAms.markPortal(mActivity.getStartApp());
         // 后台转移预装应用
-        new XPreInstallAppsTransferPolicy(mAppList, mActivity).transfer();
+        if(XConfiguration.getInstance().isAppTransferNeeded()){
+            new XPreInstallAppsTransferPolicy(mAppList, mActivity).transfer();
+        }
     }
 
     /**
