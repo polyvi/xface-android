@@ -1627,6 +1627,7 @@ function handlePluginsObject(path, moduleList, finishPluginLoading) {
     for (var i = 0; i < moduleList.length; i++) {
         injectIfNecessary(moduleList[i].id, path + moduleList[i].file, scriptLoadedCallback);
     }
+}
 function findCordovaPath() {
     var path = null;
     var scripts = document.getElementsByTagName('script');
