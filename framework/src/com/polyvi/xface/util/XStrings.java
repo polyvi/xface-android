@@ -40,16 +40,6 @@ public class XStrings {
 
     public static String CONFIRM = "confirm";
 
-    public static String WAITING_MESSAGE_TITLE = "waiting_message_title";
-
-    public static String WAITING_MESSAGE_CONTENT = "waiting_message_content";
-
-    public static String CAN_NOT_FIND_HTML_MEAASGE = "can_not_find_html_message";
-
-    public static String NO_XFACE_JS_MESSAGE = "no_xface_js_message";
-
-    public static String SPLASH_LOAD_TEXT = "splash_load_text";
-
     public static String APP_CONFIG_ERROR = "app_config_error";
 
     public static String ENTRY_NOT_FOUND = "entry_not_found";
