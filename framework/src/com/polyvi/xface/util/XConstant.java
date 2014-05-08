@@ -79,9 +79,6 @@ public class XConstant {
     /** 存储应用数据的目录名称 */
     public static final String APP_DATA_DIR_NAME = "data";
 
-    /** 离线应用缓存路径 */
-    public static final String APP_CACHE_PATH = "app_cache";
-
     /** 预置应用包目录名称*/
     public static final String PRE_SET_APP_PACKAGE_DIR_NAME = "pre_set";
     /**加密数据包目录名称*/

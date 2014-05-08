@@ -29,7 +29,6 @@ import java.util.Iterator;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XLog;
 import com.polyvi.xface.util.XUtils;
 
@@ -41,23 +40,22 @@ public class XOnlineResourceIterator implements Iterator<byte[]>{
     private SQLiteDatabase mDatabase;
     private InputStream mNextInputStream;
 
-    public XOnlineResourceIterator(String appUrl, XIResourceFilter filter) {
+    public XOnlineResourceIterator(String appUrl, String pathToCacheDatabase, XIResourceFilter filter) {
         mFilter = filter;
         mCursorCount = 0;
-        initDatabase(appUrl);
+        initDatabase(appUrl, pathToCacheDatabase);
         mNextInputStream = traverseNext();
     }
 
     /**
      * 初始化数据库
      * @param appUrl[in]
+     * @param pathToCacheDatabase[in] 缓存数据库的路径
      */
-    private void initDatabase(String appUrl) {
-        String appCachePath = XConfiguration.getInstance().getSysDataDir()
-                    + XConstant.APP_CACHE_PATH + File.separator + XOnlineMode.OFFLINE_DATABASE_NAME;
-        File file = new File(appCachePath);
+    private void initDatabase(String appUrl, String pathToCacheDatabase) {
+        File file = new File(pathToCacheDatabase);
         if( file.exists() ) {
-            mDatabase = SQLiteDatabase.openOrCreateDatabase(appCachePath, null);
+            mDatabase = SQLiteDatabase.openOrCreateDatabase(pathToCacheDatabase, null);
             /**CacheEntries表结构实例
              * |RecNo  |cache  |type  |resource|
              * |      1|      1|     4|       1|

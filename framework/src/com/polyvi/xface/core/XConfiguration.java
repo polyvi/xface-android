@@ -411,8 +411,4 @@ public class XConfiguration {
         XStrings.getInstance().loadPlatformStrings(context);
     }
 
-    public String getOfflineCachePath() {
-        return getSysDataDir() + XConstant.APP_CACHE_PATH;
-    }
-
 }

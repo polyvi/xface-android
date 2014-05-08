@@ -21,11 +21,9 @@
 
 package com.polyvi.xface.core;
 
-import java.io.File;
 import java.util.Iterator;
 
 import android.content.Context;
-import android.webkit.WebSettings;
 
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.app.XAppInfo;
@@ -48,8 +46,6 @@ public abstract class XAppRunningMode {
     private static final String LOCAL_RUNNING_MODE = "local";
     /** 在线应用运行模式 */
     private static final String ONLINE_RUNNING_MODE = "online";
-    private static final int BUFFER_SIZE = 1024*1024*8;
-    protected static String mCachePath;
 
     /**
      * 根据配置串创建具体的运行模式对象
@@ -61,8 +57,6 @@ public abstract class XAppRunningMode {
         if (null == modeStr) {
             return null;
         }
-        //example: /mnt/sdcard/Android/data/com.paas.xface/applications/sys_data/app_cache
-        mCachePath = XConfiguration.getInstance().getSysDataDir() + XConstant.APP_CACHE_PATH;
         if (modeStr.equals(LOCAL_RUNNING_MODE)) {
             return new XLocalMode();
         }
@@ -100,25 +94,6 @@ public abstract class XAppRunningMode {
      * @return
      */
     public abstract RUNNING_MODE getRunningMode();
-
-    /**
-     * 设置appView，使其能够满足HTML5的offline功能
-     *
-     * @param settings
-     *            [in] appView的环境设置
-     *
-     */
-    public void setAppCachedPolicy(WebSettings settings) {
-        File file = new File(mCachePath);
-        if( !file.exists() ) {
-            file.mkdirs();
-        }
-        settings.setAppCachePath(mCachePath);
-        settings.setAppCacheMaxSize(BUFFER_SIZE);
-        settings.setAppCacheEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-    }
 
     /**
      * 清除app的缓存数据，例如online模式清除离线缓存数据及localStorage信息

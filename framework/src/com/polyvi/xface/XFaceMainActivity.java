@@ -318,7 +318,6 @@ public class XFaceMainActivity extends CordovaActivity implements
             this.init();
         }
         loadUrl(url);
-        app.setCachePolicy(this.appView.getSettings());
     }
 
     /**

@@ -316,10 +316,10 @@ public class CordovaWebView extends WebView {
 
         // Enable AppCache
         // Fix for CB-2282
-        settings.setAppCacheMaxSize(5 * 1048576);
         String pathToCache = this.cordova.getActivity().getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
         settings.setAppCachePath(pathToCache);
         settings.setAppCacheEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         // Fix for CB-1405
         // Google issue 4641
@@ -460,7 +460,7 @@ public class CordovaWebView extends WebView {
         // Create a timeout timer for loadUrl
         final CordovaWebView me = this;
         final int currentLoadUrlTimeout = me.loadUrlTimeout;
-        final int loadUrlTimeoutValue = Integer.parseInt(this.getProperty("LoadUrlTimeoutValue", "20000"));
+        final int loadUrlTimeoutValue = Integer.parseInt(this.getProperty("LoadUrlTimeoutValue", "50000"));
 
         // Timeout error method
         final Runnable loadError = new Runnable() {

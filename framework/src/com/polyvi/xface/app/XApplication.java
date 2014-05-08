@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import android.content.Context;
-import android.webkit.WebSettings;
 
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.XStartParams;
@@ -39,7 +38,6 @@ import com.polyvi.xface.core.XIdleWatcher;
 import com.polyvi.xface.core.XLocalMode;
 import com.polyvi.xface.event.XEvent;
 import com.polyvi.xface.event.XEventType;
-import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XStringUtils;
@@ -451,15 +449,6 @@ public class XApplication implements XIApplication {
             this.mAppView.setValid(false);
         }
         mAppView = null;
-    }
-
-    /**
-     * 设置缓存策略 不同的运行模式 有不同的策略
-     *
-     * @param settings
-     */
-    public void setCachePolicy(WebSettings settings) {
-        mRunningMode.setAppCachedPolicy(settings);
     }
 
     /**

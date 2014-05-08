@@ -21,8 +21,6 @@
 
 package com.polyvi.xface.view;
 
-import java.io.File;
-
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
 
@@ -31,12 +29,10 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.polyvi.xface.app.XApplication;
-import com.polyvi.xface.core.XConfiguration;
 import com.polyvi.xface.core.XISystemContext;
 import com.polyvi.xface.event.XEvent;
 import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.event.XISystemEventReceiver;
-import com.polyvi.xface.event.XSystemEventCenter;
 import com.polyvi.xface.util.XUtils;
 
 /**
@@ -64,19 +60,10 @@ public class XAppWebView extends CordovaWebView implements
     public XAppWebView(XISystemContext systemContext) {
         super(systemContext.getContext());
         mSystemCtx = systemContext;
-        setAppCachePath(XConfiguration.getInstance().getOfflineCachePath());
         mViewId = XUtils.generateRandomId();
         mTouchEventHandler = new XTouchEventHandler();
         registerSystemEventReceiver();
         getSettings().setUseWideViewPort(true);
-    }
-
-    private void setAppCachePath(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        getSettings().setAppCachePath(path);
     }
 
     private void registerSystemEventReceiver() {
