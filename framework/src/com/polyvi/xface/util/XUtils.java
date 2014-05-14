@@ -34,13 +34,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 /**
  * 提供一些工具方法
@@ -170,34 +170,33 @@ public class XUtils {
 
     /**
      * 用于判断设备是否是pad
+     *
      * @param context
-     * @return true 是pad
-     *         false 是phone
+     * @return true 是pad false 是phone
      */
     public static boolean isTablet(Context context) {
-        boolean xlarge = ((context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) == 4);
-        boolean large = ((context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
+        boolean xlarge = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == 4);
+        boolean large = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
         return (xlarge || large);
     }
 
     /**
-     * 解析指定路径的图片成bitmap格式
-     * 注意：解析没有用decodeFile/decodeStream是因为这两个函数解析大图片的时候
+     * 解析指定路径的图片成bitmap格式 注意：解析没有用decodeFile/decodeStream是因为这两个函数解析大图片的时候
      * 会导致ava.lang.OutOfMemoryError: bitmap size exceeds VM budget
-     * @param imagePath：图片路径
+     *
+     * @param imagePath
+     *            ：图片路径
      * @return 解析得到的Bitmap，如果解析不成功会返回null
      */
     public static Bitmap decodeBitmap(String imagePath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
-        /**设置禁止抖动图片*/
+        /** 设置禁止抖动图片 */
         options.inDither = false;
-        /**true：生成的bitmap会分配其像素以便当系统需要回收内存的时候可以被清除*/
+        /** true：生成的bitmap会分配其像素以便当系统需要回收内存的时候可以被清除 */
         options.inPurgeable = true;
-        /**如果inPurgeable为false，本参数会被忽略，true:引用输入数据，false:对输入数据进行深拷贝*/
+        /** 如果inPurgeable为false，本参数会被忽略，true:引用输入数据，false:对输入数据进行深拷贝 */
         options.inInputShareable = true;
-        /**解析图片用到的容量，本处16k*/
+        /** 解析图片用到的容量，本处16k */
         options.inTempStorage = new byte[16 * 1024];
         File file = new File(imagePath);
         FileInputStream fs = null;
@@ -205,7 +204,8 @@ public class XUtils {
         try {
             fs = new FileInputStream(file);
             if (fs != null) {
-                bitmap = BitmapFactory.decodeFileDescriptor(fs.getFD(), null, options);
+                bitmap = BitmapFactory.decodeFileDescriptor(fs.getFD(), null,
+                        options);
             }
         } catch (FileNotFoundException e) {
             XLog.e(CLASS_NAME, e.getMessage());
@@ -223,5 +223,21 @@ public class XUtils {
             }
         }
         return bitmap;
+    }
+
+    /**
+     * 判断网络是否可用
+     *
+     * @param activity
+     * @return
+     */
+    public static boolean isOnline(Activity activity) {
+        ConnectivityManager cm = (ConnectivityManager) activity
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
     }
 }

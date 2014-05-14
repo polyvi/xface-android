@@ -36,8 +36,6 @@ import com.polyvi.xface.core.XIResourceFilter;
 import com.polyvi.xface.core.XISystemContext;
 import com.polyvi.xface.core.XIdleWatcher;
 import com.polyvi.xface.core.XLocalMode;
-import com.polyvi.xface.event.XEvent;
-import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XStringUtils;
@@ -354,8 +352,7 @@ public class XApplication implements XIApplication {
      */
     public void releaseData(Context context) {
         //发送清除webview的缓存的事件
-        XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
-        mSysContext.getEventCenter().sendEventSync(evt);
+        this.clearCache(false);
         mRunningMode.clearAppData(this, context);
     }
 

@@ -52,6 +52,7 @@ import com.polyvi.xface.ssl.XSSLManager;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XLog;
 import com.polyvi.xface.util.XNotification;
+import com.polyvi.xface.util.XUtils;
 import com.polyvi.xface.view.XAppWebView;
 import com.polyvi.xface.view.XIceCreamWebViewClient;
 import com.polyvi.xface.view.XStartAppView;
@@ -134,7 +135,7 @@ public class XFaceMainActivity extends CordovaActivity implements
     }
 
     @Override
-    protected CordovaWebView makeWebView() {;
+    protected CordovaWebView makeWebView() {
         XAppWebView  webView = this.appView == null ? new XStartAppView(this) : new XAppWebView(this);
         mCurrentApp.setView(webView);
         return webView;
@@ -320,6 +321,17 @@ public class XFaceMainActivity extends CordovaActivity implements
         loadUrl(url);
     }
 
+    public void loadUrl(String url) {
+        if (this.appView == null) {
+            this.init();
+        }
+        if (mCurrentApp.getAppInfo().getRunModeConfig().equals("online")
+                && !XUtils.isOnline(this)) {
+            mCurrentApp.clearCache(false);
+        }
+        super.loadUrl(url);
+    }
+
     /**
      * 从Activity的content view中remove掉一个子视图
      *
@@ -379,14 +391,14 @@ public class XFaceMainActivity extends CordovaActivity implements
     }
 
     @Override
-	protected void showSplashScreen(int time) {
-		if(splashDialog != null && splashDialog.isShowing()){
-			return;
-		}
-		super.showSplashScreen(time);
-	}
+    protected void showSplashScreen(int time) {
+        if (splashDialog != null && splashDialog.isShowing()) {
+            return;
+        }
+        super.showSplashScreen(time);
+    }
 
-	@Override
+    @Override
     public Activity getActivity() {
         return this;
     }

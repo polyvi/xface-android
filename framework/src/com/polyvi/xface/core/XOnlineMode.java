@@ -27,13 +27,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 
 import com.polyvi.xface.XSecurityPolicy;
 import com.polyvi.xface.app.XApplication;
-import com.polyvi.xface.event.XEvent;
-import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XFileVisitor;
@@ -80,10 +76,7 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
             XLog.d(CLASS_NAME, "appUrl is null");
             return;
         }
-        if (hasAppCache(appUrl, app) && !isOnline(app)) {
-            // 有缓存并且无网络时，发送清理http缓存的事件，加载离线缓存资源
-            XEvent evt = new XEvent(XEventType.CLEAR_MEMORY_CACHE);
-            app.getSystemContext().getEventCenter().sendEventSync(evt);
+        if (hasAppCache(appUrl, app)) {
             policy.checkAppStart(app, this);
         } else {
             app.loadAppIntoView(getAppUrl(app), true);
@@ -344,19 +337,4 @@ public class XOnlineMode extends XAppRunningMode implements XAppCheckListener {
         return url + append;
     }
 
-    /**
-     * 判断网络是否可用
-     *
-     * @param app
-     * @return
-     */
-    private boolean isOnline(XApplication app) {
-        ConnectivityManager cm = (ConnectivityManager) app.getSystemContext()
-                .getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-            return true;
-        }
-        return false;
-    }
 }

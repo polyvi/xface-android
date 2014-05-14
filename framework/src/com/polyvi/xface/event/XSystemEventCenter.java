@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.polyvi.xface.util.XLog;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -39,11 +37,9 @@ import android.os.Message;
  *
  */
 public class XSystemEventCenter {
-    private static final String CLASS_NAME = XSystemEventCenter.class.getName();
 
     static final int MSG_EXEC_PENDING_EVENT = 1;
     private final Context mContext;
-    private static final Object mLock = new Object();
     private final Handler mHandler;
     private Map<Integer, ArrayList<XISystemEventReceiver>> mReceivers;
     private List<EventReceiverRecord> mEvtReceiverRecords;

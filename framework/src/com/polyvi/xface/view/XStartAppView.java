@@ -35,7 +35,6 @@ import com.polyvi.xface.core.XISystemContext;
 import com.polyvi.xface.event.XEvent;
 import com.polyvi.xface.event.XEventType;
 import com.polyvi.xface.event.XISystemEventReceiver;
-import com.polyvi.xface.event.XSystemEventCenter;
 
 public class XStartAppView extends XAppWebView implements XISystemEventReceiver {
 
