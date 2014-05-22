@@ -26,6 +26,7 @@
     </pre_install_packages>
 
     <!-- Preferences for Android -->
+    <preference name="AndroidLaunchMode" value="singleTop" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
