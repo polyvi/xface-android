@@ -30,7 +30,6 @@
     <preference name="loglevel" value="DEBUG" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
-    <preference name="loadingDialog" value="please waiting...."/>
     <preference name="splashscreen" value="splash" />
     <preference name="backgroundColor" value="0xFFF" />
     <preference name="loadUrlTimeoutValue" value="20000" />
