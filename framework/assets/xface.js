@@ -1,5 +1,5 @@
 // Platform: android
-// 3.5.0-dev-81f9a00
+// 3.3.0-rc1
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.5.0-dev-81f9a00';
+var CORDOVA_JS_BUILD_LABEL = '3.3.0-rc1';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -437,6 +437,7 @@ base64.fromArrayBuffer = function(arrayBuffer) {
     var array = new Uint8Array(arrayBuffer);
     return uint8ToBase64(array);
 };
+
 base64.toArrayBuffer = function(str) {
     var decodedStr = typeof atob != 'undefined' ? atob(str) : new Buffer(str,'base64').toString('binary');
     var arrayBuffer = new ArrayBuffer(decodedStr.length);
@@ -1734,6 +1735,7 @@ function handlePluginsObject(path, moduleList, finishPluginLoading) {
         injectIfNecessary(moduleList[i].id, path + moduleList[i].file, scriptLoadedCallback);
     }
 }
+
 function findCordovaPath() {
     var path = null;
     var scripts = document.getElementsByTagName('script');
@@ -1766,7 +1768,7 @@ function findCordovaPath() {
 exports.load = function(callback) {
     var pathPrefix = findCordovaPath();
     if (pathPrefix === null) {
-        console.log('Could not find cordova.js script tag. Plugin loading may fail.');
+        console.log('Could not find xface.js script tag. Plugin loading may fail.');
         pathPrefix = '';
     }
     injectIfNecessary('cordova/plugin_list', pathPrefix + 'cordova_plugins.js', function() {
