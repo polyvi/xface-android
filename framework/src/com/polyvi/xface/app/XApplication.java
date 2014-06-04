@@ -342,7 +342,9 @@ public class XApplication implements XIApplication {
      * @param includeDiskFile 是否包含磁盘文件
      */
     public void clearCache(boolean includeDiskFile) {
-        mAppView.clearCache(includeDiskFile);
+        if (null != mAppView) {
+            mAppView.clearCache(includeDiskFile);
+        }
     }
 
     /**
