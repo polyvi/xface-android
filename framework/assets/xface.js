@@ -898,7 +898,7 @@ var cordova = require('cordova'),
         PRIVATE_API: 3
     },
     jsToNativeBridgeMode,  // Set lazily.
-    nativeToJsBridgeMode = nativeToJsModes.LOAD_URL,
+    nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT,
     pollEnabled = false,
     messagesFromNative = [];
 
