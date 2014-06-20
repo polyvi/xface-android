@@ -87,3 +87,15 @@
  *  xFace library read the config.xml to change the way
  *  Fixed bug: phone call or message event has no reponse when portal receives them
  *  Update JS snapshot to version 3.3.0-dev (via xsrc)
+
+
+## 3.3.0 (Fri Jun 20 2014)
+
+
+ *  Update JS snapshot to version 3.3.0 (via xsrc)
+ *  解决自动测试AMS能力时，卸载app时，appview为null还继续clearCache造成的崩溃问题
+ *  修改桥接模式为ONLINE_EVENT(同cordova一致)，以解决input标签在非全屏模式下无法使用的问题
+ *  Update JS snapshot to version 3.4.0-dev (via xsrc)
+ *  Set VERSION to 3.4.0-dev (via xsrc)
+ *  解决自动测试AMS能力时，卸载app时，appview为null还继续clearCache造成的崩溃问题
+ *  修改桥接模式为ONLINE_EVENT(同cordova一致)，以解决input标签在非全屏模式下无法使用的问题
