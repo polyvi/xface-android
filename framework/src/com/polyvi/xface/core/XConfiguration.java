@@ -317,8 +317,6 @@ public class XConfiguration {
             xface3Dir.mkdirs();
             // 修改文件夹的权限为其它用户可执行
             XFileUtils.setPermission(XFileUtils.EXECUTABLE_BY_OTHER, workDir);
-            XFileUtils.setPermissionUntilDir(XFileUtils.EXECUTABLE_BY_OTHER,
-                    xface3Dir.getAbsolutePath(), "/");
         }
         return workDir;
     }
